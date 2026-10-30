@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+testes/_tmp/
+teste-real/
+exemplo-teste.mp4
+*_edicao/
+.pacote/
+
+# bibliotecas: arquivos baixados (o catálogo fica no Git)
+biblioteca/musicas/arquivos/
+*.part
