@@ -144,6 +144,8 @@ Base: `/mnt/project-files/girahub-instagram/conhecimento/algoritmo-e-trends.md` 
 - Áudio: use o padrão conservador do editor (ver Referência). Gravou dentro do terreiro com eco ou atabaque ao fundo: `denoise_db` 6 a 8 e avise; não tente "limpar" o som da gira.
 
 ### Fase 5: conferência (obrigatória)
+**Bordas:** nenhum quadro pode mostrar borda esticada, espelhada ou preta (pixel da beira repetido em faixa). Ao conferir os quadros, olhe as quatro bordas, principalmente em vídeo feito na mão; o render acusa "borda esticada" e esse aviso nunca vai para entrega. Nunca entregue com borda esticada.
+
 `renderizar --rapido`, abra previa.jpg e extraia quadros em cada transição e elemento (`ffmpeg -ss <seg> -i <saida>.mp4 -frames:v 1 q.jpg`). Confira:
 - primeiro quadro já com texto do gancho; vinheta do ticket GiraHub (não a do @pontes_brain), ticket âmbar;
 - só cores da paleta terra e só pares de contraste aprovados; nada de indigo fora dos prints;

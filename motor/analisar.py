@@ -24,14 +24,37 @@ def normalizar(src, dst, estabilizar=False):
     if v.get("color_transfer") in ("arib-std-b67", "smpte2084"):  # HDR do iPhone
         vf.append("zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=hable:desat=0,"
                   "zscale=t=bt709:m=bt709:r=tv")
-    if estabilizar:  # vídeo de mão (dia a dia): tira o tremor; o zoom leve do enquadre esconde as bordas
-        vf.append("deshake=rx=48:ry=48:edge=clamp")
+    if estabilizar:  # vídeo de mão (dia a dia): tira o tremor em duas passadas (vid.stab). O zoom adaptativo
+        # (optzoom=2) aproxima só o necessário em cada trecho para nenhuma borda aparecer; nunca estica a borda.
+        trf = Path(dst).with_suffix(".trf")
+        sh(["ffmpeg", "-y", "-i", str(src), "-vf", ",".join(vf + [f"vidstabdetect=shakiness=6:accuracy=12:result={trf}"]),
+            "-f", "null", "-"])
+        vf.append(f"vidstabtransform=input={trf}:smoothing=18:optzoom=2:zoomspeed=0.2:crop=black:interpol=bicubic")
     vf += [f"fps={FPS}", "scale='if(gt(iw,ih),min(1920,iw),-2)':'if(gt(iw,ih),-2,min(1920,ih))'", "format=yuv420p"]
     sh(["ffmpeg", "-y", "-fflags", "+genpts", "-i", str(src), "-vf", ",".join(vf),
         "-c:v", "libx264", "-preset", "fast", "-crf", "14", "-g", "30",
         "-af", "aresample=48000:async=1", "-ac", "1", "-c:a", "pcm_s16le",
         "-avoid_negative_ts", "make_zero", str(dst)])
 
+
+
+def conferir_estabilizado(cfr, passo=15):
+    """Depois de estabilizar, nenhum quadro pode ter faixa sem imagem na borda (a estabilização preenche com preto)."""
+    from .qa import borda_ruim
+    cap, i, ruins = cv2.VideoCapture(str(cfr)), 0, []
+    while True:
+        ok = cap.grab()
+        if not ok:
+            break
+        if i % passo == 0:
+            _, f = cap.retrieve()
+            if borda_ruim(f):
+                ruins.append(round(i / FPS, 1))
+        i += 1
+    if ruins:
+        print(f"  AVISO: borda sem imagem depois de estabilizar em {len(ruins)} ponto(s) (ex.: {ruins[:5]} s). "
+              "O render acusa \"borda esticada\"; não entregue assim.", flush=True)
+    return ruins
 
 def juntar_clipes(srcs, pasta, dst, estabilizar=False):
     """Vários vídeos do dia a dia em sequência: normaliza cada um e emenda num único arquivo no tamanho
@@ -200,6 +223,8 @@ def cmd_analisar(a):
         else:
             clipes = juntar_clipes(srcs, pasta, cfr, a.estabilizar)
         json.dump(dict(receita, clipes=clipes), open(rp, "w"), ensure_ascii=False, indent=1)
+        if a.estabilizar:
+            conferir_estabilizado(cfr)
     _, dur = probe(cfr)
     clipes = clipes or [{"arquivo": src.name, "ini": 0.0, "fim": round(dur, 3)}]
     cache = pasta / f"palavras_{Path(a.modelo).name}.json"  # --modelo pode ser uma pasta local com o modelo

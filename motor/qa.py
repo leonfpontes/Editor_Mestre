@@ -11,6 +11,9 @@ O resultado vai para o terminal e para conferencia.json, ao lado do final.mp4.
 """
 import json
 
+import cv2
+import numpy as np
+
 from .audio import medir_audio
 from .diretor import nota_gancho
 
@@ -72,7 +75,7 @@ def agrupar(avisos, folga=0.6):
         else:
             lst.append([t, t])
     return [{"problema": p, "onde": r, "de": round(a, 2), "ate": round(b, 2)}
-            for (p, r), lst in sorted(out.items()) for a, b in lst if b - a >= 0.2 or p == "fora da área segura"]
+            for (p, r), lst in sorted(out.items()) for a, b in lst if b - a >= 0.2 or p in ("fora da área segura", "borda esticada")]
 
 
 DICAS = {
@@ -80,6 +83,8 @@ DICAS = {
     "cobre o rosto": "suba o elemento (y menor), mande para o lado ou use o plano dividido",
     "legenda em cima do rosto": "desça a legenda (legendas.posicao_y) ou suba o enquadramento",
     "legenda brigando com elemento": "mova o elemento ou a legenda; os dois não podem dividir o mesmo espaço",
+    "borda esticada": "a imagem saiu da fonte (estabilização ou enquadramento): refaça o analisar com --estabilizar atualizado "
+                      "ou tire o zoom/tremor desse trecho. Nunca entregue com este aviso",
     "legenda sem contraste": "use o estilo marcada, um look mais escuro ou suba a legenda para uma área escura",
 }
 
@@ -130,3 +135,16 @@ def relatorio(ctx, final, avisos):
         dica = DICAS.get(p["problema"], "")
         print(f"  - {p['problema']}: {p['onde']} ({p['de']:.1f}s a {p['ate']:.1f}s)" + (f". {dica}" if dica else ""))
     return probs
+
+
+def borda_ruim(quadro, minimo=6):
+    """Faixa preta na borda do quadro-base: área que a estabilização não cobriu (ela preenche com preto, nunca estica a
+    borda). Devolve [(lado, largura em px)]. Vazio = bordas limpas."""
+    g = cv2.cvtColor(quadro, cv2.COLOR_BGR2GRAY)
+    achados = []
+    for lado, linhas in (("esquerda", g.T), ("direita", g.T[::-1]), ("topo", g), ("base", g[::-1])):
+        preta = linhas[:200].max(axis=1) < 14
+        n = int(np.argmin(preta)) if not preta.all() else len(preta)
+        if n >= minimo:
+            achados.append((lado, n))
+    return achados

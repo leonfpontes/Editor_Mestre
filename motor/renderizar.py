@@ -17,7 +17,7 @@ import numpy as np
 from . import __version__
 from .audio import gerar_sfx, loudnorm_2a, medir_loudnorm, mixar_eventos, modo_sons, som_padrao
 from .bibliotecas import musica_do_edl, som
-from .camera import Camera, Rosto, matriz_enquadre, transicao, zoom_em
+from .camera import Camera, Rosto, borda_exposta, matriz_enquadre, transicao, zoom_em
 from .config import BIBLIOTECA, FORMATOS, FPS
 from .cor import aplicar_cor, aplicar_lut3d, ler_cube, lut_clipe, lut_cor, tabela_lut3d
 from .elementos import Elementos
@@ -29,7 +29,7 @@ from .legendas import Legendas
 from .marca import CFG, CORES, ErroDeMarca, ativar, logo_marca, padrao, registrar, tem_logo
 from .perspectiva import bolha
 from .planos import Palco, compor, legenda_y
-from .qa import AMOSTRA, conferir_quadro, relatorio
+from .qa import AMOSTRA, borda_ruim, conferir_quadro, relatorio
 from .segmentacao import Segmentador
 from .util import bgr, sh, tem_audio
 from .vinhetas import cartao_cta, quadro_intro
@@ -345,6 +345,8 @@ class Trecho:
             com_fundo = tipo_fundo != "original"
             precisa_m = com_fundo or precisa_recorte(look) or atras
             base = cv2.warpAffine(f, M, (W, H), flags=c.interp, borderMode=cv2.BORDER_REPLICATE)
+            if borda_exposta(M, c.w0, c.h0, W, H) or (fi % (AMOSTRA * 2) == 0 and borda_ruim(base)):
+                self.avisos.append(("borda esticada", "enquadramento", t_out))  # nunca entregue com borda fora da imagem
             m = None
             if precisa_m:
                 alfa, frente = self.recorte(fi, f, com_fundo)

@@ -72,6 +72,10 @@
 
 ### Mudou
 
+- **Nunca borda esticada**: a estabilização (`--estabilizar`) passou do `deshake` com borda esticada para o vid.stab
+  em duas passadas com zoom adaptativo (aproxima só o necessário, nunca estica a borda); o enquadramento não sai mais
+  da fonte (a respiração do zoom ficava abaixo de 1 e o tremor do punch passava da borda); o efeito `tremor` e os fundos
+  aproximam em vez de espelhar. O `analisar` confere o vídeo estabilizado e o render reprova "borda esticada".
 - Correções da legenda valem com pontuação colada ("echu," vira "Exu,").
 - Ajustes do primeiro teste com vídeos reais:
   - "um" e "uma" não contam mais como número no diretor ("um vídeo" não é número concreto);

@@ -69,6 +69,9 @@ verdade, em `previa.mp4`. Serve para conferir um ajuste do EDL em segundos. Não
 
 Todo render (menos `--so-audio` e `--sem-conferencia`) confere um quadro a cada 5 e grava `conferencia.json`:
 
+- **borda esticada**: o quadro mostra fora da fonte (enquadramento) ou uma faixa sem imagem na borda (estabilização).
+  É erro que nunca vai para entrega: o enquadramento já é travado dentro da fonte e o `--estabilizar` aproxima em vez de
+  esticar; se o aviso aparecer, ache a causa antes de seguir;
 - elemento ou legenda fora da área segura do Reels: 5–95% na largura, 9–80% na altura e longe dos botões à direita;
 - elemento cobrindo o rosto (no plano `rosto`);
 - legenda em cima do rosto ou brigando com um elemento;

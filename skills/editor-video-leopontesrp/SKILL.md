@@ -144,7 +144,9 @@ A identidade já está em `marcas/leopontesrp/marca.json`. Sempre rode `analisar
     - Entra na palavra que justifica (`na`) e sai quando a ideia acaba (`ate`). No máximo 1 texto na tela além da legenda.
 13. **Legendas**: ligadas quando há fala. Revise a transcrição e preencha `correcoes` (nomes de pessoas e lugares, "por que" e "porque"). Marque em `enfase` de 2 a 4 palavras que carregam o sentimento do vídeo. Sem fala, ficam desligadas.
 
-### Fase 4: imagem e som
+#**Bordas:** nenhum quadro pode mostrar borda esticada, espelhada ou preta (pixel da beira repetido em faixa). Ao conferir os quadros, olhe as quatro bordas, principalmente em vídeo feito na mão; o render acusa "borda esticada" e esse aviso nunca vai para entrega. Nunca entregue com borda esticada.
+
+## Fase 4: imagem e som
 14. **Fundo**: sempre `original`. É vida real; não troque o fundo nem recorte a pessoa.
 15. **Cor natural**: o padrão (`contraste` 1.03, `saturacao` 1.04, `calor` 0.02) só dá uma leve vida. Pele azulada ou dia nublado pede `calor` 0.04 a 0.06; contraluz lavado pede `contraste` 1.06 a 1.08. Nunca passe de `saturacao` 1.1: nada de filtro "Instagram". Os clipes de um mesmo vídeo devem parecer do mesmo dia; se um destoar muito, avise no resumo.
 16. **Estabilidade**: vídeo de mão tremido pede `--estabilizar` na análise. Se depois de estabilizado algum trecho ainda balançar demais, corte-o.
