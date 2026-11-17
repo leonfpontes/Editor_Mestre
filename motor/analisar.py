@@ -8,6 +8,7 @@ import numpy as np
 
 from . import __version__
 from .config import FPS, MODELOS
+from .cor import igualar_clipes
 from .diretor import aplicar as aplicar_diretor
 from .diretor import dirigir, resumo_diretor
 from .estilos import PRESETS
@@ -213,8 +214,9 @@ def cmd_analisar(a):
     rosto = rastrear_rosto(cfr)
     if len(clipes) > 1:
         rosto = rosto_por_clipe(rosto, clipes)
-    json.dump({"marca": CFG["id"], "editor": __version__, "duracao": dur, "palavras": palavras, "rosto": rosto, "clipes": clipes},
-              open(pasta / "analise.json", "w"), ensure_ascii=False)
+    cor_clipes = igualar_clipes(cfr, clipes) if len(clipes) > 1 else None
+    json.dump({"marca": CFG["id"], "editor": __version__, "duracao": dur, "palavras": palavras, "rosto": rosto, "clipes": clipes,
+               "cor_clipes": cor_clipes}, open(pasta / "analise.json", "w"), ensure_ascii=False)
     estilo = getattr(a, "estilo", None)
     silencio = PRESETS[estilo]["edl"].get("corte_pausa_max", 0.35) if estilo else 0.35
     edl = rascunho_edl(cfr, palavras, silencio_min=silencio, dur=dur, clipes=clipes)

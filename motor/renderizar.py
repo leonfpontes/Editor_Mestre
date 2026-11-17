@@ -18,8 +18,8 @@ from . import __version__
 from .audio import gerar_sfx, loudnorm_2a, medir_loudnorm, mixar_eventos, modo_sons, som_padrao
 from .bibliotecas import musica_do_edl, som
 from .camera import Camera, Rosto, matriz_enquadre, transicao, zoom_em
-from .config import FORMATOS, FPS
-from .cor import aplicar_cor, lut_cor
+from .config import BIBLIOTECA, FORMATOS, FPS
+from .cor import aplicar_cor, aplicar_lut3d, ler_cube, lut_clipe, lut_cor, tabela_lut3d
 from .elementos import Elementos
 from .estilos import aplicar_estilo, aplicar_look, precisa_recorte
 from .fundo import FundoMarca
@@ -29,6 +29,7 @@ from .legendas import Legendas
 from .marca import CFG, CORES, ErroDeMarca, ativar, logo_marca, padrao, registrar, tem_logo
 from .perspectiva import bolha
 from .planos import Palco, compor, legenda_y
+from .qa import AMOSTRA, conferir_quadro, relatorio
 from .segmentacao import Segmentador
 from .util import bgr, sh, tem_audio
 from .vinhetas import cartao_cta, quadro_intro
@@ -138,11 +139,16 @@ def resolver_caminhos(edl, pasta):
 class Contexto:
     """Tudo o que o render precisa, montado a partir do EDL. Cada processo de render monta o seu (determinístico)."""
 
-    def __init__(self, edl_p, falar=True, rapido=False):
+    def __init__(self, edl_p, falar=True, rapido=False, formato=None):
         edl_p = Path(edl_p).resolve()
         self.interp = cv2.INTER_LINEAR if rapido else cv2.INTER_CUBIC  # rápido: só para conferir
         self.pasta = pasta = edl_p.parent
         edl = self.edl = resolver_caminhos(aplicar_estilo(json.load(open(edl_p))), pasta)
+        if formato:  # outro formato do mesmo EDL (exportar): sai com o nome do formato
+            if formato not in FORMATOS:
+                raise ErroDeMarca(f"formato desconhecido: {formato} (opções: {', '.join(FORMATOS)})")
+            edl["formato"] = formato
+            edl["saida"] = f"final_{formato}.mp4"
         if not edl.get("marca"):
             raise ErroDeMarca("o edl.json não diz a marca (\"marca\"): rode `analisar --marca <marca>` de novo")
         ativar(edl["marca"])
@@ -150,6 +156,7 @@ class Contexto:
         conferir_edl(edl, an, pasta)
         if falar:
             print(f"Marca: {CFG['nome']}", flush=True)
+        self.formato = formato
         self.W, self.H = W, H = FORMATOS[edl.get("formato", "vertical")]
         self.src = edl["fonte"]
 
@@ -194,6 +201,13 @@ class Contexto:
                        if self.tipo_fundo == "imagem" else None)
         self.cor = edl.get("cor", {})
         self.luts = lut_cor(self.cor)
+        self.lut3d = None
+        if self.cor.get("lut"):  # LUT 3D (.cube) da marca, da biblioteca ou da pasta do vídeo
+            arq = self.cor["lut"]
+            caminho = registrar(arq if Path(arq).exists() else BIBLIOTECA / "luts" / f"{arq}.cube")
+            self.lut3d = tabela_lut3d(ler_cube(caminho), float(self.cor.get("lut_intensidade", 1.0)))
+        cc = an.get("cor_clipes")
+        self.luts_clipes = [lut_clipe(x) for x in cc] if cc and self.cor.get("igualar_clipes", True) else None
         self.leg = (Legendas(an["palavras"], edl.get("legendas", {}), W, H, self.keep)
                     if edl.get("legendas", {}).get("ativo", True) else None)
         self.els = Elementos(edl.get("elementos", []), W, H, self.map_out, an["palavras"])
@@ -242,6 +256,7 @@ class Trecho:
         self.palco = None
         self.rvm_fi = None
         self.ultimo = None
+        self.avisos = []  # conferência visual: (problema, onde, instante)
         self.cap = cv2.VideoCapture(ctx.src)
         self.n_src = 0
 
@@ -293,6 +308,8 @@ class Trecho:
         zf, tremor = zoom_em(t_src, c.zooms, s["qb"])
         z = zb * respira * zf
         M = matriz_enquadre(c.w0, c.h0, W, H, z, face, tremor)
+        if c.luts_clipes:  # clipes gravados em momentos diferentes ficam com a mesma cor
+            f = cv2.LUT(f, c.luts_clipes[min(c.clipe_de(t_src), len(c.luts_clipes) - 1)])
         plano = s.get("plano", "rosto")
         els.plano = plano
         br_e = els.broll_ativo(t_out)
@@ -324,7 +341,9 @@ class Trecho:
                     bg = (bg.astype(np.float32) * (1 - 0.4 * sm)).astype(np.uint8)
                 base = (base.astype(np.float32) * m + bg.astype(np.float32) * (1 - m)).astype(np.uint8)
             base = aplicar_cor(base, c.luts, c.cor)
-            base = aplicar_look(base, look, m)
+            if c.lut3d is not None:
+                base = aplicar_lut3d(base, c.lut3d)
+            base = aplicar_look(base, look, m, c.cor.get("proteger_pele", True))
             if atras:  # texto atrás da pessoa: desenha no quadro e cola a pessoa recortada por cima
                 camada = base.copy()
                 els.desenhar(camada, t_out, "atras")
@@ -348,16 +367,33 @@ class Trecho:
                 els.rosto = (els.rosto[0], els.rosto[1] - y0 + H // 2, els.rosto[2])
         return base
 
-    def acabamento(self, out, t_out, t_src):
+    def acabamento(self, out, t_out, t_src, conferir=False):
         c, els, W, H = self.c, self.c.els, self.c.W, self.c.H
+        els.caixas = [] if conferir else None
         els.desenhar(out, t_out)
+        caixa_leg = fundo_leg = None
         if c.leg:
             bi = c.leg.bloco_em(t_src)
             if bi is not None:
                 img = c.leg.render(bi, t_src)
                 pl = els.plano
                 y = H * legenda_y(pl, c.leg.cfg.get("posicao_y", 0.68), c.leg.cfg)
-                blend(out, img, W / 2 - img.shape[1] / 2, y if pl == "rosto" else y - img.shape[0] / 2)
+                x, y = W / 2 - img.shape[1] / 2, y if pl == "rosto" else y - img.shape[0] / 2
+                if conferir:
+                    m = (img[..., 3] > 60).nonzero() if img.shape[2] == 4 else None
+                    if m is not None and len(m[0]):
+                        caixa_leg = (x + m[1].min(), y + m[0].min(), x + m[1].max(), y + m[0].max())
+                        if c.leg.cfg.get("estilo") == "limpa":
+                            x0, y0, x1, y1 = (int(np.clip(v, 0, lim)) for v, lim in zip(caixa_leg, (W, H, W, H)))
+                            if x1 > x0 and y1 > y0:
+                                fundo_leg = float(cv2.cvtColor(out[y0:y1, x0:x1], cv2.COLOR_BGR2GRAY).mean())
+                blend(out, img, x, y)
+                emo = c.leg.emoji(bi, t_src)
+                if emo is not None:
+                    blend(out, emo, W / 2 - emo.shape[1] / 2, y - emo.shape[0] * 0.92)
+        if conferir:
+            self.avisos += conferir_quadro(W, H, t_out, els.caixas, caixa_leg, els.rosto, els.plano, fundo_leg, H > W)
+            els.caixas = None
         if c.marca is not None and not els.ativo(t_out, "titulo"):
             blend(out, c.marca, W - c.marca.shape[1] - 30, H * CFG.get("marca_dagua_y", 0.115) if H > W else 40, 0.85)
         if c.barra:
@@ -392,11 +428,13 @@ class Trecho:
         if self.ultimo is not None:
             self.ultimo = self.ultimo.copy()
 
-    def render(self, i0, i1, saida, rapido, com_cta, progresso=None, fechar=True):
+    def render(self, i0, i1, saida, rapido, com_cta, progresso=None, fechar=True, janela=None, passo=1):
         """Escreve os quadros dos segmentos [i0, i1) em `saida` (com a vinheta se i0 == 0 e o CTA se com_cta).
+        Prévia: `janela` (ini, fim) em segundos do vídeo final e `passo` (1 a cada N quadros) limitam o que é desenhado.
         Devolve o pior trecho parado (início, fim) visto aqui."""
         c, W, H = self.c, self.c.W, self.c.H
-        enc = ["ffmpeg", "-y", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
+        quer = lambda n: (janela is None or janela[0] <= n / FPS < janela[1]) and n % passo == 0
+        enc = ["ffmpeg", "-y", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{W}x{H}", "-r", f"{FPS / passo:g}", "-i", "-",
                "-c:v", "libx264", "-preset", "ultrafast" if rapido else "medium", "-crf", "18",
                "-pix_fmt", "yuv420p", str(saida)]
         proc = subprocess.Popen(enc, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -405,9 +443,13 @@ class Trecho:
         if i0 == 0:
             cache_intro = {}
             for k in range(c.n_intro):  # vinheta de abertura (igual em todos os vídeos)
+                if not quer(k) and k != c.n_intro - 1:
+                    continue
                 out = quadro_intro(W, H, k / FPS, c.fundo_vivo, cache_intro, c.dur_intro)
-                proc.stdin.write(out.tobytes())
                 self.ultimo = out
+                if not quer(k):
+                    continue
+                proc.stdin.write(out.tobytes())
             n_out = c.n_intro
         else:
             self.aquecer(i0)
@@ -419,6 +461,10 @@ class Trecho:
             base = None
             tipo_tr = s.get("transicao") or ("zoom" if si == 0 and c.dur_intro else None)
             for k, fi in enumerate(range(s["ia"], s["ib"])):
+                if not quer(n_out) and k != s["n"] - 1:  # prévia: fora da janela só a câmera anda
+                    self.camera.passo(s.get("zoom", 1.0), c.rosto.em(fi / FPS))
+                    n_out += 1
+                    continue
                 f = self.ler(fi)
                 if f is None:
                     raise RuntimeError(f"a fonte acabou antes do quadro {fi}: rode o analisar de novo")
@@ -427,8 +473,11 @@ class Trecho:
                 out = base
                 if tipo_tr and self.ultimo is not None and k < c.TRN:
                     out = transicao(self.ultimo, base, (k + 1) / (c.TRN + 1), tipo_tr, W, H)
+                if not quer(n_out):
+                    n_out += 1
+                    continue
                 out = out.copy()
-                self.acabamento(out, t_out, t_src)
+                self.acabamento(out, t_out, t_src, conferir=n_out % AMOSTRA == 0)
                 parado.quadro(out, t_out)
                 proc.stdin.write(out.tobytes())
                 n_out += 1
@@ -442,6 +491,9 @@ class Trecho:
         if com_cta:
             cache = {}
             for k in range(int(round(c.dur_cta * FPS))):
+                if not quer(n_out):
+                    n_out += 1
+                    continue
                 out = cartao_cta(c.cta, W, H, k / FPS, c.fundo_vivo, cache)
                 if k < c.TRN and self.ultimo is not None:
                     out = transicao(self.ultimo, out, (k + 1) / (c.TRN + 1), c.edl.get("transicao_cta", "zoom"), W, H)
@@ -473,17 +525,17 @@ def dividir_trechos(segs, n, minimo=1.5):
 _CACHE = {}  # por processo de render: contexto e recorte reaproveitados entre os trechos que ele pega
 
 
-def _trabalho(edl_p, i0, i1, saida, rapido, com_cta, threads):
+def _trabalho(edl_p, i0, i1, saida, rapido, com_cta, threads, formato=None):
     """Processo de render de um trecho (monta o próprio contexto: o render é determinístico)."""
     cv2.setNumThreads(threads)
     os.environ["EDITOR_THREADS"] = str(threads)
-    if _CACHE.get("chave") != (edl_p, rapido):
+    if _CACHE.get("chave") != (edl_p, rapido, formato):
         _CACHE.clear()
-        _CACHE.update(chave=(edl_p, rapido), ctx=Contexto(edl_p, falar=False, rapido=rapido))
+        _CACHE.update(chave=(edl_p, rapido, formato), ctx=Contexto(edl_p, falar=False, rapido=rapido, formato=formato))
     tr = Trecho(_CACHE["ctx"], _CACHE.get("seg"))
     pior = tr.render(i0, i1, saida, rapido, com_cta, fechar=False)
     _CACHE["seg"] = tr.seg
-    return pior, sorted(str(p) for p in conferir_auditoria())
+    return pior, sorted(str(p) for p in conferir_auditoria()), tr.avisos
 
 
 def processos_padrao():
@@ -502,8 +554,9 @@ def render_video(ctx, edl_p, saida, rapido, processos):
             feitos[0] += n
             gasto = time.time() - t0
             print(f"  {feitos[0] / FPS:5.1f}s / {ctx.total:.1f}s  ({feitos[0] / max(gasto, 1e-3):.1f} quadros/s)", flush=True)
-        pior = Trecho(ctx).render(0, len(ctx.segs), saida, rapido, True, progresso)
-        piores = [pior]
+        tr = Trecho(ctx)
+        piores = [tr.render(0, len(ctx.segs), saida, rapido, True, progresso)]
+        avisos = tr.avisos
     else:
         n_proc = min(processos, len(grupos))
         print(f"  render em {n_proc} processos ({len(grupos)} trechos)", flush=True)
@@ -511,10 +564,11 @@ def render_video(ctx, edl_p, saida, rapido, processos):
         threads = max(1, (os.cpu_count() or 2) // n_proc)
         mpc = multiprocessing.get_context("spawn")
         with ProcessPoolExecutor(max_workers=n_proc, mp_context=mpc) as ex:
-            futs = [ex.submit(_trabalho, str(edl_p), i0, i1, str(p), rapido, k == len(grupos) - 1, threads)
+            futs = [ex.submit(_trabalho, str(edl_p), i0, i1, str(p), rapido, k == len(grupos) - 1, threads, ctx.formato)
                     for k, ((i0, i1), p) in enumerate(zip(grupos, partes))]
             res = [f.result() for f in futs]
         piores = [r[0] for r in res]
+        avisos = [a for r in res for a in r[2]]
         for r in res:
             for arq in r[1]:
                 registrar(arq)
@@ -529,24 +583,15 @@ def render_video(ctx, edl_p, saida, rapido, processos):
     par = Parado(ctx.edl.get("parado_max"))
     par.pior = (a, b)
     par.relatar()
+    return avisos
 
 
-def cmd_renderizar(a):
-    edl_p = Path(a.edl).resolve()
-    ctx = Contexto(edl_p, rapido=a.rapido)
+def render_audio(ctx, trilha):
+    """Áudio final: mesmos cortes, limpeza de voz, sons, trilha com ducking e loudness para o Instagram (-16 LUFS).
+    Devolve o caminho do wav e os arquivos temporários a apagar."""
     pasta, edl, an, src = ctx.pasta, ctx.edl, ctx.an, ctx.src
     segs, keep, els = ctx.segs, ctx.keep, ctx.els
     dur_intro, dur_fala, dur_cta, total = ctx.dur_intro, ctx.dur_fala, ctx.dur_cta, ctx.total
-    trilha, faixa = musica_do_edl(dict(padrao(edl, "musica", {}) or {}))
-
-    tmp_v = pasta / "_video.mp4"
-    final = pasta / (edl.get("saida") or "final.mp4")
-    if a.so_audio:  # refaz só o áudio, reaproveitando o vídeo já renderizado
-        shutil.copy(final, tmp_v)
-    else:
-        render_video(ctx, edl_p, tmp_v, a.rapido, getattr(a, "processos", None) or processos_padrao())
-
-    # 3) áudio: mesmos cortes, limpeza de voz e loudness para Instagram (-16 LUFS)
     au = edl.get("audio", {})
     parts, labels = [], []
     for i, s in enumerate(segs):
@@ -626,20 +671,74 @@ def cmd_renderizar(a):
         fc += f";{alvo}{limitador}[fim]"
         sh(["ffmpeg", "-y", *ins, "-filter_complex", fc, "-map", "[fim]", "-t", f"{total:.4f}", "-ar", "48000", "-ac", "2", str(tmp_a)])
 
+    return tmp_a, [voz_bruta, voz]
+
+
+def cmd_renderizar(a):
+    edl_p = Path(a.edl).resolve()
+    if getattr(a, "previa", False):
+        return previa(edl_p, a)
+    ctx = Contexto(edl_p, rapido=a.rapido, formato=getattr(a, "formato", None))
+    pasta, edl, total = ctx.pasta, ctx.edl, ctx.total
+    trilha, faixa = musica_do_edl(dict(padrao(edl, "musica", {}) or {}))
+
+    tmp_v = pasta / "_video.mp4"
+    final = pasta / (edl.get("saida") or "final.mp4")
+    if a.so_audio:  # refaz só o áudio, reaproveitando o vídeo já renderizado
+        shutil.copy(final, tmp_v)
+    else:
+        avisos = render_video(ctx, edl_p, tmp_v, a.rapido, getattr(a, "processos", None) or processos_padrao())
+
+    tmp_a, temporarios = render_audio(ctx, trilha)
     sh(["ffmpeg", "-y", "-i", str(tmp_v), "-i", str(tmp_a), "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
         "-metadata", f"comment=marca={CFG['id']}; editor=edicao-video {__version__}", "-metadata", f"artist={CFG['nome']}",
         "-shortest", "-movflags", "+faststart", str(final)])
     passo = max(total / 12, 0.1)
     sh(["ffmpeg", "-y", "-i", str(final), "-vf", f"fps=1/{passo:.3f},scale=270:-2,tile=6x2:padding=6:color=white",
         "-frames:v", "1", str(pasta / "previa.jpg")])
-    for p in (tmp_v, tmp_a, voz_bruta, voz, pasta / "_whoosh.wav", pasta / "_pop.wav"):
+    for p in (tmp_v, tmp_a, *temporarios, pasta / "_whoosh.wav", pasta / "_pop.wav"):
         if p.exists():
             p.unlink()
     usados = conferir_auditoria()
     escrever_manifesto(pasta, final, edl, faixa, usados, total)
-    print(f"Pronto: {final} ({total:.1f}s, {len(segs)} cortes, marca {CFG['id']}) e {pasta / 'previa.jpg'}")
+    print(f"Pronto: {final} ({total:.1f}s, {len(ctx.segs)} cortes, marca {CFG['id']}) e {pasta / 'previa.jpg'}")
     if faixa:
         print(f"Crédito da música (cole na legenda): {faixa['credito']}")
+    if not a.so_audio and not getattr(a, "sem_conferencia", False):
+        relatorio(ctx, final, avisos)
+
+
+def previa(edl_p, a):
+    """Prévia rápida para revisar o EDL: 10 quadros por segundo, só a janela pedida (--de/--ate, em segundos do vídeo
+    final), com o áudio de verdade. Sai em previa.mp4, em segundos em vez de minutos."""
+    ctx = Contexto(edl_p, rapido=True)
+    de = max(0.0, getattr(a, "de", None) or 0.0)
+    ate = min(ctx.total, getattr(a, "ate", None) or ctx.total)
+    if ate <= de:
+        sys.exit(f"janela vazia: --de {de} --ate {ate} (o vídeo tem {ctx.total:.1f}s)")
+    t0 = time.time()
+    n_de, n_ate = int(de * FPS), int(math.ceil(ate * FPS))
+    acum, i0, i1 = ctx.n_intro, 0, len(ctx.segs)
+    for i, s in enumerate(ctx.segs):  # só os segmentos que tocam a janela
+        if acum + s["n"] <= n_de:
+            i0 = i + 1
+        if acum >= n_ate:
+            i1 = i
+            break
+        acum += s["n"]
+    i1 = max(i1, i0)
+    tmp_v = ctx.pasta / "_previa_video.mp4"
+    tr = Trecho(ctx)
+    tr.render(i0, i1, tmp_v, True, i1 == len(ctx.segs), janela=(de, ate), passo=3)
+    trilha, _ = musica_do_edl(dict(padrao(ctx.edl, "musica", {}) or {}))
+    tmp_a, temporarios = render_audio(ctx, trilha)
+    saida = ctx.pasta / "previa.mp4"
+    sh(["ffmpeg", "-y", "-i", str(tmp_v), "-ss", f"{de:.3f}", "-t", f"{ate - de:.3f}", "-i", str(tmp_a),
+        "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "128k", "-shortest", str(saida)])
+    for p in (tmp_v, tmp_a, *temporarios, ctx.pasta / "_whoosh.wav", ctx.pasta / "_pop.wav"):
+        if p.exists():
+            p.unlink()
+    print(f"Prévia: {saida} ({de:.1f}s a {ate:.1f}s, em {time.time() - t0:.1f}s). Não é o vídeo final: rode sem --previa.")
 
 
 def escrever_manifesto(pasta, final, edl, faixa, usados, total):

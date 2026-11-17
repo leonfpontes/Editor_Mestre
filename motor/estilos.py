@@ -154,12 +154,23 @@ def precisa_recorte(look):
     return look == "adesivo"
 
 
-def aplicar_look(f, look, alfa=None):
-    """Aplica o look ao quadro BGR. alfa (H×W×1, 0..1): recorte da pessoa, exigido pelo look "adesivo"."""
+PROTEGE_PELE = {"quente", "frio", "noite", "limpo"}  # looks de cor (os estilizados, como pb e duotom, mudam a pele de propósito)
+
+
+def aplicar_look(f, look, alfa=None, pele=True):
+    """Aplica o look ao quadro BGR. alfa (H×W×1, 0..1): recorte da pessoa, exigido pelo look "adesivo".
+    pele: nos looks de cor, devolve a pele perto do tom original."""
     if not look:
         return f
     if look not in LOOKS:
         raise ErroDeMarca(f"look desconhecido: {look} (opções: {', '.join(LOOKS)})")
+    if pele and look in PROTEGE_PELE:
+        from .cor import proteger_pele
+        return proteger_pele(f, _look(f, look, alfa))
+    return _look(f, look, alfa)
+
+
+def _look(f, look, alfa=None):
     if look in ("pb", "pb_acento"):
         g = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
         g = _curva(g, 1.25, 1.05)

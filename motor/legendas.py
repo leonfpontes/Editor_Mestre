@@ -11,6 +11,25 @@ from .graficos import fonte, pil2np
 from .marca import CORES
 from .movimento import clamp01, ease_out, lerp, mola
 
+# Palavras que não fecham um bloco de legenda (artigos, preposições, conjunções).
+FRACAS = set("a o as os um uma de da do das dos em na no nas nos por pra pro para com sem que e ou mas se ao à".split())
+
+# Palavra falada -> objeto 3D da biblioteca que pula acima da legenda ("emoji": true em legendas).
+EMOJIS = {
+    "dinheiro": "dinheiro", "grana": "dinheiro", "lucro": "dinheiro-voando", "ideia": "lampada", "ideias": "lampada",
+    "fogo": "fogo", "cresceu": "grafico-subindo", "crescer": "grafico-subindo", "crescimento": "grafico-subindo",
+    "caiu": "grafico-descendo", "queda": "grafico-descendo", "foguete": "foguete", "decolar": "foguete",
+    "coração": "coracao", "amor": "coracao", "cérebro": "cerebro", "pensar": "cerebro", "certo": "check",
+    "atenção": "alerta", "cuidado": "alerta", "dúvida": "interrogacao", "pergunta": "interrogacao", "meta": "alvo",
+    "objetivo": "alvo", "alvo": "alvo", "segredo": "cadeado", "chave": "chave", "ferramenta": "ferramentas",
+    "ferramentas": "ferramentas", "livro": "livros", "estudar": "livros", "celular": "celular", "computador": "computador",
+    "email": "envelope", "e-mail": "envelope", "festa": "festa", "comemorar": "festa", "força": "musculo",
+    "vitória": "medalha", "prêmio": "medalha", "calendário": "calendario", "café": "cafe", "trabalho": "maleta",
+    "equipe": "grupo", "time": "grupo", "câmera": "camera", "música": "notas-musicais", "link": "link",
+    "procurar": "lupa", "pesquisa": "lupa", "tempo": "ampulheta", "prazo": "despertador", "ferramenta,": "ferramentas",
+    "sucesso": "estrela-brilhante", "incrível": "cabeca-explodindo", "diamante": "diamante", "gráfico": "grafico-barras",
+}
+
 
 class Legendas:
     """Legenda palavra a palavra: cada palavra surge com mola no instante em que é falada e a
@@ -31,18 +50,53 @@ class Legendas:
             if t:
                 ws.append(dict(w, t=t, orig=w["t"], enf=t.lower().strip(".,!?;:") in enf))
         n = cfg.get("palavras_por_bloco", 3)
+        sentido = cfg.get("quebra_sentido", True)
         self.blocos, cur = [], []
         for i, w in enumerate(ws):
             cur.append(w)
             fim_frase = w["orig"][-1] in ".!?:,"
             pausa = i + 1 < len(ws) and ws[i + 1]["ini"] - w["fim"] > 0.4
-            if len(cur) >= n or fim_frase or pausa or i == len(ws) - 1:
+            # quebra por sentido: o bloco não termina em "de", "o", "que"… (a palavra seguinte vem junto)
+            presa = sentido and len(cur) == n and n > 1 and w["t"].lower() in FRACAS and i + 1 < len(ws)
+            if (len(cur) >= n and not presa) or len(cur) > n or fim_frase or pausa or i == len(ws) - 1:
                 self.blocos.append(cur)
                 cur = []
+        self.emojis = {}  # bloco -> (nome do objeto 3D, instante da palavra)
+        if cfg.get("emoji"):
+            mapa = dict(EMOJIS, **{k.lower(): v for k, v in (cfg.get("emoji") if isinstance(cfg.get("emoji"), dict) else {}).items()})
+            ultimo = -9.0
+            for bi, bl in enumerate(self.blocos):
+                for w in bl:
+                    nome = mapa.get(w["t"].lower().strip(".,!?;:"))
+                    if nome and w["ini"] - ultimo > cfg.get("emoji_espaco", 4.0):
+                        self.emojis[bi] = (nome, w["ini"])
+                        ultimo = w["ini"]
+                        break
+        self.cache_emoji = {}
         self.limpa = cfg.get("estilo") == "limpa"
         tam = cfg.get("tamanho", (64 if self.limpa else 76) if W < 1500 else 56)
         self.f = fonte("Bold" if self.limpa else "Black", tam)
         self.lay = {}
+
+    def emoji(self, i, t):
+        """Objeto 3D (da biblioteca) que pula acima do bloco i quando a palavra dele é falada, ou None."""
+        if i not in self.emojis:
+            return None
+        nome, t0 = self.emojis[i]
+        dt = t - t0
+        if dt < 0:
+            return None
+        if nome not in self.cache_emoji:
+            from .bibliotecas import objeto_3d
+            caminho, _ = objeto_3d(nome)
+            im = Image.open(caminho).convert("RGBA")
+            lado = int(self.W * self.cfg.get("emoji_tam", 0.13))
+            self.cache_emoji[nome] = im.resize((lado, int(im.height * lado / im.width)), Image.LANCZOS)
+        im = self.cache_emoji[nome]
+        s = 0.2 + 0.8 * clamp01(mola(dt / 0.45, 7, 11))
+        if s < 0.995:
+            im = im.resize((max(2, int(im.width * s)), max(2, int(im.height * s))), Image.BILINEAR)
+        return pil2np(im)
 
     def bloco_em(self, t):
         for i, b in enumerate(self.blocos):

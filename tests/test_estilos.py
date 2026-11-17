@@ -152,3 +152,23 @@ def test_guarda_campos_novos(ativa):
     edl["segmentos"][0]["plano"] = "motion"
     conferir_edl(edl)
     assert ("elementos[0].linhas[1]", "b") in textos_do_edl({"elementos": [{"tipo": "janela", "linhas": ["a", "b"]}]})
+
+
+def test_legenda_quebra_por_sentido(ativa):
+    from motor.legendas import Legendas
+    ativa("modelo")
+    pal = [{"t": w, "ini": 0.3 * i, "fim": 0.3 * i + 0.28, "p": 1} for i, w in enumerate("o editor de vídeo corta tudo sozinho".split())]
+    lg = Legendas(pal, {"palavras_por_bloco": 3}, W, H, [(0, 99)])
+    assert [" ".join(w["t"] for w in b) for b in lg.blocos][0] == "o editor de vídeo"  # não termina em "de"
+    sem = Legendas(pal, {"palavras_por_bloco": 3, "quebra_sentido": False}, W, H, [(0, 99)])
+    assert len(sem.blocos[0]) == 3
+
+
+def test_legenda_emoji(ativa):
+    from motor.legendas import Legendas
+    ativa("pontes_brain")
+    pal = [{"t": w, "ini": 0.3 * i, "fim": 0.3 * i + 0.28, "p": 1} for i, w in enumerate("isso dá muito dinheiro".split())]
+    lg = Legendas(pal, {"emoji": True}, W, H, [(0, 99)])
+    bi = lg.bloco_em(1.0)
+    assert lg.emoji(bi, 0.5) is None and lg.emoji(bi, 1.3).shape[2] == 4
+    assert Legendas(pal, {}, W, H, [(0, 99)]).emoji(bi, 1.3) is None

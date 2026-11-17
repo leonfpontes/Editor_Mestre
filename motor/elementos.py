@@ -157,6 +157,7 @@ class Elementos:
         self.W, self.H, self.items = W, H, []
         self.plano = "rosto"  # plano do quadro atual (o render atualiza): define a área do palco
         self.rosto = None  # (cx, cy, altura) do rosto no quadro de saída, para o HUD
+        self.caixas = None  # lista ligada pelo render nos quadros conferidos: caixas dos elementos desenhados
         norm = lambda t: t.lower().strip(".,!?;:\"'")
 
         def achar(txt, n=1, depois=0.0):
@@ -321,4 +322,9 @@ class Elementos:
             h, w = img.shape[:2]
             x, y = self.posicao(e, w, h)
             blend(frame, img, x, y, alpha)
+            if self.caixas is not None and alpha > 0.5:  # para a conferência visual: onde o elemento ficou
+                ys, xs = (img[..., 3] > 40).nonzero() if img.shape[2] == 4 else ([0, h - 1], [0, w - 1])
+                if len(xs):
+                    rot = e.get("texto") or e.get("nome") or e["tipo"]
+                    self.caixas.append((f"{e['tipo']} \"{str(rot)[:30]}\"", e["tipo"], x + min(xs), y + min(ys), x + max(xs), y + max(ys)))
 

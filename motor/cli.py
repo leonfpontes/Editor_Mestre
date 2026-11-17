@@ -25,12 +25,26 @@ def main(argv=None):
     p.add_argument("edl")
     p.add_argument("--rapido", action="store_true", help="codificação rápida para conferir")
     p.add_argument("--so-audio", action="store_true", help="refaz só o áudio sobre o vídeo já renderizado")
+    p.add_argument("--formato", choices=["vertical", "feed", "horizontal"], help="renderiza o mesmo EDL em outro formato (sai em final_<formato>.mp4)")
+    p.add_argument("--previa", action="store_true", help="prévia rápida (10 quadros/s, só a janela de --de a --ate) em previa.mp4")
+    p.add_argument("--de", type=float, help="início da prévia, em segundos do vídeo final")
+    p.add_argument("--ate", type=float, help="fim da prévia, em segundos do vídeo final")
+    p.add_argument("--sem-conferencia", action="store_true", help="pula a conferência visual automática do final.mp4")
     p.add_argument("--processos", type=int, help="processos de render em paralelo (padrão: um por núcleo, até 8; 1 desliga)")
 
     p = sub.add_parser("testar", help="regressão de todas as marcas (rode antes de entregar mudanças no editor)")
     p.add_argument("--marca", help="testa só esta marca")
     p.add_argument("--atualizar", action="store_true", help="grava a folha atual como nova referência visual")
     p.add_argument("--so-visual", action="store_true", help="pula o render ponta a ponta")
+
+    p = sub.add_parser("linha-do-tempo", help="página HTML com o vídeo e a linha do tempo do EDL, para revisar")
+    p.add_argument("edl")
+    p.add_argument("--video", help="vídeo da página (padrão: final.mp4 ou previa.mp4 da pasta)")
+
+    p = sub.add_parser("exportar", help="entrega completa: SRT, capa, legenda do post, reel para o Instagram e outros formatos")
+    p.add_argument("edl")
+    p.add_argument("--formatos", default="", help="outros formatos além do vertical, separados por vírgula: feed,horizontal")
+    p.add_argument("--quando", help="data e hora do post para a entrada da agenda do insta_report (2026-11-20T19:00:00-03:00)")
 
     sub.add_parser("marcas", help="lista as marcas e o que cada uma usa")
     sub.add_parser("estilos", help="lista os estilos de edição, os planos e os looks de cor")
@@ -58,6 +72,12 @@ def main(argv=None):
         elif a.cmd == "renderizar":
             from .renderizar import cmd_renderizar
             cmd_renderizar(a)
+        elif a.cmd == "linha-do-tempo":
+            from .linha_tempo import cmd_linha_tempo
+            cmd_linha_tempo(a)
+        elif a.cmd == "exportar":
+            from .exportar import cmd_exportar
+            cmd_exportar(a)
         elif a.cmd == "testar":
             from .testar import cmd_testar
             cmd_testar(a)
