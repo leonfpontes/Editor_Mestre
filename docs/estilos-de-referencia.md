@@ -1,7 +1,8 @@
 # Estilos de referência
 
 Três estilos de edição estudados em Reels de outros criadores (gravações de tela do Instagram, novembro de 2026). Cada
-estilo vira uma receita: o que se vê, os números medidos, como montar com o motor de hoje e o que ainda falta construir.
+estilo vira uma receita: o que se vê, os números medidos e como montar no EDL. O motor faz os três: `"estilo"` no EDL
+(ou `analisar --estilo`), planos e looks por segmento e os elementos de motion descritos em [edl.md](edl.md#estilos-planos-e-looks).
 As receitas não carregam a identidade de ninguém: cores, fontes e CTA vêm sempre da marca do vídeo (`marcas/<id>/`).
 
 Como foi medido: cortes por detecção de cena do ffmpeg (`select='gt(scene,0.2)'`), quadros a cada 0,5 s a 2 s,
@@ -33,19 +34,21 @@ Narração por cima de uma gravação de tela que parece filmada por uma câmera
 - **Fecho (últimos 3,5 s):** corte seco para o rosto, fala curta com o CTA verbal ("a metodologia está aqui embaixo").
 - **Áudio:** voz limpa, cama musical muito baixa. Sem efeitos sonoros perceptíveis.
 
-**Como montar hoje**
+**Como montar**
 
-- `segmentos`: a narração inteira, pausas acima de 0,3 s cortadas.
-- `elementos`: `broll` com a gravação de tela cobrindo do gancho até o fecho; `titulo` no gancho; efeitos `bokeh` e
-  `vazamento_luz` (cor `acento` ou `quente`) e `foco` para simular o desfoque de borda.
-- `musica` com `volume_db` em torno de −26 e `ducking`.
-- `legendas.ativo: false` (a tela já é o assunto).
+```jsonc
+"estilo": "tela_perspectiva",
+"elementos": [
+  {"tipo": "titulo_caixa", "texto": "Uma empresa inteira / com Inteligência Artificial", "ini": 0, "fim": 2.8, "x": 0.42, "y": 0.1},
+  {"tipo": "broll", "arquivo": "tela.mp4", "na": "esse aqui", "ate": "metodologia",
+   "perspectiva": {"foco": 0.6, "luz": true, "camera": [
+     {"t": 0, "rx": 24, "ry": -20, "zoom": 1.2, "cx": 0.3, "cy": 0.3},     // "um cérebro": o grafo
+     {"t": 0.4, "rx": 14, "ry": 6, "zoom": 1.5, "cx": 0.5, "cy": 0.55},    // "marketing": os cartões
+     {"t": 1, "rx": 10, "ry": 16, "zoom": 1.6, "cx": 0.62, "cy": 0.7}]}}  // "integrações"
+]
+```
 
-**O que falta no motor**
-
-1. `broll` em perspectiva: plano 3D com rotação X/Y, trajetória de câmera por pontos-chave ancorados na fala e
-   profundidade de campo (desfoque por distância ao centro).
-2. Título "caixa justa": cada linha numa caixa do tamanho do texto, com o colchete de canto.
+O último segmento (o rosto falando o CTA) fica sem b-roll. Música baixa (`volume_db` −26) onde a marca permite.
 
 ## B. Tutorial em passos
 
@@ -93,28 +96,31 @@ de um plano, o motion muda de estado (ícone entra, pasta abre, linha se desenha
 
 **Áudio:** só voz, limpa e alta (−17 dB RMS), sem música. Pausas cortadas até sobrar no máximo 0,4 s.
 
-**Como montar hoje**
+**Como montar**
 
 ```jsonc
-"legendas": {"ativo": true, "palavras_por_bloco": 2, "posicao_y": 0.62, "maiusculas": false, "enfase": []},
-"musica": null,
-"audio": {"sfx_transicoes": false},
-"segmentos": [ /* transicao: null em todos (corte seco) */ ],
+"estilo": "tutorial_passos",
+"segmentos": [
+  {"id": 0, "ini": 0.0, "fim": 10.6, "plano": "rosto"},
+  {"id": 1, "ini": 10.8, "fim": 14.8, "plano": "dividido"},
+  {"id": 2, "ini": 15.2, "fim": 23.3, "plano": "motion"}
+],
 "elementos": [
-  {"tipo": "titulo", "texto": "Passo 1. Monta o ambiente", "na": "Primeiro", "ate": "a pasta que você acabou de criar", "y": 0.08},
-  {"tipo": "imagem", "arquivo": "<print da janela do app>", "na": "esse prompt", "y": 0.25, "largura": 0.85}
+  {"tipo": "titulo_caixa", "texto": "Tudo que você precisa / pra editar vídeo com IA", "ini": 0, "fim": 10.5, "y": 0.08},
+  {"tipo": "carrossel", "arquivos": ["ref1.jpg", "ref2.jpg", "ref3.jpg"], "ini": 0, "fim": 10.5, "y": 0.28},
+  {"tipo": "passo", "numero": 1, "texto": "Monta o ambiente", "na": "Primeiro", "ate": "acabou de criar"},
+  {"tipo": "icone", "arquivo": "icones/app.png", "rotulo": "Claude Code", "na": "Claude Code", "segura": 1.5},
+  {"tipo": "digitacao", "texto": "Editor de vídeo com IA", "caixa": true, "na": "chama de"},
+  {"tipo": "arvore", "raiz": "Editor de vídeo com IA", "filhos": ["Vídeo bruto", "Referências", "Vídeos prontos"], "na": "três subpastas"},
+  {"tipo": "janela", "titulo": "Como posso ajudar?", "linhas": ["Corta toda pausa maior que [[0,15 s]]."], "na": "esse prompt"},
+  {"tipo": "mapa", "centro": "Editor de vídeo com IA", "itens": ["Passo 1. Monta o ambiente", "Passo 2. Instala as ferramentas",
+   "Passo 3. Trava o seu estilo", "Passo 4. Grava e edita"], "na": "fluxo inteiro"},
+  {"tipo": "comentario", "texto": "MOTION", "na": "Comenta"}
 ]
 ```
 
-**O que falta no motor**
-
-1. **Planos** (`"plano": "rosto" | "dividido" | "motion"` por segmento): o dividido põe o rosto na metade de baixo e um
-   palco de motion em cima; o motion esconde o rosto e mantém a voz. A legenda acompanha a linha do plano.
-2. **Cabeçalho de passo** fixo, com o número em serifa itálica e o texto em sans.
-3. **Pacote de motion de interface:** ícone com mola, digitação, árvore que se desenha, janela de app com marca-texto,
-   linhas pontilhadas de recapitulação. Todos com a paleta de papéis da marca.
-4. **Barra de comentário** para o CTA "comenta a palavra".
-5. Regra automática de "nada parado mais de 3 s": a conferência pode medir o tempo máximo sem mudança visual.
+O que ainda é manual: os ícones de app são PNGs que você traz (o motor desenha pasta, documento e pessoa na paleta da
+marca), e o storyboard rolando entra como `broll` de uma gravação de tela.
 
 ## C. Vitrine de estilos
 
@@ -144,29 +150,36 @@ peça de lançamento; para conteúdo do dia a dia é cansativo.
 
 **Áudio:** música o tempo todo, efeito sonoro em quase todo corte e elemento.
 
-**Como montar hoje**
+**Como montar**
 
-- Cortes curtos com `transicao` alternando `whip`, `flash`, `glitch` e corte seco; som de transição da biblioteca.
-- Efeitos `tipografia`, `glitch`, `grao`, `vhs`, `cartao_vidro`, `notificacao`, `reacoes`, `contador` e `objeto3d`.
-- `musica` obrigatória com `ducking`; elementos `som` com `riser-curto` chegando na palavra, `impacto-seco` e `pop-limpo`.
+```jsonc
+"estilo": "vitrine",
+"segmentos": [
+  {"id": 0, "ini": 0.0, "fim": 3.2, "look": "pb_acento"},
+  {"id": 1, "ini": 3.2, "fim": 5.0, "look": "adesivo", "transicao": "whip"},
+  {"id": 2, "ini": 5.0, "fim": 7.6, "look": "noite", "transicao": "flash"},
+  {"id": 3, "ini": 7.6, "fim": 10.8, "look": "limpo"}
+],
+"elementos": [
+  {"tipo": "texto_atras", "texto": "SÓ / PALAVRAS", "na": "só palavras", "segura": 1.0},
+  {"tipo": "anotacao", "texto": "+ E NÃO SÃO", "na": "não são", "x": 0.3, "y": 0.08},
+  {"tipo": "titulo_editorial", "partes": [{"t": "O ESTILO"}, {"t": "das"}, {"t": "PALAVRAS"}], "numero": 1, "na": "o estilo"},
+  {"tipo": "bilhete", "texto": "COMPLETAMENTE", "na": "completamente"},
+  {"tipo": "hud_rosto", "rotulo": "RASTREAMENTO FACIAL", "na": "rastreamento", "ate": "efeito aqui"},
+  {"tipo": "som", "nome": "whoosh-rapido", "rotulo": "WHOOSH", "na": "efeitos sonoros", "x": 0.7, "y": 0.3},
+  {"tipo": "broll", "arquivo": "plataforma.mp4", "na": "aulas", "ate": "fácil", "bolha": {"x": 0.22, "y": 0.8}},
+  {"tipo": "neon", "texto": "CLICA EM / SAIBA MAIS", "na": "Clica aqui", "y": 0.75}
+]
+```
 
-**O que falta no motor** (o motor já tem recorte por RVM e detecção de rosto, a base de quase tudo)
+O que ainda não faz: esqueleto do corpo com objeto preso no dedo (precisa de um modelo de pose) e as cenas geradas por IA
+(entram como `broll` prontos).
 
-1. **Texto atrás da pessoa:** desenhar o texto entre o fundo e o recorte.
-2. **Looks por segmento:** `"look": "pb" | "pb_acento" | "editorial" | "esportivo" | "limpo"` com cor, fundo e fonte.
-3. **Recorte com contorno e rabisco** (adesivo).
-4. **HUD de rastreamento:** malha do rosto, anéis nos olhos, esqueleto do corpo, objeto preso a um ponto do corpo.
-5. **Rótulo de som:** onda e nome do efeito sonoro desenhados quando o som toca.
-6. **Bolha de rosto** circular sobre `broll` de tela.
-7. **Neon manuscrito** para CTA.
+## Próximos passos para o produto
 
-## Prioridade sugerida para o produto
-
-1. **Planos do estilo B** (rosto, dividido, motion) e legenda de 1 a 2 palavras sem caixa: maior ganho, menor esforço, e
-   já vira um preset vendável ("tutorial em passos").
-2. **Texto atrás da pessoa** e **looks por segmento**: usam o recorte que já existe e dão o efeito "uau" do estilo C.
-3. **Tela em perspectiva** do estilo A: transforma qualquer gravação de tela em demonstração com cara de produto.
-4. HUD de rastreamento, rótulo de som, neon e adesivo: acabamento para peças de lançamento.
+1. Ícones de apps conhecidos prontos numa biblioteca (com licença de uso de marca checada), para o estilo B não depender de PNG.
+2. Modelo de pose (MediaPipe Pose) para o esqueleto do corpo e objetos presos às mãos no estilo C.
+3. Câmera da tela em perspectiva ancorada na fala (`"na"` em cada ponto-chave) em vez de `t` de 0 a 1.
 
 ## Regras que valem para os três
 

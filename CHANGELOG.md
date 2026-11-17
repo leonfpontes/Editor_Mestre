@@ -6,6 +6,20 @@
 
 - **Peças fixas no Pencil**: capa de Reel do @pontes_brain em `marcas/pontes_brain/pencil/capa-reel.pen` (fonte) e
   `capa-reel.png` (1080×1920); convenção documentada em `docs/marcas.md`.
+- **Estilos de edição** (`"estilo"` no EDL, `analisar --estilo`, `editor.py estilos`): `tutorial_passos`,
+  `tela_perspectiva` e `vitrine`, presets que ajustam legenda, sons, corte de pausas e o aviso de ritmo.
+- **Planos por segmento** (`"plano"`): `rosto`, `dividido` (palco de motion em cima, rosto embaixo) e `motion`; a
+  legenda acompanha a linha do plano. `motor/planos.py`.
+- **Looks por segmento** (`"look"`): `pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite` e `adesivo`
+  (pessoa recortada com contorno sobre fundo chapado).
+- **Legenda `limpa`**: 1 ou 2 palavras, branco, sem caixa nem contorno, sombra macia.
+- **Motion de estilo** (`motor/motion.py`): `passo`, `digitacao`, `janela`, `arvore`, `mapa`, `comentario`, `icone`,
+  `carrossel`, `titulo_caixa`, `titulo_editorial`, `bilhete`, `anotacao`, `neon`, `texto_atras` (atrás da pessoa, com
+  recorte automático) e `hud_rosto` (segue o rosto). `som` com `rotulo` mostra o som na tela.
+- **Tela em perspectiva** (`broll` com `perspectiva`): plano 3D com câmera por pontos-chave, profundidade de campo e
+  luz quente. **Bolha de rosto** (`broll` com `bolha`).
+- **Aviso de ritmo**: com `parado_max`, o render mede o maior trecho sem mudança visual.
+- **Fontes de estilo** (OFL): DM Serif Display, Anton, Space Mono e Caveat, com licenças em `biblioteca/fontes/LICENCAS.md`.
 - **Estilos de referência** em `docs/estilos-de-referencia.md`: três estilos de Reels estudados (tela em perspectiva,
   tutorial em passos, vitrine de estilos), com números medidos, receita para o motor atual e lista do que falta construir.
 

@@ -58,6 +58,10 @@ Fonte: `/mnt/project-files/girahub-instagram/conhecimento/identidade-visual.md` 
 
 **Telas do produto:** só prints e gravações reais do GiraHub, de preferência do "Terreiro Modelo" com dados fictícios (catálogo em `/mnt/project-files/girahub-instagram/assets/telas-reels/CATALOGO.md`). A imagem mostra o que a fala diz. Nunca dados reais de casa, nome de consulente ou valor de mensalidade de verdade. Nada de rosto gerado por IA. Emojis só na legenda do post, nunca nos gráficos.
 
+**Estilos de edição** (`editor.py estilos`; guia em `docs/estilos-de-referencia.md`, campos em `docs/edl.md`): `"estilo": "tutorial_passos"` (rosto, tela dividida e só motion em corte seco, legenda limpa de 2 palavras, `passo`, `janela`, `arvore`, `mapa`, `comentario`), `"tela_perspectiva"` (gravação de tela num plano 3D com câmera e profundidade de campo: `broll` com `perspectiva`) e `"vitrine"` (um `look` por frase, `texto_atras`, `hud_rosto`, `som` com `rotulo`, `neon`). Em cada segmento: `"plano"` (`rosto`, `dividido`, `motion`) e `"look"` (`pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo`). `analisar --estilo <estilo>` já corta as pausas no ritmo do estilo. O estilo nunca troca a identidade: cores e fontes de texto continuam as da marca.
+
+Para esta marca, prefira `tutorial_passos` (explicar um recurso do app em passos) e looks discretos (`limpo`, `quente`). `vitrine`, `neon`, `bilhete` e `hud_rosto` não combinam com conteúdo religioso: só com o ok do Leonardo e nunca em fala sobre fé.
+
 ## 3. Publicidade: o que pode prometer
 
 - **Oferta:** só a do site: "Grátis para começar", "30 dias de Premium sem cartão", "Sem app para o consulente". Preços: Gratuito, Basic R$ 49/mês, Pro R$ 79/mês, Premium R$ 99/mês. Antes de citar preço ou plano, confira `frontend/src/constants/plans.ts` no repo (mudou em out/2026).

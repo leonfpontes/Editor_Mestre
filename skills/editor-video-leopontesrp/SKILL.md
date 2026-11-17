@@ -79,6 +79,10 @@ O rascunho do `analisar` já vem com esses padrões (estão em `marcas/leopontes
 
 Âncoras dos elementos: `na` (texto exato da transcrição; `ocorrencia` se repetir), `ate` (sai no fim dessa fala), `antecipa` (padrão 0,12 s antes da palavra), `segura` (quanto fica depois). Sem fala para ancorar, use `ini`/`fim`. Opcionais: `x`/`y` (0 a 1) e `tam`.
 
+**Estilos de edição** (`editor.py estilos`; guia em `docs/estilos-de-referencia.md`, campos em `docs/edl.md`): `"estilo": "tutorial_passos"` (rosto, tela dividida e só motion em corte seco, legenda limpa de 2 palavras, `passo`, `janela`, `arvore`, `mapa`, `comentario`), `"tela_perspectiva"` (gravação de tela num plano 3D com câmera e profundidade de campo: `broll` com `perspectiva`) e `"vitrine"` (um `look` por frase, `texto_atras`, `hud_rosto`, `som` com `rotulo`, `neon`). Em cada segmento: `"plano"` (`rosto`, `dividido`, `motion`) e `"look"` (`pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo`). `analisar --estilo <estilo>` já corta as pausas no ritmo do estilo. O estilo nunca troca a identidade: cores e fontes de texto continuam as da marca.
+
+Para esta conta pessoal, os looks (`quente`, `limpo`, `noite`) dão clima aos clipes do dia a dia; legenda `limpa` combina com a música. Sem `comentario` nem `neon` de CTA: a conta não tem CTA.
+
 ## 3. Identidade da conta (não negociável)
 
 A identidade já está em `marcas/leopontesrp/marca.json`. Sempre rode `analisar` com `--marca leopontesrp` (não existe marca padrão) e confira `"marca": "leopontesrp"` no `edl.json`. Vídeos do @pontes_brain e do GiraHub usam as skills deles, nunca esta. **Não use nem adapte elementos das outras marcas** (personagem Leo, ciclo PDCA, monograma LP, ticket do GiraHub, "mentoria de produto", links de outra conta): a guarda de marca recusa o render, e o certo é corrigir o EDL.

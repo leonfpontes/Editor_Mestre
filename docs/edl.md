@@ -21,6 +21,7 @@ tudo depois dos cortes. Um exemplo real está em [exemplos/edl-pontes_brain.json
   "marca_dagua": true,
   "barra_progresso": true,
   "cta": { … },
+  "estilo": "tutorial_passos",            // opcional: preset de estilo (veja "Estilos, planos e looks")
   "saida": "final.mp4"
 }
 ```
@@ -38,6 +39,9 @@ Trechos que **ficam**, na ordem em que aparecem no vídeo. Apague os que saem.
 | `transicao` | Entrada do trecho: `null` (corte seco), `push`, `whip`, `zoom`, `slide`, `flash`, `dissolve`, `giro` (giro 3D), `rasgo` (papel rasgado), `vidro` (vidro líquido), `luz` (queima de luz) |
 | `som` | Som da transição (id de `biblioteca listar sons`); `false` deixa muda. Sem o campo, vale o padrão da marca |
 | `gancho` | `true` repete o trecho no início do vídeo (a frase mais forte abrindo). O original continua no lugar |
+| `plano` | `rosto` (padrão) · `dividido` (palco de motion em cima, rosto embaixo) · `motion` (só o palco; a voz continua) |
+| `corte_y` | No `dividido`, o centro da faixa de rosto mostrada (fração da altura; padrão 0.36) |
+| `look` | Cor do trecho: `pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo` |
 | `texto` | A fala do trecho (referência para o agente) |
 
 ## `zooms`
@@ -80,10 +84,14 @@ de −1,5 dBFS.
 ## `legendas`
 
 ```jsonc
-"legendas": {"ativo": true, "palavras_por_bloco": 3, "posicao_y": 0.68, "maiusculas": false,
+"legendas": {"ativo": true, "estilo": "marcada", "palavras_por_bloco": 3, "posicao_y": 0.68, "maiusculas": false,
              "enfase": ["diagnóstico", "PDCA"],          // 3 a 6 palavras na cor de destaque
              "correcoes": {"porque": "por que"}}         // conserta o Whisper
 ```
+
+`estilo`: `marcada` (padrão, marcação na cor de destaque) ou `limpa` (branco, sem caixa nem contorno, sombra macia; use
+com 1 ou 2 palavras por bloco). Nos planos `dividido` e `motion` a legenda vai para a linha que divide (0.5) e para 0.72;
+troque com `posicao_y_dividido` e `posicao_y_motion`.
 
 ## `elementos`
 
@@ -109,10 +117,67 @@ E posição: `x`, `y` (0 a 1), `altura` ou `largura` (fração da tela).
 | `leo` | `pose`, `lado` | Só @pontes_brain, e só com contexto narrativo |
 | `imagem` | `arquivo` | Print, foto, gráfico |
 | `broll` | `arquivo` | Cobre a tela inteira; a voz continua |
-| `som` | `nome`, `volume_db` | Só áudio, da biblioteca de sons. O ápice do som cai na âncora (riser chegando na palavra) |
+| `som` | `nome`, `volume_db`, `rotulo` | Só áudio, da biblioteca de sons. O ápice do som cai na âncora (riser chegando na palavra). Com `rotulo` ("WHOOSH"), o som aparece na tela como onda com o nome |
+
+`broll` aceita ainda `perspectiva` (tela num plano 3D com câmera e profundidade de campo) e `bolha` (o rosto numa
+bolha circular por cima do b-roll): veja abaixo.
 
 Qualquer elemento aceita `"som": "<id>"` (troca o som de entrada) ou `"som": false` (mudo). `"sfx_elementos": false`
 (em `audio`) desliga os sons automáticos dos elementos; os do `tipo` `som` continuam. Veja [bibliotecas.md](bibliotecas.md#sons).
+
+## Estilos, planos e looks
+
+Guia com os três estilos estudados e quando usar cada um: [estilos-de-referencia.md](estilos-de-referencia.md).
+`editor.py estilos` lista tudo; `editor.py analisar … --estilo <estilo>` já escreve o rascunho no estilo.
+
+**`estilo`** (no topo do EDL) preenche o que o EDL não disse. O EDL sempre vence.
+
+| Estilo | O que o preset muda |
+|---|---|
+| `tutorial_passos` | Legenda `limpa` de 2 palavras, sem som nas transições, pausas cortadas a partir de 0,4 s, aviso se algo ficar parado mais de 3 s |
+| `tela_perspectiva` | Sem legenda, sem som nas transições, pausas a partir de 0,6 s |
+| `vitrine` | Sem legenda corrida (a tipografia é cenográfica), sons em tudo, pausas a partir de 0,35 s, aviso acima de 2 s parado |
+
+`parado_max` (segundos) liga o aviso de ritmo em qualquer EDL: o render mede o maior trecho sem mudança visual.
+
+**Motion de estilo** (`elementos`, todos com `na`/`ate`, `x`, `y`; cores só por papel da paleta):
+
+| `tipo` | Campos | Notas |
+|---|---|---|
+| `passo` | `numero`, `texto`, `rotulo` ("Passo") | Cabeçalho: número em serifa itálica, texto em sans. Fica no topo do palco |
+| `digitacao` | `texto`, `vel`, `caixa`, `largura` | Letra a letra, com cursor; `caixa` põe num campo de texto |
+| `janela` | `titulo`, `linhas`, `largura`, `vel` | Janela de app; `[[trecho]]` sai com marca-texto |
+| `arvore` | `raiz`, `filhos` (até 5) | Linhas que se desenham e filhos com mola |
+| `mapa` | `centro`, `itens` (até 6) | Recapitulação; "Passo 1. Monta" vira número em serifa + texto |
+| `comentario` | `texto`, `dica` | Barra de comentário digitando a palavra-chave (CTA "comenta X") |
+| `icone` | `arquivo` (PNG) ou `nome` (`pasta`, `documento`, `pessoa`), `rotulo`, `tamanho` | O PNG de um app entra com as cores dele |
+| `carrossel` | `arquivos` (2 a 6), `altura` | Miniaturas deslizando (gancho com referências) |
+| `titulo_caixa` | `texto` (linhas com `/`) | Gancho em caixas justas com colchete no canto |
+| `titulo_editorial` | `partes` [{`t`, `fonte`, `cor`}], `numero` | Fontes misturadas (condensada, manuscrita, serifa) e número circulado |
+| `bilhete` | `texto` | Letras de bilhete de resgate |
+| `anotacao` | `texto` | Rótulo mono pequeno com cruz de mira |
+| `neon` | `texto` (linhas com `/`), `cor`, `caixa` | Manuscrito em neon que acende tremulando |
+| `texto_atras` | `texto`, `fonte`, `tam`, `cor` | Texto enorme **atrás da pessoa** (recorte automático); combina com o look `pb_acento` |
+| `hud_rosto` | `rotulo` | Mira, malha e anéis que seguem o rosto |
+
+Os de interface (`passo`, `digitacao`, `janela`, `arvore`, `mapa`, `icone`) usam `"area": "palco"`: `x`/`y` são relativos
+ao palco e eles só aparecem nos planos `dividido` e `motion` (`"sempre": true` mostra também no `rosto`).
+
+Fontes de estilo: `serifa_italica`, `serifa`, `condensada`, `mono`, `manuscrita` (biblioteca, OFL) e `sans`, `sans_forte`,
+`sans_leve` (as da marca). A marca pode trocar qualquer uma em `fontes.estilo` no `marca.json`.
+
+**Tela em perspectiva e bolha** (num `broll`):
+
+```jsonc
+{"tipo": "broll", "arquivo": "tela.mp4", "na": "esse aqui", "ate": "embaixo",
+ "perspectiva": {"foco": 0.6, "luz": true,
+                 "camera": [{"t": 0, "rx": 22, "ry": -18, "zoom": 1.25, "cx": 0.3, "cy": 0.3},
+                            {"t": 1, "rx": 10, "ry": 12, "zoom": 1.6, "cx": 0.6, "cy": 0.55}]},
+ "bolha": {"x": 0.22, "y": 0.8, "raio": 0.16}}
+```
+
+`camera`: pontos-chave de 0 a 1 ao longo do b-roll (graus `rx`/`ry`/`rz`, `zoom`, e o ponto da tela no centro `cx`/`cy`).
+Aponte a câmera para o que a fala cita. `foco` 0 a 1 é a profundidade de campo; `luz` é o brilho quente desfocado.
 
 ## `cta`
 
