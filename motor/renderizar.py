@@ -35,6 +35,27 @@ from .util import bgr, sh, tem_audio
 from .vinhetas import cartao_cta, quadro_intro
 
 
+def fixar_pontos(elementos, video, pasta):
+    """Elementos com \"fixar\": [t, x, y] (um ponto do ambiente na fonte) ganham a trilha \"seguir\" pelo fluxo óptico.
+    A trilha fica em cache em P/_cache/fixar.json (mesmo ponto e janela, mesma trilha)."""
+    alvo = [e for e in elementos if e.get("fixar") and not e.get("seguir")]
+    if not alvo:
+        return
+    from .cena import rastrear_ponto
+    arq = Path(pasta) / "_cache" / "fixar.json"
+    cache = json.load(open(arq)) if arq.exists() else {}
+    for e in alvo:
+        t0, x, y = e["fixar"]
+        # ancorado pela fala ("na"/"ate"), o tempo exato só sai depois; a janela em volta do ponto cobre a entrada e a saída
+        ini, fim = e.get("ini", t0 - 1.0), e.get("fim", t0 + 4.0)
+        chave = f"{t0}:{x}:{y}:{ini}:{fim}"
+        if chave not in cache:
+            cache[chave] = rastrear_ponto(video, t0, x, y, ini - 0.3, fim + 0.3)
+        e["seguir"] = cache[chave]
+    arq.parent.mkdir(parents=True, exist_ok=True)
+    json.dump(cache, open(arq, "w"))
+
+
 def sons_do_video(segs, els, au, dur_intro, dur_fala, dur_cta, pasta):
     """Todos os efeitos sonoros do vídeo: [(início em s, arquivo, ganho em dB)], na linha do tempo final.
     Modo "biblioteca": o ápice de cada som (campo "ataque" do catálogo) cai no corte ou na entrada do elemento.
@@ -210,6 +231,7 @@ class Contexto:
         self.luts_clipes = [lut_clipe(x) for x in cc] if cc and self.cor.get("igualar_clipes", True) else None
         self.leg = (Legendas(an["palavras"], edl.get("legendas", {}), W, H, self.keep)
                     if edl.get("legendas", {}).get("ativo", True) else None)
+        fixar_pontos(edl.get("elementos", []), self.src, self.pasta)
         self.els = Elementos(edl.get("elementos", []), W, H, self.map_out, an["palavras"])
         self.els.fonte = (self.w0, self.h0)  # para projetar as trilhas ("seguir") da fonte no quadro de saída
         self.zooms = edl.get("zooms", [])

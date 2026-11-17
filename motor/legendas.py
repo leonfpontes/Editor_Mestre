@@ -44,7 +44,8 @@ class Legendas:
         for w in palavras:
             if not dentro((w["ini"] + w["fim"]) / 2):
                 continue
-            t = corr.get(w["t"].lower(), w["t"])
+            nu = w["t"].strip(".,!?;:")  # a correção vale com ou sem pontuação colada ("echu," vira "Exu,")
+            t = (w["t"].replace(nu, corr[nu.lower()]) if nu and nu.lower() in corr else corr.get(w["t"].lower(), w["t"]))
             if cfg.get("sem_pontuacao", True):
                 t = t.rstrip(",.;:") if not t.endswith(("?", "!")) else t
             if t:

@@ -83,6 +83,13 @@ def cmd_biblioteca(a):
         if a.qual == "3d":
             for nome in a.termo:
                 baixar_fluent(nome)
+    elif a.acao == "criar":
+        if a.qual != "3d":
+            sys.exit("só a biblioteca 3d cria objetos: editor.py biblioteca criar 3d <nome> [--fluent N] [--emoji E] [--texto T --marca X]")
+        from .criar3d import criar_3d
+        nome = " ".join(a.termo)
+        iid, como = criar_3d(nome, a.fluent, a.emoji, a.texto)
+        sys.exit(f"não criei {nome}: {como}") if not iid else print(f"criado: {iid} ({como})")
     elif a.acao == "verificar":
         sys.exit(0 if verificar_bibliotecas() else 1)
     elif a.acao == "catalogo":

@@ -69,6 +69,18 @@ Cartões (`titulo`, `destaque`) ficam presos à área segura e acima da legenda.
 
 O `analisar` escreve essas trilhas sozinho a partir de `cena.json` (veja [diretor-e-entrega.md](diretor-e-entrega.md)).
 
+**Preso a um objeto do ambiente (`fixar`)**: em vez da trilha, diga só onde está o objeto num instante da fonte,
+`"fixar": [t, x, y]`. O render rastreia o ponto pelo fluxo óptico (para frente e para trás, enquanto o elemento está na
+tela) e grava a trilha em `_cache/fixar.json`. Funciona com `na`/`ate`. É o jeito de rotular o que a câmera mostra:
+
+```jsonc
+{"tipo": "anotacao", "texto": "firmeza de Caboclo", "na": "caboclo", "segura": 1.2, "fixar": [36.1, 0.78, 0.47],
+ "tam": 0.038, "caixa": true}
+```
+
+Na `anotacao` presa a um ponto, a mira cai no objeto e o texto sai para a direita; `caixa: true` põe uma tarja escura
+translúcida atrás (legível sobre parede clara).
+
 ## `fundo`
 
 | Campo | Valores |
@@ -134,7 +146,7 @@ E posição: `x`, `y` (0 a 1), `altura` ou `largura` (fração da tela).
 |---|---|---|
 | `titulo` | `texto` | Wipe, palavras subindo e giro 3D. Até 6 palavras |
 | `destaque` | `texto`, `tam` | Rótulo na cor de destaque com mola. Até 4 palavras; empilhe em listas (`y` 0.08, 0.14, 0.20) |
-| `objeto3d` | `nome`, `fase` | Da biblioteca 3D ou da pasta da marca. Dois objetos: um de cada lado da cabeça |
+| `objeto3d` | `nome`, `fase`, `fluent`, `emoji` | Da biblioteca 3D ou da pasta da marca. Se não existir e vier `fluent` (nome em inglês do Fluent Emoji 3D) ou `emoji`, o editor **cria** o objeto (veja [bibliotecas.md](bibliotecas.md#criar-objetos-3d)) |
 | `efeito` | `nome`, `cor`, `cor2`, `intensidade`, parâmetros do efeito | 28 efeitos; veja [bibliotecas.md](bibliotecas.md#efeitos) |
 | `leo` | `pose`, `lado` | Só @pontes_brain, e só com contexto narrativo |
 | `imagem` | `arquivo` | Print, foto, gráfico |

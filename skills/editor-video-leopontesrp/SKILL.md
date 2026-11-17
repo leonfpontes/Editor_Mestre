@@ -26,7 +26,7 @@ Tudo roda nesta pasta, com `.venv/bin/python editor.py`.
 | `editor.py renderizar <pasta>/edl.json` | Render final de qualidade. |
 | `editor.py renderizar <pasta>/edl.json --so-audio` | Refaz só o áudio (música, volume) sobre o vídeo já renderizado, em segundos. |
 | `editor.py biblioteca listar musicas [termo] --clima <clima>` | Biblioteca de 35 faixas reais (CC BY 4.0) com clima, energia, BPM, gênero e crédito. `--json` para filtrar. |
-| `editor.py biblioteca listar 3d\|efeitos\|sons [termo] --marca leopontesrp` | Objetos 3D, layers de efeito e efeitos sonoros, se o vídeo pedir (raramente nesta conta). |
+| `editor.py biblioteca listar 3d\|efeitos\|sons [termo] --marca leopontesrp` | Objetos 3D, layers de efeito e efeitos sonoros, se o vídeo pedir (raramente nesta conta). Objeto 3D que falta é criado: `biblioteca criar 3d <nome> --fluent X --emoji Y` ou `fluent`/`emoji` no `objeto3d`. |
 | `editor.py renderizar <pasta>/edl.json --previa --de 3 --ate 9` | Prévia rápida de um trecho (10 quadros/s, com áudio) em `previa.mp4`, para conferir um ajuste em segundos. |
 | `editor.py linha-do-tempo <pasta>/edl.json` | Página `linha_do_tempo.html` com o vídeo e as trilhas do EDL (cortes, elementos, zooms, legenda, sons, avisos). |
 | `editor.py exportar <pasta>/edl.json [--quando 2026-11-20T19:00:00-03:00]` | Entrega: `legenda.srt`, `capa.jpg`, `post.txt` (rascunho), `reel.mp4` (até 20 MB) e a entrada da agenda do insta_report. |

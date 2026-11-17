@@ -200,7 +200,17 @@ class Elementos:
             elif tp == "leo":
                 e["obj"] = Leo(e, W, H)
             elif tp == "objeto3d":
-                caminho, it = objeto_3d(e["nome"])
+                try:
+                    caminho, it = objeto_3d(e["nome"])
+                except ErroDeMarca as erro:  # o roteiro pediu um objeto que não existe: o editor cria (criar3d.py)
+                    if "desconhecido" not in str(erro) or not any(e.get(k) for k in ("fluent", "emoji", "texto_3d")):
+                        raise
+                    from .criar3d import criar_3d
+                    iid, como = criar_3d(e["nome"], e.get("fluent"), e.get("emoji"), e.get("texto_3d"))
+                    if not iid:
+                        raise ErroDeMarca(f"não consegui criar o objeto 3D {e['nome']}: {como}") from erro
+                    print(f"  objeto 3D criado: {iid} ({como})", flush=True)
+                    caminho, it = objeto_3d(iid)
                 e["obj"] = (Sprite3D if it.get("tipo") == "render" else Objeto3D)(e, W, H, caminho)
             elif tp == "efeito":
                 e["obj"] = criar_efeito(e, W, H, len(self.items))
@@ -306,8 +316,13 @@ class Elementos:
                 ob.pts = ob._pts0 + np.array([X - ob._x0, Y - ob._y0])  # traços já desenhados (círculo, seta) andam juntos
         elif hasattr(ob, "cx") and hasattr(ob, "cy"):
             ob.cx, ob.cy = X, Y
-        else:  # cartão: o centro fica longe das bordas para a caixa inteira caber na área segura (e longe dos botões)
-            e["x"], e["y"] = min(max(X / self.W, 0.3), 0.66), min(max(Y / self.H, 0.14), 0.55)  # acima da legenda
+        elif e["tipo"] in ("titulo", "destaque", "titulo_caixa"):  # cartão grande: centro longe das bordas e acima da legenda
+            e["x"], e["y"] = min(max(X / self.W, 0.3), 0.66), min(max(Y / self.H, 0.14), 0.55)
+        else:  # rótulo pequeno (anotação): a mira cai no objeto e o texto sai para a direita, sem deixar a área segura
+            meia = getattr(ob, "W", 0) / 2 / self.W
+            x = X / self.W + (meia if e["tipo"] == "anotacao" else 0)
+            y = min(max(Y / self.H, 0.12), 0.62)
+            e["x"], e["y"] = min(max(x, 0.06 + meia), (0.85 if y > 0.5 else 0.94) - meia), y  # longe dos botões do Reels
 
     def posicao(self, e, w, h):
         """Canto superior esquerdo do sprite: x/y são o centro, na tela ou dentro do palco ("area": "palco")."""

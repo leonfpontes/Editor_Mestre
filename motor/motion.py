@@ -515,13 +515,17 @@ class Anotacao:
         self.f = fonte_estilo("mono", int(W * e.get("tam", 0.022)))
         self.txt = e.get("texto", "")
         self.c = cor(e.get("cor"), "papel_2")
-        self.W, self.H = int(self.f.getlength(self.txt)) + 60, int(self.f.size * 1.6)
+        self.caixa = e.get("caixa", False)  # tarja escura translúcida atrás (rótulo legível sobre fundo claro)
+        self.W, self.H = int(self.f.getlength(self.txt)) + 60 + (16 if self.caixa else 0), int(self.f.size * 1.6)
 
     def render(self, dt, rest):
         im = Image.new("RGBA", (self.W, self.H), (0, 0, 0, 0))
         d = ImageDraw.Draw(im)
         n = min(len(self.txt), int(dt * 40))
         cy = self.H // 2
+        if self.caixa and n:
+            fim = 32 + int(self.f.getlength(self.txt[:n])) + 14
+            d.rounded_rectangle([0, 0, min(fim, self.W - 1), self.H - 1], self.H // 4, fill=rgba(cor("marinho"), 170))
         d.line([4, cy, 20, cy], fill=rgba(self.c), width=2)
         d.line([12, cy - 8, 12, cy + 8], fill=rgba(self.c), width=2)
         d.text((32, cy - self.f.size * 0.62), self.txt[:n], font=self.f, fill=rgba(self.c))

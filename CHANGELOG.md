@@ -4,6 +4,10 @@
 
 ### Novo
 
+- **Objetos 3D criados sob demanda** (`motor/criar3d.py`, `biblioteca criar 3d`, ou `fluent`/`emoji` no `objeto3d`):
+  Fluent Emoji 3D, emoji extrudado ou placa da marca. Primeiros criados: `casa`, `broto`, `balao-fala`.
+- **Rótulo preso a um objeto do ambiente**: `"fixar": [t, x, y]` rastreia o ponto pelo fluxo óptico, também com `na`/`ate`;
+  `anotacao` ganha `caixa` e põe a mira no objeto.
 - **Leitura da cena** no `analisar` (`motor/cena.py`, `cena.json`, `--sem-cena` desliga): gestos da mão (dedo para cima,
   apontar para a câmera, mão aberta, joinha), aceno de cabeça (sim e não) e câmera (giro pelo ambiente, câmera se
   afastando). Cada leitura vira brilho, ondas, círculo, check, xis, luz, `whip` ou zoom `abre`, que acompanham o
@@ -68,6 +72,7 @@
 
 ### Mudou
 
+- Correções da legenda valem com pontuação colada ("echu," vira "Exu,").
 - Ajustes do primeiro teste com vídeos reais:
   - "um" e "uma" não contam mais como número no diretor ("um vídeo" não é número concreto);
   - o gancho da conferência é medido na abertura do vídeo editado, não na do bruto;

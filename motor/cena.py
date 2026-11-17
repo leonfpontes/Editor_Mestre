@@ -363,3 +363,44 @@ def aplicar_cena(edl, plano, palavras=None):
              if classe(e) == "luz" or not any(c == classe(e) and a < e["fim"] and e["ini"] < b for c, a, b in ocupado)]
     edl["elementos"] = edl.get("elementos", []) + novos
     return edl
+
+
+# ───────────────────────────── rastreio de um ponto do ambiente ("fixar") ─────────────────────────────
+def rastrear_ponto(video, t0, x, y, a, b, largura=360):
+    """Trilha [[t, x, y]] (fonte, 0 a 1) de um ponto do ambiente (um objeto na estante, a porta) entre a e b, partindo
+    do instante t0 em (x, y). Fluxo óptico de uma pequena nuvem de pontos ao redor, para frente e para trás de t0; se o
+    ponto se perde (sai da tela), fica no último lugar conhecido."""
+    cap = cv2.VideoCapture(str(video))
+    i_a, i_b, i_0 = (max(int(round(v * FPS)), 0) for v in (a, b, t0))
+    i_0 = min(max(i_0, i_a), i_b)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, i_a)
+    quadros = []
+    for _ in range(i_a, i_b + 1):
+        ok, f = cap.read()
+        if not ok:
+            break
+        h0, w0 = f.shape[:2]
+        quadros.append(cv2.cvtColor(cv2.resize(f, (largura, int(largura * h0 / w0))), cv2.COLOR_BGR2GRAY))
+    cap.release()
+    if not quadros:
+        return [[round(t0, 3), x, y]]
+    ph, pw = quadros[0].shape
+    k0 = min(i_0 - i_a, len(quadros) - 1)
+    r = 6
+    nuvem = np.float32([[x * pw + dx, y * ph + dy] for dx in (-r, 0, r) for dy in (-r, 0, r)]).reshape(-1, 1, 2)
+    pos = {k0: (x, y)}
+    lk = {"winSize": (31, 31), "maxLevel": 3, "criteria": (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01)}
+    for passo in (1, -1):
+        pts, k = nuvem.copy(), k0
+        while 0 <= k + passo < len(quadros):
+            nov, st, _ = cv2.calcOpticalFlowPyrLK(quadros[k], quadros[k + passo], pts, None, **lk)
+            bons = st.ravel() == 1
+            if bons.sum() < 3:
+                break
+            centro = np.median(nov[bons].reshape(-1, 2), axis=0)
+            if not (0 <= centro[0] < pw and 0 <= centro[1] < ph):
+                break
+            pts = nov[bons].reshape(-1, 1, 2)
+            k += passo
+            pos[k] = (float(centro[0] / pw), float(centro[1] / ph))
+    return [[round((i_a + k) / FPS, 3), round(px, 4), round(py, 4)] for k, (px, py) in sorted(pos.items())]

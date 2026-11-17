@@ -58,7 +58,7 @@ def main(argv=None):
     sub.add_parser("estilos", help="lista os estilos de edição, os planos e os looks de cor")
 
     p = sub.add_parser("biblioteca", help="bibliotecas compartilhadas: 3D, músicas, efeitos e sons")
-    p.add_argument("acao", choices=["listar", "baixar", "verificar", "previa", "catalogo"])
+    p.add_argument("acao", choices=["listar", "baixar", "verificar", "previa", "catalogo", "criar"])
     p.add_argument("qual", nargs="?", choices=["3d", "musicas", "efeitos", "sons"])
     p.add_argument("termo", nargs="*", help="texto a procurar (listar) ou nomes do Fluent Emoji (baixar 3d)")
     p.add_argument("--marca", help="mostra só o que serve a esta marca (e usa a paleta dela na prévia)")
@@ -67,6 +67,9 @@ def main(argv=None):
     p.add_argument("--genero")
     p.add_argument("--saida", help="arquivo de saída da prévia")
     p.add_argument("--json", action="store_true", help="saída em JSON (para agentes)")
+    p.add_argument("--fluent", help="(criar 3d) nome da pasta no Fluent Emoji, em inglês (ex.: House)")
+    p.add_argument("--emoji", help="(criar 3d) emoji para extrudar quando não houver Fluent (ex.: 🏠)")
+    p.add_argument("--texto", help="(criar 3d) placa com este texto nas cores da marca (--marca obrigatório)")
 
     p = sub.add_parser("conferir", help="confere de que marca é um vídeo renderizado")
     p.add_argument("video")
