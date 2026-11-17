@@ -62,6 +62,8 @@ Fonte: `/mnt/project-files/girahub-instagram/conhecimento/identidade-visual.md` 
 
 **Bibliotecas ampliadas** (10x): 280 efeitos (`editor.py biblioteca listar efeitos --categoria marcacao|particulas|luz|textura|formas`), 113 transições (`listar transicoes`), 80 looks (`listar looks`) e 160 títulos, com o tipo `letreiro` (`{"tipo": "letreiro", "estilo": "<visual>_<entrada>", "texto": "linha/linha", "na": …}`, `listar titulos`). `editor.py biblioteca previa transicoes|looks|titulos|efeitos --marca <marca>` mostra a folha. Escolha pelo motivo na fala, como sempre: a descrição de cada item diz quando usar. Nesta marca: looks `espiritual`, `limpo`, `aconchego`, `hora_dourada`, `marca_luzes`; transições calmas (`dissolver_nuvem`, `fusao_desfocada`, `mergulho_papel`, `iris_circulo_abre`, `vazamento_*`, `cortina_*`); letreiros `serifa`, `manuscrito`, `tarja_escura`, `aspas` com entrada `surge`, `revela` ou `desfoca`; partículas leves (`poeira_dourada`, `poeira_no_ar`) só com motivo. Nunca os marcados "Evite em vídeo de fé" nem as transições digitais (`glitch_corte`, `rgb_separado`, `pixelar`, `tv_desliga`).
 
+O `analisar` já põe no rascunho algumas dessas peças pela fala (vocabulário do diretor, `motor/vocabulario.py`: linha `vocabulário:` no relatório e `Fala pede transição …`). Confira cada uma como confere as outras: mantenha a que tem motivo, troque ou tire a que não serve.
+
 **Diretor, prévia, conferência e entrega** (guia em `docs/diretor-e-entrega.md`):
 
 - **O `analisar` já dirige o rascunho.** Ele corta vícios e tomadas repetidas, escolhe as ênfases da legenda, alterna o zoom nos jump cuts (`"salto": true`), põe punch nas ênfases mais fortes e sugere elementos ancorados na fala.

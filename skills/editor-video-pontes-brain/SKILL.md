@@ -93,6 +93,8 @@ Opcionais: `x`/`y` (0 a 1) e `altura` (fração da tela) em qualquer elemento. A
 
 **Bibliotecas ampliadas** (10x): 280 efeitos (`editor.py biblioteca listar efeitos --categoria marcacao|particulas|luz|textura|formas`), 113 transições (`listar transicoes`), 80 looks (`listar looks`) e 160 títulos, com o tipo `letreiro` (`{"tipo": "letreiro", "estilo": "<visual>_<entrada>", "texto": "linha/linha", "na": …}`, `listar titulos`). `editor.py biblioteca previa transicoes|looks|titulos|efeitos --marca <marca>` mostra a folha. Escolha pelo motivo na fala, como sempre: a descrição de cada item diz quando usar. Nesta marca: letreiros `tarja_destaque`, `marca_texto`, `tecnico`, `colchetes` com `palavra` ou `digita`; transições com identidade (`forma_*_dourada`, `camadas_*`, `cortina_faixa_*`) nas viradas de bloco; formas de motion (`forma_barra_progresso_*`, `forma_mira_*`, `forma_setas_convergindo_*`) e traços à mão (`traco_*`, `marcador_*`) para apontar a ideia; looks `marca_split`, `tecnologia`, `natural`.
 
+O `analisar` já põe no rascunho algumas dessas peças pela fala (vocabulário do diretor, `motor/vocabulario.py`: linha `vocabulário:` no relatório e `Fala pede transição …`). Confira cada uma como confere as outras: mantenha a que tem motivo, troque ou tire a que não serve.
+
 **Diretor, prévia, conferência e entrega** (guia em `docs/diretor-e-entrega.md`):
 
 - **O `analisar` já dirige o rascunho.** Ele corta vícios e tomadas repetidas, escolhe as ênfases da legenda, alterna o zoom nos jump cuts (`"salto": true`), põe punch nas ênfases mais fortes e sugere elementos ancorados na fala.

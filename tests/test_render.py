@@ -88,3 +88,17 @@ def test_igualar_clipes_aproxima_a_cor(tmp_path):
     assert cc and len(cc) == 2
     lut = lut_clipe(cc[1])
     assert lut[0, 150, 0] < 150  # o azul do 2º clipe desce
+
+
+def test_elemento_no_gancho_movido_entra_na_abertura():
+    """O gancho movido para a abertura não se repete depois: o elemento ancorado na fala dele fica no próprio trecho."""
+    from types import SimpleNamespace
+
+    from motor.renderizar import Contexto
+    segs = [{"qa": 27.6, "qb": 28.4, "o": 0.0, "gancho": True}, {"qa": 2.0, "qb": 6.0, "o": 0.8}, {"qa": 29.0, "qb": 31.0, "o": 4.8}]
+    c = SimpleNamespace(segs=segs, dur_fala=6.8)
+    c.map_out = lambda t: Contexto.map_out(c, t)
+    a, b = Contexto.map_faixa(c, 27.48, 30.0)
+    assert a == 0.0 and abs(b - 0.8) < 1e-9
+    a, b = Contexto.map_faixa(c, 3.0, 4.0)  # trecho normal: como antes
+    assert abs(a - 1.8) < 1e-9 and abs(b - 2.8) < 1e-9

@@ -805,17 +805,27 @@ class FormaAnimada(Efeito):
                          cor, esp, cv2.LINE_AA)
         elif t == "linhas_velocidade":  # linhas radiais na borda, mangá
             r = self.rng_quadro(dt)
-            for _ in range(40):
+            for _ in range(40 if self.estilo == "fino" else 34):
                 an = r.random() * TAU
-                r0 = W * r.uniform(0.45, 0.6)
-                cv2.line(ov, (int(W / 2 + r0 * math.cos(an)), int(H / 2 + r0 * math.sin(an) * H / W)),
-                         (int(W / 2 + W * math.cos(an)), int(H / 2 + W * math.sin(an) * H / W)), cor2, esp, cv2.LINE_AA)
+                r0 = W * (r.uniform(0.45, 0.6) if self.estilo == "fino" else r.uniform(0.3, 0.4))
+                p0 = (W / 2 + r0 * math.cos(an), H / 2 + r0 * math.sin(an) * H / W)
+                p1 = (W / 2 + W * math.cos(an), H / 2 + W * math.sin(an) * H / W)
+                if self.estilo == "fino":
+                    cv2.line(ov, (int(p0[0]), int(p0[1])), (int(p1[0]), int(p1[1])), cor2, esp, cv2.LINE_AA)
+                else:  # cunhas cheias de mangá: finas na ponta de dentro, largas na borda
+                    lg = W * r.uniform(0.02, 0.045)
+                    nx, ny = -math.sin(an) * lg, math.cos(an) * lg
+                    cv2.fillPoly(ov, [np.int32([p0, (p1[0] + nx, p1[1] + ny), (p1[0] - nx, p1[1] - ny)])], cor, cv2.LINE_AA)
         elif t == "linhas_horizontais":
             r = self.rng_quadro(dt)
-            for _ in range(14):
+            for _ in range(14 if self.estilo == "fino" else 7):
                 yy = r.random() * H
                 x0 = r.random() * W
-                cv2.line(ov, (int(x0), int(yy)), (int(x0 + W * r.uniform(0.1, 0.35)), int(yy)), cor2, max(1, esp // 2), cv2.LINE_AA)
+                x1 = x0 + W * r.uniform(0.1, 0.35)
+                if self.estilo == "fino":
+                    cv2.line(ov, (int(x0), int(yy)), (int(x1), int(yy)), cor2, max(1, esp // 2), cv2.LINE_AA)
+                else:  # faixas grossas e arredondadas na cor de destaque
+                    cv2.line(ov, (int(x0), int(yy)), (int(x1), int(yy)), cor, esp * 2, cv2.LINE_AA)
         elif t == "grade_pontos":
             p = max(10, int(W / 14))
             for i in range(0, W + p, p):
@@ -827,6 +837,11 @@ class FormaAnimada(Efeito):
         elif t == "grade_linhas":
             p = max(10, int(W / 8))
             off = int(dt * p * 0.5) % p
+            if self.estilo == "bloco":  # xadrez de células cheias que desliza
+                for i in range(-p, W + p, p):
+                    for j in range(-p, H + p, p):
+                        if ((i // p) + (j // p)) % 2 == 0:
+                            cv2.rectangle(ov, (i + off, j + off), (i + off + p, j + off + p), cor2, -1)
             for i in range(-p, W + p, p):
                 cv2.line(ov, (i + off, 0), (i + off, H), cor2, 1, cv2.LINE_AA)
             for j in range(-p, H + p, p):
@@ -856,6 +871,9 @@ class FormaAnimada(Efeito):
         elif t == "onda_seno":
             xs = np.linspace(0, W, 120)
             ys = y + R * 0.3 * np.sin(xs / W * 4 * math.pi - dt * 4)
+            if self.estilo == "bloco":  # faixa ondulada cheia (fita de som)
+                faixa = np.vstack([np.stack([xs, ys], 1), np.stack([xs[::-1], ys[::-1] + R * 0.18], 1)])
+                cv2.fillPoly(ov, [np.int32(faixa)], cor, cv2.LINE_AA)
             cv2.polylines(ov, [np.int32(np.stack([xs, ys], 1))], False, cor, esp, cv2.LINE_AA)
         elif t == "mira":
             r = R * (1.4 - 0.4 * ent)
@@ -870,6 +888,14 @@ class FormaAnimada(Efeito):
                 cv2.polylines(ov, [np.int32([(cx, cy + sy * L), (cx, cy), (cx + sx * L, cy)])], False, cor2, esp, cv2.LINE_AA)
             if int(dt * 2) % 2 == 0:
                 cv2.circle(ov, (int(m + W * 0.05), int(m + W * 0.05)), int(W * 0.012), cor, -1, cv2.LINE_AA)
+            if self.estilo == "bloco":  # etiqueta de gravação e barra de nível de áudio
+                tx, ty = int(m + W * 0.08), int(m + W * 0.065)
+                cv2.rectangle(ov, (tx - 6, ty - int(W * 0.035)), (tx + int(W * 0.11), ty + 8), (20, 20, 20), -1)
+                cv2.putText(ov, "REC", (tx, ty), cv2.FONT_HERSHEY_SIMPLEX, W / 1080 * 1.1, cor2, max(1, int(W / 500)), cv2.LINE_AA)
+                for k in range(10):
+                    h = int(W * 0.025 * (0.3 + 0.7 * abs(math.sin(dt * 7 + k * 1.3))))
+                    cx = int(W - m - W * 0.03 - k * W * 0.014)
+                    cv2.rectangle(ov, (cx, int(H - m - W * 0.02 - h)), (cx + int(W * 0.008), int(H - m - W * 0.02)), cor, -1)
         elif t == "barras_cinema":
             h = int(H * (0.11 if self.estilo == "fino" else 0.17) * ease_out(clamp01(dt / 0.5)) * clamp01(rest / 0.4))
             cv2.rectangle(ov, (0, 0), (W, h), (8, 8, 8), -1)
@@ -912,7 +938,7 @@ class FormaAnimada(Efeito):
                 pts = np.int32([(i + off, 0), (i + off + p, 0), (i + off + p - H, H), (i + off - H, H)])
                 cv2.fillPoly(ov, [pts], cor2, cv2.LINE_AA)
         alfa = (0.9 if self.estilo == "fino" else 0.6) * a
-        if t in ("listras_diagonais", "grade_linhas", "linhas_velocidade"):
+        if t in ("listras_diagonais", "grade_linhas") or (t == "linhas_velocidade" and self.estilo == "fino"):
             alfa *= 0.35
         if t == "barras_cinema":
             alfa = a

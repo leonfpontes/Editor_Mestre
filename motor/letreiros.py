@@ -22,7 +22,8 @@ TRATAMENTOS = {
     "tarja": ("Caixa clara justa no texto, texto escuro. O título mais legível sobre qualquer fundo.", "sans_forte", "marinho", {"caixa": "papel_2"}),
     "tarja_escura": ("Caixa escura da marca com texto claro. Sóbrio, institucional.", "sans_forte", "papel_2", {"caixa": "marinho"}),
     "tarja_destaque": ("Caixa na cor de destaque com texto escuro. Chamada forte, oferta.", "sans_forte", "marinho", {"caixa": "champanhe"}),
-    "contorno": ("Só o contorno das letras, vazado. Moderno, leve.", "sans_forte", "papel_2", {"contorno": True}),
+    "contorno": ("Só o contorno das letras, vazado, com sombra que o separa do fundo. Moderno, leve.", "sans_forte", "papel_2",
+                 {"contorno": True, "sombra": True}),
     "sombra_longa": ("Texto com sombra longa na diagonal, estilo pôster.", "condensada", "papel_2", {"sombra_longa": "marinho"}),
     "sublinhado": ("Texto com um traço de destaque que se desenha por baixo.", "sans_forte", "papel_2", {"sublinha": "champanhe"}),
     "marca_texto": ("Marca-texto na cor de destaque passando atrás das palavras.", "sans_forte", "marinho", {"marca_texto": "champanhe"}),
@@ -126,7 +127,7 @@ class Letreiro:
                     for s in range(self.sl, 0, -2):
                         d.text((tx + s, ty + s), vis, font=self.f, fill=_c(x["sombra_longa"]))
                 if x.get("contorno"):
-                    d.text((tx, ty), vis, font=self.f, fill=(0, 0, 0, 0), stroke_width=max(2, self.tam // 30), stroke_fill=_c(cor_l))
+                    d.text((tx, ty), vis, font=self.f, fill=(0, 0, 0, 0), stroke_width=max(3, self.tam // 22), stroke_fill=_c(cor_l))
                 else:
                     d.text((tx, ty), vis, font=self.f, fill=_c(cor_l))
             if x.get("sublinha") and k == len(self.linhas) - 1 and p_extra > 0:

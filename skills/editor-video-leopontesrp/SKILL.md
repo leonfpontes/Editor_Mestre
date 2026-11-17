@@ -86,6 +86,8 @@ O rascunho do `analisar` já vem com esses padrões (estão em `marcas/leopontes
 
 **Bibliotecas ampliadas** (10x): 280 efeitos (`editor.py biblioteca listar efeitos --categoria marcacao|particulas|luz|textura|formas`), 113 transições (`listar transicoes`), 80 looks (`listar looks`) e 160 títulos, com o tipo `letreiro` (`{"tipo": "letreiro", "estilo": "<visual>_<entrada>", "texto": "linha/linha", "na": …}`, `listar titulos`). `editor.py biblioteca previa transicoes|looks|titulos|efeitos --marca <marca>` mostra a folha. Escolha pelo motivo na fala, como sempre: a descrição de cada item diz quando usar. Nesta conta pessoal: looks `natural`, `hora_dourada`, `aconchego`, `filme_kodak`, `nostalgia`; transições `dissolve`, `fusao_desfocada`, `mergulho_preto`, `vazamento_*`; letreiros `manuscrito`, `serifa`, `sublinhado` com `surge` ou `desfoca`. Pouco efeito: um traço à mão ou partícula leve só quando a fala pedir.
 
+O `analisar` já põe no rascunho algumas dessas peças pela fala (vocabulário do diretor, `motor/vocabulario.py`: linha `vocabulário:` no relatório e `Fala pede transição …`). Confira cada uma como confere as outras: mantenha a que tem motivo, troque ou tire a que não serve.
+
 **Diretor, prévia, conferência e entrega** (guia em `docs/diretor-e-entrega.md`):
 
 - **O `analisar` já dirige o rascunho.** Ele corta vícios e tomadas repetidas, escolhe as ênfases da legenda, alterna o zoom nos jump cuts (`"salto": true`), põe punch nas ênfases mais fortes e sugere elementos ancorados na fala.

@@ -274,7 +274,7 @@ class Contexto:
         self.leg = (Legendas(an["palavras"], edl.get("legendas", {}), W, H, self.keep)
                     if edl.get("legendas", {}).get("ativo", True) else None)
         fixar_pontos(edl.get("elementos", []), self.src, self.pasta)
-        self.els = Elementos(edl.get("elementos", []), W, H, self.map_out, an["palavras"])
+        self.els = Elementos(edl.get("elementos", []), W, H, self.map_out, an["palavras"], self.map_faixa)
         self.els.fonte = (self.w0, self.h0)  # para projetar as trilhas ("seguir") da fonte no quadro de saída
         self.zooms = edl.get("zooms", [])
         self.marca = None
@@ -299,6 +299,16 @@ class Contexto:
                 return s["o"] + t - s["qa"]
         depois = [s for s in normais if s["qa"] > t]
         return min(depois, key=lambda s: s["qa"])["o"] if depois else self.dur_fala
+
+    def map_faixa(self, a, b):
+        """Instantes de entrada e saída de um elemento na saída. Um gancho movido para a abertura (o trecho não se repete
+        depois) leva os elementos ancorados na fala dele, presos ao próprio trecho."""
+        normais = [s for s in self.segs if not s.get("gancho")]
+        if not any(s["qa"] <= x < s["qb"] for s in normais for x in (a, a + 0.3)):
+            for s in self.segs:
+                if s.get("gancho") and s["qa"] - 0.3 <= a < s["qb"]:
+                    return s["o"] + max(0.0, a - s["qa"]), s["o"] + min(b, s["qb"]) - s["qa"]
+        return self.map_out(a), self.map_out(b)
 
     def clipe_de(self, t):
         return sum(1 for c in self.clipes_ini[1:] if t >= c)
