@@ -60,6 +60,27 @@ Fonte: `/mnt/project-files/girahub-instagram/conhecimento/identidade-visual.md` 
 
 **Estilos de edição** (`editor.py estilos`; guia em `docs/estilos-de-referencia.md`, campos em `docs/edl.md`): `"estilo": "tutorial_passos"` (rosto, tela dividida e só motion em corte seco, legenda limpa de 2 palavras, `passo`, `janela`, `arvore`, `mapa`, `comentario`), `"tela_perspectiva"` (gravação de tela num plano 3D com câmera e profundidade de campo: `broll` com `perspectiva`) e `"vitrine"` (um `look` por frase, `texto_atras`, `hud_rosto`, `som` com `rotulo`, `neon`). Em cada segmento: `"plano"` (`rosto`, `dividido`, `motion`) e `"look"` (`pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo`). `analisar --estilo <estilo>` já corta as pausas no ritmo do estilo. O estilo nunca troca a identidade: cores e fontes de texto continuam as da marca.
 
+**Diretor, prévia, conferência e entrega** (guia em `docs/diretor-e-entrega.md`):
+
+- **O `analisar` já dirige o rascunho.** Ele corta vícios e tomadas repetidas, escolhe as ênfases da legenda, alterna o zoom nos jump cuts (`"salto": true`), põe punch nas ênfases mais fortes e sugere elementos ancorados na fala.
+  - Leia o resumo no fim de `transcricao.txt` e o `diretor.json` antes de mexer.
+  - Confira cada corte proposto: se um corte mudar o sentido, desfaça.
+  - A nota do gancho e a frase mais forte vêm junto. Para abrir com essa frase, use um segmento `"gancho": true`.
+  - `--sem-diretor` dá o rascunho cru.
+- **Ajuste por trechos.** `renderizar --previa --de S --ate S` mostra só o trecho alterado, em segundos.
+- **O render final faz a conferência visual.** Ele avisa sobre:
+  - área segura do Reels;
+  - elemento cobrindo o rosto;
+  - legenda sobre o rosto ou sem contraste;
+  - loudness fora do alvo;
+  - gancho fraco.
+
+  Resolva cada aviso de `conferencia.json` antes de entregar.
+- **Para revisar a edição inteira**, rode `linha-do-tempo` e abra a página.
+- **Na entrega**, rode `exportar` (com `--quando` se já houver data). Ele gera:
+  - `legenda.srt`, `capa.jpg` e `reel.mp4` (até 20 MB);
+  - `post.txt`, que é só rascunho: a legenda do post continua seguindo as regras desta skill.
+
 Para esta marca, prefira `tutorial_passos` (explicar um recurso do app em passos) e looks discretos (`limpo`, `quente`). `vitrine`, `neon`, `bilhete` e `hud_rosto` não combinam com conteúdo religioso: só com o ok do Leonardo e nunca em fala sobre fé.
 
 ## 3. Publicidade: o que pode prometer

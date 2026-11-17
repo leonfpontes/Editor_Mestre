@@ -39,6 +39,7 @@ Trechos que **ficam**, na ordem em que aparecem no vídeo. Apague os que saem.
 | `transicao` | Entrada do trecho: `null` (corte seco), `push`, `whip`, `zoom`, `slide`, `flash`, `dissolve`, `giro` (giro 3D), `rasgo` (papel rasgado), `vidro` (vidro líquido), `luz` (queima de luz) |
 | `som` | Som da transição (id de `biblioteca listar sons`); `false` deixa muda. Sem o campo, vale o padrão da marca |
 | `gancho` | `true` repete o trecho no início do vídeo (a frase mais forte abrindo). O original continua no lugar |
+| `salto` | `true` troca o `zoom` no corte, sem deslizar (jump cut com mudança de enquadramento; o diretor marca sozinho) |
 | `plano` | `rosto` (padrão) · `dividido` (palco de motion em cima, rosto embaixo) · `motion` (só o palco; a voz continua) |
 | `corte_y` | No `dividido`, o centro da faixa de rosto mostrada (fração da altura; padrão 0.36) |
 | `look` | Cor do trecho: `pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo` |
@@ -65,7 +66,8 @@ Trechos que **ficam**, na ordem em que aparecem no vídeo. Apague os que saem.
 ## `cor` e `audio`
 
 ```jsonc
-"cor":   {"contraste": 1.05, "saturacao": 1.06, "calor": 0.03, "nitidez": 0.25},
+"cor":   {"contraste": 1.05, "saturacao": 1.06, "calor": 0.03, "nitidez": 0.25,
+          "lut": "filme.cube", "lut_intensidade": 0.6, "proteger_pele": true, "igualar_clipes": true},
 "audio": {"denoise": true, "denoise_db": 10, "presenca_db": 1.0, "loudness": -16, "sfx_transicoes": true}
 ```
 
@@ -88,6 +90,10 @@ de −1,5 dBFS.
              "enfase": ["diagnóstico", "PDCA"],          // 3 a 6 palavras na cor de destaque
              "correcoes": {"porque": "por que"}}         // conserta o Whisper
 ```
+
+`quebra_sentido` (padrão `true`) não deixa um bloco terminar em artigo, preposição ou conjunção ("de", "o", "que"). `emoji`
+(`true` ou um mapa `{"palavra": "objeto-3d"}`) faz um objeto 3D da biblioteca pular acima da legenda quando a palavra é
+falada ("dinheiro", "ideia", "foguete"…); `emoji_tam` (0.13) e `emoji_espaco` (4 s entre um e outro).
 
 `estilo`: `marcada` (padrão, marcação na cor de destaque) ou `limpa` (branco, sem caixa nem contorno, sombra macia; use
 com 1 ou 2 palavras por bloco). Nos planos `dividido` e `motion` a legenda vai para a linha que divide (0.5) e para 0.72;
@@ -192,3 +198,13 @@ Aponte a câmera para o que a fala cita. `foco` 0 a 1 é a profundidade de campo
 
 Qualquer coisa de outra marca: veja [marcas.md](marcas.md#4-guarda-do-edl-motorguardapy). A mensagem lista todos os
 problemas de uma vez, com o caminho do campo (`elementos[3].texto contém "girahub", que é da marca girahub`).
+
+## Entrega e cache
+
+| Campo | Valores |
+|---|---|
+| `capa` | `{"texto": "…", "t": 4.2, "y": 0.16}`: título e instante (s do vídeo final) da capa gerada por `exportar` |
+| `cache_recorte` | `false` desliga o cache do recorte da pessoa (`_cache/` na pasta do EDL) |
+
+Caminhos de arquivo no EDL (`arquivo`, `imagem`, `fonte`, `lut`) são relativos à pasta do próprio `edl.json`. O diretor,
+a prévia, a conferência visual e o `exportar` estão em [diretor-e-entrega.md](diretor-e-entrega.md).

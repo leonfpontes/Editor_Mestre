@@ -6,6 +6,40 @@
 
 - **Peças fixas no Pencil**: capa de Reel do @pontes_brain em `marcas/pontes_brain/pencil/capa-reel.pen` (fonte) e
   `capa-reel.png` (1080×1920); convenção documentada em `docs/marcas.md`.
+- **Diretor automático** no `analisar` (`motor/diretor.py`, `--sem-diretor` desliga):
+  - corta vícios e tomadas repetidas;
+  - escolhe as ênfases da legenda;
+  - alterna o zoom nos jump cuts (`"salto"`) e dá punch nas ênfases;
+  - dá nota ao gancho e aponta a frase mais forte;
+  - sugere elementos e termos de b-roll.
+
+  Relatório em `diretor.json` e no fim da `transcricao.txt`.
+- **Render mais rápido**:
+  - trechos em paralelo, cada um aquecendo câmera e recorte para sair igual ao render corrido (`--processos`);
+  - cache do recorte da pessoa em `_cache/`;
+  - looks e cor por LUT;
+  - tela em perspectiva otimizada.
+
+  No estilo vitrine, o re-render ficou 4x mais rápido.
+- **Prévia rápida**: `renderizar --previa --de S --ate S` gera `previa.mp4` a 10 quadros/s, só da janela pedida, com áudio.
+- **Conferência visual** (`motor/qa.py`) em todo render, com `conferencia.json`. Ela aponta:
+  - elemento ou legenda fora da área segura;
+  - elemento cobrindo o rosto, legenda sobre o rosto ou brigando com um elemento;
+  - legenda sem contraste;
+  - loudness, duração e gancho fraco.
+- **`linha-do-tempo`**: página HTML com o vídeo e as trilhas do EDL.
+- **`exportar`**: `legenda.srt`, capa limpa, rascunho do post (termina no CTA da marca), `reel.mp4` até 20 MB, outros formatos
+  (`--formatos`) e a entrada da agenda do insta_report (`--quando`, `--insta-report`).
+- **`renderizar --formato`**: o mesmo EDL em `feed` ou `horizontal`.
+- **`broll`**: b-roll vertical do Pexels com `PEXELS_API_KEY`, baixado para a pasta do vídeo com a licença ao lado.
+- **Cor**:
+  - LUT 3D `.cube` (`cor.lut`, `lut_intensidade`);
+  - pele protegida nos looks de cor;
+  - cor igual entre clipes gravados em momentos diferentes.
+- **Legendas**:
+  - quebra por sentido (o bloco não termina em "de", "o", "que");
+  - `emoji`: objeto 3D da biblioteca pula acima da legenda na palavra certa.
+
 - **Estilos de edição** (`"estilo"` no EDL, `analisar --estilo`, `editor.py estilos`): `tutorial_passos`,
   `tela_perspectiva` e `vitrine`, presets que ajustam legenda, sons, corte de pausas e o aviso de ritmo.
 - **Planos por segmento** (`"plano"`): `rosto`, `dividido` (palco de motion em cima, rosto embaixo) e `motion`; a
@@ -22,6 +56,13 @@
 - **Fontes de estilo** (OFL): DM Serif Display, Anton, Space Mono e Caveat, com licenças em `biblioteca/fontes/LICENCAS.md`.
 - **Estilos de referência** em `docs/estilos-de-referencia.md`: três estilos de Reels estudados (tela em perspectiva,
   tutorial em passos, vitrine de estilos), com números medidos, receita para o motor atual e lista do que falta construir.
+
+### Mudou
+
+- Caminhos de arquivo no EDL são relativos à pasta do próprio `edl.json`, não à pasta de onde o comando roda.
+- O b-roll é lido pelo instante, na velocidade real do arquivo (gravação de tela a 60 fps não fica mais em câmera lenta).
+- Por causa da quebra por sentido, as folhas de referência de todas as marcas foram regeradas: a legenda de teste agora
+  fecha o bloco em "palavra", não em "por".
 
 ## 2.1.0 (2026-10-29)
 

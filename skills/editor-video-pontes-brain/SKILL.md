@@ -22,6 +22,9 @@ Tudo roda nesta pasta, com `.venv/bin/python editor.py`. Se `.venv` não existir
 | `editor.py renderizar <pasta>/edl.json --rapido` | Render para conferência (codificação rápida). Gera `final.mp4` e `previa.jpg` (12 quadros). |
 | `editor.py renderizar <pasta>/edl.json` | Render final de qualidade. |
 | `editor.py renderizar <pasta>/edl.json --so-audio` | Refaz só o áudio sobre o vídeo já renderizado (segundos). |
+| `editor.py renderizar <pasta>/edl.json --previa --de 3 --ate 9` | Prévia rápida de um trecho (10 quadros/s, com áudio) em `previa.mp4`, para conferir um ajuste em segundos. |
+| `editor.py linha-do-tempo <pasta>/edl.json` | Página `linha_do_tempo.html` com o vídeo e as trilhas do EDL (cortes, elementos, zooms, legenda, sons, avisos). |
+| `editor.py exportar <pasta>/edl.json [--quando 2026-11-20T19:00:00-03:00]` | Entrega: `legenda.srt`, `capa.jpg`, `post.txt` (rascunho), `reel.mp4` (até 20 MB) e a entrada da agenda do insta_report. |
 | `editor.py conferir <pasta>/final.mp4 --marca pontes_brain` | Lê o selo de marca gravado no vídeo. Só entregue se disser "confere". |
 | `editor.py biblioteca listar 3d\|efeitos\|sons [termo] --marca pontes_brain` | Busca na biblioteca 3D (215 objetos), de efeitos (29 layers) e de sons (38 efeitos sonoros). `--json` para filtrar. |
 | `editor.py testar` | Teste de regressão de todas as marcas (visual + isolamento + render de 4 s + áudio). Rode depois de qualquer mudança no código; precisa terminar em `TUDO OK`. |
@@ -87,6 +90,27 @@ Poses do Leo em `marcas/pontes_brain/leo/`: `apontando`, `joinha`, `pensando`, `
 Opcionais: `x`/`y` (0 a 1) e `altura` (fração da tela) em qualquer elemento. As animações já vêm prontas: título abre em wipe com palavras subindo e leve giro 3D; destaque cresce do centro com mola; Leo entra deslizando com giro, flutua e sai; legenda surge palavra a palavra com a marcação champanhe deslizando; zoom `punch` dá um tranco curto; o fundo `marca` tem luz ambiente difusa e um ponto percorrendo o ciclo PDCA. Cada elemento ganha um som discreto na entrada (`"sfx_elementos": false` em `audio` desliga).
 
 **Estilos de edição** (`editor.py estilos`; guia em `docs/estilos-de-referencia.md`, campos em `docs/edl.md`): `"estilo": "tutorial_passos"` (rosto, tela dividida e só motion em corte seco, legenda limpa de 2 palavras, `passo`, `janela`, `arvore`, `mapa`, `comentario`), `"tela_perspectiva"` (gravação de tela num plano 3D com câmera e profundidade de campo: `broll` com `perspectiva`) e `"vitrine"` (um `look` por frase, `texto_atras`, `hud_rosto`, `som` com `rotulo`, `neon`). Em cada segmento: `"plano"` (`rosto`, `dividido`, `motion`) e `"look"` (`pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo`). `analisar --estilo <estilo>` já corta as pausas no ritmo do estilo. O estilo nunca troca a identidade: cores e fontes de texto continuam as da marca.
+
+**Diretor, prévia, conferência e entrega** (guia em `docs/diretor-e-entrega.md`):
+
+- **O `analisar` já dirige o rascunho.** Ele corta vícios e tomadas repetidas, escolhe as ênfases da legenda, alterna o zoom nos jump cuts (`"salto": true`), põe punch nas ênfases mais fortes e sugere elementos ancorados na fala.
+  - Leia o resumo no fim de `transcricao.txt` e o `diretor.json` antes de mexer.
+  - Confira cada corte proposto: se um corte mudar o sentido, desfaça.
+  - A nota do gancho e a frase mais forte vêm junto. Para abrir com essa frase, use um segmento `"gancho": true`.
+  - `--sem-diretor` dá o rascunho cru.
+- **Ajuste por trechos.** `renderizar --previa --de S --ate S` mostra só o trecho alterado, em segundos.
+- **O render final faz a conferência visual.** Ele avisa sobre:
+  - área segura do Reels;
+  - elemento cobrindo o rosto;
+  - legenda sobre o rosto ou sem contraste;
+  - loudness fora do alvo;
+  - gancho fraco.
+
+  Resolva cada aviso de `conferencia.json` antes de entregar.
+- **Para revisar a edição inteira**, rode `linha-do-tempo` e abra a página.
+- **Na entrega**, rode `exportar` (com `--quando` se já houver data). Ele gera:
+  - `legenda.srt`, `capa.jpg` e `reel.mp4` (até 20 MB);
+  - `post.txt`, que é só rascunho: a legenda do post continua seguindo as regras desta skill.
 
 Para esta marca, `tutorial_passos` é o estilo natural quando o Leonardo ensina um método em etapas; a regra "sem música" continua valendo em qualquer estilo. `vitrine` só em peça de lançamento, nunca no conteúdo do dia a dia.
 
