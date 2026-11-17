@@ -1,10 +1,14 @@
 """`renderizar`: aplica o EDL ao vídeo (cortes, enquadramento, fundo, elementos, legendas, vinheta, CTA e áudio)."""
+import hashlib
 import json
 import math
+import multiprocessing
+import os
 import shutil
 import subprocess
 import sys
 import time
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import cv2
@@ -102,230 +106,438 @@ class Parado:
             print(f"Ritmo: maior trecho parado {b - a:.1f}s (limite {self.limite:.1f}s)")
 
 
-def cmd_renderizar(a):
-    edl_p = Path(a.edl).resolve()
-    pasta = edl_p.parent
-    edl = aplicar_estilo(json.load(open(edl_p)))
-    if not edl.get("marca"):
-        raise ErroDeMarca("o edl.json não diz a marca (\"marca\"): rode `analisar --marca <marca>` de novo")
-    ativar(edl["marca"])
-    an = json.load(open(pasta / "analise.json"))
-    conferir_edl(edl, an, pasta)
-    print(f"Marca: {CFG['nome']}", flush=True)
-    W, H = FORMATOS[edl.get("formato", "vertical")]
-    src = edl["fonte"]
-    mus_edl = dict(padrao(edl, "musica", {}) or {})
-    if mus_edl.get("arquivo") and not Path(mus_edl["arquivo"]).expanduser().is_absolute() and (pasta / mus_edl["arquivo"]).exists():
-        mus_edl["arquivo"] = str(pasta / mus_edl["arquivo"])
-    trilha, faixa = musica_do_edl(mus_edl)
+def caminho_edl(v, pasta):
+    """Caminho de arquivo citado no EDL: relativo à pasta do próprio EDL (não à pasta de onde o comando roda).
+    Caminhos absolutos, com ~ ou que não existem ao lado do EDL ficam como estão (a biblioteca resolve ids)."""
+    if not isinstance(v, str) or not v:
+        return v
+    q = Path(v).expanduser()
+    if q.is_absolute():
+        return str(q)
+    return str(pasta / q) if (pasta / q).exists() else v
 
-    # 1) segmentos quantizados na grade de quadros (áudio e vídeo cortam no mesmo ponto).
-    #    A ordem do EDL é a ordem do vídeo; um segmento com "gancho": true repete um trecho no início.
-    segs = list(edl["segmentos"])
-    q = lambda t: round(t * FPS) / FPS
-    for s in segs:
-        s["qa"], s["qb"] = q(s["ini"]), q(s["fim"])
-    segs = [s for s in segs if s["qb"] - s["qa"] >= 2 / FPS]
-    for i in range(1, len(segs)):
-        if not segs[i].get("gancho") and not segs[i - 1].get("gancho") and segs[i]["qa"] >= segs[i - 1]["qa"]:
-            segs[i]["qa"] = max(segs[i]["qa"], segs[i - 1]["qb"])
-    keep = [(s["qa"], s["qb"]) for s in segs]
-    o = 0.0
-    for s in segs:
-        s["o"] = o
-        o += s["qb"] - s["qa"]
-    dur_fala = o
-    cta = padrao(edl, "cta", {})
-    if cta.get("ativo") and not cta.get("chamada"):
-        sys.exit("CTA ligado sem 'chamada' (e 'url'): preencha o cta no edl.json ou desligue com \"ativo\": false")
-    dur_cta = cta.get("duracao", 3.5) if cta.get("ativo") else 0
-    intro = padrao(edl, "intro", {"ativo": True})
-    dur_intro = round(intro.get("duracao", 2.2) * FPS) / FPS if intro.get("ativo", True) else 0.0
-    total = dur_intro + dur_fala + dur_cta
 
-    def map_out(t):
-        normais = [s for s in segs if not s.get("gancho")]
+def resolver_caminhos(edl, pasta):
+    """Ajusta, no lugar, todo "arquivo"/"imagem"/"fonte" do EDL para a pasta do EDL."""
+    if edl.get("fonte"):
+        edl["fonte"] = caminho_edl(edl["fonte"], pasta)
+    f = edl.get("fundo")
+    if isinstance(f, dict) and f.get("imagem"):
+        f["imagem"] = caminho_edl(f["imagem"], pasta)
+    for e in edl.get("elementos", []):
+        if e.get("arquivo"):
+            e["arquivo"] = caminho_edl(e["arquivo"], pasta)
+        if isinstance(e.get("arquivos"), list):
+            e["arquivos"] = [caminho_edl(x, pasta) for x in e["arquivos"]]
+    m = edl.get("musica")
+    if isinstance(m, dict) and m.get("arquivo"):
+        m["arquivo"] = caminho_edl(m["arquivo"], pasta)
+    return edl
+
+
+class Contexto:
+    """Tudo o que o render precisa, montado a partir do EDL. Cada processo de render monta o seu (determinístico)."""
+
+    def __init__(self, edl_p, falar=True, rapido=False):
+        edl_p = Path(edl_p).resolve()
+        self.interp = cv2.INTER_LINEAR if rapido else cv2.INTER_CUBIC  # rápido: só para conferir
+        self.pasta = pasta = edl_p.parent
+        edl = self.edl = resolver_caminhos(aplicar_estilo(json.load(open(edl_p))), pasta)
+        if not edl.get("marca"):
+            raise ErroDeMarca("o edl.json não diz a marca (\"marca\"): rode `analisar --marca <marca>` de novo")
+        ativar(edl["marca"])
+        an = self.an = json.load(open(pasta / "analise.json"))
+        conferir_edl(edl, an, pasta)
+        if falar:
+            print(f"Marca: {CFG['nome']}", flush=True)
+        self.W, self.H = W, H = FORMATOS[edl.get("formato", "vertical")]
+        self.src = edl["fonte"]
+
+        # segmentos quantizados na grade de quadros (áudio e vídeo cortam no mesmo ponto).
+        # A ordem do EDL é a ordem do vídeo; um segmento com "gancho": true repete um trecho no início.
+        segs = [dict(s) for s in edl["segmentos"]]
+        q = lambda t: round(t * FPS) / FPS
+        for s in segs:
+            s["qa"], s["qb"] = q(s["ini"]), q(s["fim"])
+        segs = [s for s in segs if s["qb"] - s["qa"] >= 2 / FPS]
+        for i in range(1, len(segs)):
+            if not segs[i].get("gancho") and not segs[i - 1].get("gancho") and segs[i]["qa"] >= segs[i - 1]["qa"]:
+                segs[i]["qa"] = max(segs[i]["qa"], segs[i - 1]["qb"])
+        cap = cv2.VideoCapture(self.src)
+        self.w0, self.h0 = int(cap.get(3)), int(cap.get(4))
+        n_fonte = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 10 ** 9
+        cap.release()
+        for s in segs:  # quadros que o segmento realmente tem (a fonte pode acabar antes do "fim")
+            s["ia"], s["ib"] = int(round(s["qa"] * FPS)), min(int(round(s["qb"] * FPS)), n_fonte)
+            s["n"] = max(s["ib"] - s["ia"], 0)
+        self.segs, self.keep = segs, [(s["qa"], s["qb"]) for s in segs]
+        o = 0.0
+        for s in segs:
+            s["o"] = o
+            o += s["qb"] - s["qa"]
+        self.dur_fala = o
+        self.cta = cta = padrao(edl, "cta", {})
+        if cta.get("ativo") and not cta.get("chamada"):
+            sys.exit("CTA ligado sem 'chamada' (e 'url'): preencha o cta no edl.json ou desligue com \"ativo\": false")
+        self.dur_cta = cta.get("duracao", 3.5) if cta.get("ativo") else 0
+        intro = padrao(edl, "intro", {"ativo": True})
+        self.dur_intro = round(intro.get("duracao", 2.2) * FPS) / FPS if intro.get("ativo", True) else 0.0
+        self.n_intro = int(round(self.dur_intro * FPS))
+        self.total = self.dur_intro + self.dur_fala + self.dur_cta
+
+        # componentes
+        self.rosto = Rosto(an["rosto"])
+        self.fundo = fundo = edl.get("fundo", {})
+        self.tipo_fundo = fundo.get("tipo", "original")
+        self.fundo_vivo = FundoMarca(W, H, fundo.get("variante", "marinho"))
+        self.bg_img = (cobrir(cv2.imread(str(registrar(fundo["imagem"]))), int(W * 1.2), int(H * 1.2))
+                       if self.tipo_fundo == "imagem" else None)
+        self.cor = edl.get("cor", {})
+        self.luts = lut_cor(self.cor)
+        self.leg = (Legendas(an["palavras"], edl.get("legendas", {}), W, H, self.keep)
+                    if edl.get("legendas", {}).get("ativo", True) else None)
+        self.els = Elementos(edl.get("elementos", []), W, H, self.map_out, an["palavras"])
+        self.zooms = edl.get("zooms", [])
+        self.marca = None
+        self.barra = padrao(edl, "barra_progresso", True)
+        if padrao(edl, "marca_dagua", True) and tem_logo():
+            self.marca, _ = sombra(pil2np(logo_marca(CFG.get("marca_dagua_alt", 80))), 6, 0.5, (0, 3))
+        self.TRN = int(FPS * edl.get("duracao_transicao", 0.3))
+        self.clipes_ini = an.get("rosto", {}).get("clipes_ini", [0.0])
+        self.cache_recorte = None
+        if edl.get("cache_recorte", True):
+            st = Path(self.src).stat()
+            chave = hashlib.sha1(f"{Path(self.src).resolve()}|{st.st_size}|{st.st_mtime_ns}".encode()).hexdigest()[:12]
+            self.cache_recorte = pasta / "_cache" / f"recorte-{chave}"
+            self.cache_recorte.mkdir(parents=True, exist_ok=True)
+        self.usa_recorte = (self.tipo_fundo != "original" or any(precisa_recorte(s.get("look")) for s in segs)
+                            or any(e["tipo"] == "texto_atras" for e in self.els.items))
+
+    def map_out(self, t):
+        normais = [s for s in self.segs if not s.get("gancho")]
         for s in normais:
             if s["qa"] <= t < s["qb"]:
                 return s["o"] + t - s["qa"]
         depois = [s for s in normais if s["qa"] > t]
-        return min(depois, key=lambda s: s["qa"])["o"] if depois else dur_fala
+        return min(depois, key=lambda s: s["qa"])["o"] if depois else self.dur_fala
 
-    # 2) componentes
-    rosto = Rosto(an["rosto"])
-    fundo = edl.get("fundo", {})
-    tipo_fundo = fundo.get("tipo", "original")
-    seg_ia = Segmentador() if tipo_fundo != "original" else None
-    fundo_vivo = FundoMarca(W, H, fundo.get("variante", "marinho"))
-    bg_img = cobrir(cv2.imread(str(registrar(fundo["imagem"]))), int(W * 1.2), int(H * 1.2)) if tipo_fundo == "imagem" else None
-    cor = edl.get("cor", {})
-    luts = lut_cor(cor)
-    leg = Legendas(an["palavras"], edl.get("legendas", {}), W, H, keep) if edl.get("legendas", {}).get("ativo", True) else None
-    els = Elementos(edl.get("elementos", []), W, H, map_out, an["palavras"])
-    zooms = edl.get("zooms", [])
-    marca = None
-    barra = padrao(edl, "barra_progresso", True)
-    if padrao(edl, "marca_dagua", True) and tem_logo():
-        marca, _ = sombra(pil2np(logo_marca(CFG.get("marca_dagua_alt", 80))), 6, 0.5, (0, 3))
-    TRN = int(FPS * edl.get("duracao_transicao", 0.3))
-    interp = cv2.INTER_CUBIC
+    def clipe_de(self, t):
+        return sum(1 for c in self.clipes_ini[1:] if t >= c)
+
+    def quadros_antes(self, i):
+        """Quadros de saída antes do segmento i (vinheta + segmentos anteriores)."""
+        return self.n_intro + sum(s["n"] for s in self.segs[:i])
+
+
+class Trecho:
+    """Renderiza um grupo contínuo de segmentos [i0, i1). Com i0 > 0, aquece a câmera, o recorte e o
+    quadro da transição com o fim do segmento anterior, para o resultado ser igual ao do render corrido."""
+
+    def __init__(self, ctx, seg=None):
+        self.c = ctx
+        self.camera = Camera()
+        self.seg = seg  # recorte da pessoa sob demanda (pode vir de um trecho anterior do mesmo processo)
+        if seg is not None and seg.rvm is not None:
+            seg.reset()
+        self.palco = None
+        self.rvm_fi = None
+        self.ultimo = None
+        self.cap = cv2.VideoCapture(ctx.src)
+        self.n_src = 0
+
+    def ler(self, fi):
+        if fi < self.n_src or fi - self.n_src > FPS * 20:  # trecho anterior (gancho) ou salto longo: busca direta
+            self.cap.set(cv2.CAP_PROP_POS_FRAMES, fi)
+            self.n_src = fi
+        while self.n_src < fi:
+            self.cap.grab()
+            self.n_src += 1
+        ok, f = self.cap.read()
+        self.n_src += 1
+        return f if ok else None
+
+    def recortador(self):
+        if self.seg is None:
+            self.seg = Segmentador()
+        return self.seg
+
+    def recorte(self, fi, f, com_frente):
+        """Recorte da pessoa no quadro fi, com cache em disco (o mesmo vídeo é renderizado muitas vezes enquanto
+        o EDL é ajustado; o recorte é a parte mais cara e não depende do EDL)."""
+        c = self.c
+        arq_a = c.cache_recorte / f"{fi:06d}a.png" if c.cache_recorte else None
+        arq_f = c.cache_recorte / f"{fi:06d}f.jpg" if c.cache_recorte else None
+        if arq_a is not None and arq_a.exists() and (not com_frente or arq_f.exists()):
+            a = cv2.imread(str(arq_a), cv2.IMREAD_GRAYSCALE)
+            if a is not None:
+                frente = cv2.imread(str(arq_f)) if com_frente else f
+                self.rvm_fi = None  # a rede não viu este quadro: o próximo cálculo recomeça o estado
+                return a.astype(np.float32) * (1 / 255), frente
+        seg = self.recortador()
+        if fi != (self.rvm_fi if self.rvm_fi is not None else -10) + 1 and seg.rvm is not None:
+            seg.reset()
+        alfa, frente = seg.recortar(f)
+        self.rvm_fi = fi
+        if arq_a is not None:
+            cv2.imwrite(str(arq_a), (alfa * 255 + 0.5).astype(np.uint8))
+            if com_frente:
+                cv2.imwrite(str(arq_f), frente, [cv2.IMWRITE_JPEG_QUALITY, 95])
+        return alfa, frente
+
+    def base(self, s, fi, f, t_out):
+        """Quadro-base (antes de transição, elementos e legenda) do quadro fi da fonte."""
+        c, els, W, H = self.c, self.c.els, self.c.W, self.c.H
+        t_src = fi / FPS
+        zb, face = self.camera.passo(s.get("zoom", 1.0), c.rosto.em(t_src))
+        respira = 1 + 0.02 * math.sin((t_out + c.dur_intro) * 0.3)  # aproximação lenta e contínua
+        zf, tremor = zoom_em(t_src, c.zooms, s["qb"])
+        z = zb * respira * zf
+        M = matriz_enquadre(c.w0, c.h0, W, H, z, face, tremor)
+        plano = s.get("plano", "rosto")
+        els.plano = plano
+        br_e = els.broll_ativo(t_out)
+        br = els.broll(t_out) if br_e is not None else None
+        fundo, tipo_fundo = c.fundo, c.tipo_fundo
+        if (br is None and plano != "motion") or (br is not None and br_e.get("bolha")):
+            look = s.get("look")
+            atras = plano != "motion" and bool(els.ativos(t_out, "texto_atras"))
+            com_fundo = tipo_fundo != "original"
+            precisa_m = com_fundo or precisa_recorte(look) or atras
+            base = cv2.warpAffine(f, M, (W, H), flags=c.interp, borderMode=cv2.BORDER_REPLICATE)
+            m = None
+            if precisa_m:
+                alfa, frente = self.recorte(fi, f, com_fundo)
+                m = cv2.warpAffine(alfa, M, (W, H), flags=cv2.INTER_LINEAR)[..., None]
+            if com_fundo:
+                base = cv2.warpAffine(frente, M, (W, H), flags=c.interp, borderMode=cv2.BORDER_REPLICATE)
+                if tipo_fundo == "desfoque":
+                    pq = cv2.resize(base, (W // 4, H // 4))
+                    bg = cv2.resize(cv2.GaussianBlur(pq, (0, 0), 7), (W, H))
+                else:
+                    # parallax: o fundo anda menos que a pessoa (sensação de profundidade)
+                    par = fundo.get("parallax", True)
+                    pz = 1 + (z - 1) * 0.3 if par else 1
+                    dx = 0.5 + 0.025 * math.sin(t_out * 0.22) if par else 0.5
+                    bg = c.fundo_vivo.quadro(t_out, pz, dx) if c.bg_img is None else cobrir(c.bg_img, W, H, pz, dx, 0.5)
+                if fundo.get("sombra", True) and tipo_fundo != "desfoque":
+                    sm = cv2.GaussianBlur(np.roll(m[..., 0], (22, 12), (0, 1)), (0, 0), 18)[..., None]
+                    bg = (bg.astype(np.float32) * (1 - 0.4 * sm)).astype(np.uint8)
+                base = (base.astype(np.float32) * m + bg.astype(np.float32) * (1 - m)).astype(np.uint8)
+            base = aplicar_cor(base, c.luts, c.cor)
+            base = aplicar_look(base, look, m)
+            if atras:  # texto atrás da pessoa: desenha no quadro e cola a pessoa recortada por cima
+                camada = base.copy()
+                els.desenhar(camada, t_out, "atras")
+                base = (camada.astype(np.float32) * (1 - m) + base.astype(np.float32) * m).astype(np.uint8)
+            rx_, ry_ = M @ np.array([face[0] * c.w0, face[1] * c.h0, 1.0])
+            els.rosto = (float(rx_), float(ry_), float(face[2] * c.h0 * M[0, 0]))
+            if br is not None:  # b-roll com bolha de rosto
+                base = bolha(br.copy(), base, br_e.get("bolha"), W, H, els.rosto)
+        elif br is not None:
+            base = br
+            els.rosto = None
+        else:  # plano só de motion: a câmera não aparece
+            base = None
+            els.rosto = None
+        if plano != "rosto" and br is None:
+            self.palco = self.palco or Palco(W, H)
+            corte_y = s.get("corte_y", 0.36)
+            base = compor(plano, base if base is not None else self.palco.quadro, self.palco.quadro, W, H, corte_y)
+            if plano == "dividido" and els.rosto:
+                y0 = int(np.clip(corte_y * H - H // 4, 0, H - H // 2))
+                els.rosto = (els.rosto[0], els.rosto[1] - y0 + H // 2, els.rosto[2])
+        return base
+
+    def acabamento(self, out, t_out, t_src):
+        c, els, W, H = self.c, self.c.els, self.c.W, self.c.H
+        els.desenhar(out, t_out)
+        if c.leg:
+            bi = c.leg.bloco_em(t_src)
+            if bi is not None:
+                img = c.leg.render(bi, t_src)
+                pl = els.plano
+                y = H * legenda_y(pl, c.leg.cfg.get("posicao_y", 0.68), c.leg.cfg)
+                blend(out, img, W / 2 - img.shape[1] / 2, y if pl == "rosto" else y - img.shape[0] / 2)
+        if c.marca is not None and not els.ativo(t_out, "titulo"):
+            blend(out, c.marca, W - c.marca.shape[1] - 30, H * CFG.get("marca_dagua_y", 0.115) if H > W else 40, 0.85)
+        if c.barra:
+            cv2.rectangle(out, (0, 0), (int(W * (t_out + c.dur_intro) / c.total), 6), bgr(CORES["champanhe"]), -1)
+        els.desenhar(out, t_out, "pos")  # efeitos de quadro inteiro (grão, vinheta, glitch…) por cima de tudo
+
+    def aquecer(self, i0):
+        """Põe câmera, recorte e quadro da transição no estado em que o render corrido chegaria ao segmento i0."""
+        c = self.c
+        for j, s in enumerate(c.segs[:i0]):
+            if j and c.clipe_de(s["qa"]) != c.clipe_de(c.segs[j - 1]["qa"]):
+                self.camera = Camera()
+            ultimo_seg = j == i0 - 1
+            cheios = (12 if c.usa_recorte else 1) if ultimo_seg else 0  # quadros finais refeitos por inteiro
+            n_out = c.quadros_antes(j)
+            for k, fi in enumerate(range(s["ia"], s["ib"])):
+                if k < s["n"] - cheios:
+                    self.camera.passo(s.get("zoom", 1.0), c.rosto.em(fi / FPS))
+                    continue
+                f = self.ler(fi)
+                if f is None:
+                    break
+                self.ultimo = self.base(s, fi, f, (n_out + k) / FPS - c.dur_intro)
+        if i0 < len(c.segs) and i0 and c.clipe_de(c.segs[i0]["qa"]) != c.clipe_de(c.segs[i0 - 1]["qa"]):
+            self.camera = Camera()
+        if self.ultimo is not None:
+            self.ultimo = self.ultimo.copy()
+
+    def render(self, i0, i1, saida, rapido, com_cta, progresso=None, fechar=True):
+        """Escreve os quadros dos segmentos [i0, i1) em `saida` (com a vinheta se i0 == 0 e o CTA se com_cta).
+        Devolve o pior trecho parado (início, fim) visto aqui."""
+        c, W, H = self.c, self.c.W, self.c.H
+        enc = ["ffmpeg", "-y", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
+               "-c:v", "libx264", "-preset", "ultrafast" if rapido else "medium", "-crf", "18",
+               "-pix_fmt", "yuv420p", str(saida)]
+        proc = subprocess.Popen(enc, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        parado = Parado(c.edl.get("parado_max"))
+        n_out = c.quadros_antes(i0)
+        if i0 == 0:
+            cache_intro = {}
+            for k in range(c.n_intro):  # vinheta de abertura (igual em todos os vídeos)
+                out = quadro_intro(W, H, k / FPS, c.fundo_vivo, cache_intro, c.dur_intro)
+                proc.stdin.write(out.tobytes())
+                self.ultimo = out
+            n_out = c.n_intro
+        else:
+            self.aquecer(i0)
+        for si in range(i0, i1):
+            s = c.segs[si]
+            if si > i0 and c.clipe_de(s["qa"]) != c.clipe_de(c.segs[si - 1]["qa"]):
+                self.camera = Camera()  # outra cena: o enquadramento começa no lugar certo, sem deslizar
+            base = None
+            tipo_tr = s.get("transicao") or ("zoom" if si == 0 and c.dur_intro else None)
+            for k, fi in enumerate(range(s["ia"], s["ib"])):
+                f = self.ler(fi)
+                if f is None:
+                    raise RuntimeError(f"a fonte acabou antes do quadro {fi}: rode o analisar de novo")
+                t_src, t_out = fi / FPS, n_out / FPS - c.dur_intro
+                base = self.base(s, fi, f, t_out)
+                out = base
+                if tipo_tr and self.ultimo is not None and k < c.TRN:
+                    out = transicao(self.ultimo, base, (k + 1) / (c.TRN + 1), tipo_tr, W, H)
+                out = out.copy()
+                self.acabamento(out, t_out, t_src)
+                parado.quadro(out, t_out)
+                proc.stdin.write(out.tobytes())
+                n_out += 1
+            if base is not None:
+                self.ultimo = base.copy()
+            if progresso:
+                progresso(s["n"])
+        self.cap.release()
+        if self.seg is not None and fechar:
+            self.seg.fechar()
+        if com_cta:
+            cache = {}
+            for k in range(int(round(c.dur_cta * FPS))):
+                out = cartao_cta(c.cta, W, H, k / FPS, c.fundo_vivo, cache)
+                if k < c.TRN and self.ultimo is not None:
+                    out = transicao(self.ultimo, out, (k + 1) / (c.TRN + 1), c.edl.get("transicao_cta", "zoom"), W, H)
+                if c.barra:
+                    cv2.rectangle(out, (0, 0), (int(W * (n_out / FPS) / c.total), 6), bgr(CORES["champanhe"]), -1)
+                proc.stdin.write(out.tobytes())
+                n_out += 1
+        proc.stdin.close()
+        proc.wait()
+        if proc.returncode:
+            raise RuntimeError(f"o ffmpeg falhou ao codificar {saida}")
+        return parado.pior
+
+
+def dividir_trechos(segs, n, minimo=1.5):
+    """Grupos contínuos de segmentos com quantidade parecida de quadros (no máximo n grupos, cada um com `minimo` s ou mais)."""
+    total = sum(s["n"] for s in segs)
+    n = max(1, min(n, len(segs), int(total // (minimo * FPS)) or 1))
+    alvo, grupos, ini, acum = total / n, [], 0, 0
+    for i, s in enumerate(segs):
+        acum += s["n"]
+        if acum >= alvo * (len(grupos) + 1) and len(grupos) < n - 1 and i + 1 < len(segs):
+            grupos.append((ini, i + 1))
+            ini = i + 1
+    grupos.append((ini, len(segs)))
+    return grupos
+
+
+_CACHE = {}  # por processo de render: contexto e recorte reaproveitados entre os trechos que ele pega
+
+
+def _trabalho(edl_p, i0, i1, saida, rapido, com_cta, threads):
+    """Processo de render de um trecho (monta o próprio contexto: o render é determinístico)."""
+    cv2.setNumThreads(threads)
+    os.environ["EDITOR_THREADS"] = str(threads)
+    if _CACHE.get("chave") != (edl_p, rapido):
+        _CACHE.clear()
+        _CACHE.update(chave=(edl_p, rapido), ctx=Contexto(edl_p, falar=False, rapido=rapido))
+    tr = Trecho(_CACHE["ctx"], _CACHE.get("seg"))
+    pior = tr.render(i0, i1, saida, rapido, com_cta, fechar=False)
+    _CACHE["seg"] = tr.seg
+    return pior, sorted(str(p) for p in conferir_auditoria())
+
+
+def processos_padrao():
+    return max(1, min(8, (os.cpu_count() or 2)))
+
+
+def render_video(ctx, edl_p, saida, rapido, processos):
+    """Renderiza o vídeo (sem áudio). Com mais de um processo, divide em trechos, renderiza em paralelo e emenda."""
+    grupos = dividir_trechos(ctx.segs, processos * 3 if processos > 1 else 1)
+    t0 = time.time()
+    tot = ctx.n_intro + sum(s["n"] for s in ctx.segs) + int(round(ctx.dur_cta * FPS))
+    if len(grupos) == 1:
+        feitos = [ctx.n_intro]
+
+        def progresso(n):
+            feitos[0] += n
+            gasto = time.time() - t0
+            print(f"  {feitos[0] / FPS:5.1f}s / {ctx.total:.1f}s  ({feitos[0] / max(gasto, 1e-3):.1f} quadros/s)", flush=True)
+        pior = Trecho(ctx).render(0, len(ctx.segs), saida, rapido, True, progresso)
+        piores = [pior]
+    else:
+        n_proc = min(processos, len(grupos))
+        print(f"  render em {n_proc} processos ({len(grupos)} trechos)", flush=True)
+        partes = [ctx.pasta / f"_parte{k:02d}.mp4" for k in range(len(grupos))]
+        threads = max(1, (os.cpu_count() or 2) // n_proc)
+        mpc = multiprocessing.get_context("spawn")
+        with ProcessPoolExecutor(max_workers=n_proc, mp_context=mpc) as ex:
+            futs = [ex.submit(_trabalho, str(edl_p), i0, i1, str(p), rapido, k == len(grupos) - 1, threads)
+                    for k, ((i0, i1), p) in enumerate(zip(grupos, partes))]
+            res = [f.result() for f in futs]
+        piores = [r[0] for r in res]
+        for r in res:
+            for arq in r[1]:
+                registrar(arq)
+        lista = ctx.pasta / "_partes.txt"
+        lista.write_text("".join(f"file '{p.name}'\n" for p in partes))
+        sh(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(lista), "-c", "copy", str(saida)])
+        for p in partes + [lista]:
+            p.unlink()
+    gasto = time.time() - t0
+    print(f"  vídeo pronto em {gasto:.1f}s ({tot / max(gasto, 1e-3):.1f} quadros/s)", flush=True)
+    a, b = max(piores, key=lambda p: p[1] - p[0])
+    par = Parado(ctx.edl.get("parado_max"))
+    par.pior = (a, b)
+    par.relatar()
+
+
+def cmd_renderizar(a):
+    edl_p = Path(a.edl).resolve()
+    ctx = Contexto(edl_p, rapido=a.rapido)
+    pasta, edl, an, src = ctx.pasta, ctx.edl, ctx.an, ctx.src
+    segs, keep, els = ctx.segs, ctx.keep, ctx.els
+    dur_intro, dur_fala, dur_cta, total = ctx.dur_intro, ctx.dur_fala, ctx.dur_cta, ctx.total
+    trilha, faixa = musica_do_edl(dict(padrao(edl, "musica", {}) or {}))
 
     tmp_v = pasta / "_video.mp4"
     final = pasta / (edl.get("saida") or "final.mp4")
     if a.so_audio:  # refaz só o áudio, reaproveitando o vídeo já renderizado
         shutil.copy(final, tmp_v)
     else:
-        enc = ["ffmpeg", "-y", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
-               "-c:v", "libx264", "-preset", "ultrafast" if a.rapido else "medium", "-crf", "18",
-               "-pix_fmt", "yuv420p", str(tmp_v)]
-        proc = subprocess.Popen(enc, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
-
-        cap = cv2.VideoCapture(src)
-        w0, h0 = int(cap.get(3)), int(cap.get(4))
-        t0 = time.time()
-        n_src = n_out = 0
-        ultimo = None  # último quadro-base do trecho anterior (para as transições)
-        ultimo_src = -10
-        camera = Camera()
-        seg = None  # recorte da pessoa sob demanda (texto atrás, look adesivo), quando o fundo não pede
-        palco = None
-        parado = Parado(edl.get("parado_max"))
-
-        def acabamento(out, t_out, t_src):
-            els.desenhar(out, t_out)
-            if leg:
-                bi = leg.bloco_em(t_src)
-                if bi is not None:
-                    img = leg.render(bi, t_src)
-                    pl = els.plano
-                    y = H * legenda_y(pl, leg.cfg.get("posicao_y", 0.68), leg.cfg)
-                    blend(out, img, W / 2 - img.shape[1] / 2, y if pl == "rosto" else y - img.shape[0] / 2)
-            if marca is not None and not els.ativo(t_out, "titulo"):
-                blend(out, marca, W - marca.shape[1] - 30, H * CFG.get("marca_dagua_y", 0.115) if H > W else 40, 0.85)
-            if barra:
-                cv2.rectangle(out, (0, 0), (int(W * (t_out + dur_intro) / total), 6), bgr(CORES["champanhe"]), -1)
-            els.desenhar(out, t_out, "pos")  # efeitos de quadro inteiro (grão, vinheta, glitch…) por cima de tudo
-
-        # vinheta de abertura (igual em todos os vídeos)
-        cache_intro = {}
-        for k in range(int(round(dur_intro * FPS))):
-            out = quadro_intro(W, H, k / FPS, fundo_vivo, cache_intro, dur_intro)
-            proc.stdin.write(out.tobytes())
-            n_out += 1
-            ultimo = out
-        clipes_ini = an.get("rosto", {}).get("clipes_ini", [0.0])
-        clipe_de = lambda t: sum(1 for c in clipes_ini[1:] if t >= c)
-        for si, s in enumerate(segs):
-            a_idx, b_idx = int(round(s["qa"] * FPS)), int(round(s["qb"] * FPS))
-            if si and clipe_de(s["qa"]) != clipe_de(segs[si - 1]["qa"]):
-                camera = Camera()  # outra cena: o enquadramento começa no lugar certo, sem deslizar
-            if a_idx < n_src or a_idx - n_src > FPS * 20:  # trecho anterior (gancho) ou salto longo: busca direta
-                cap.set(cv2.CAP_PROP_POS_FRAMES, a_idx)
-                n_src = a_idx
-            while n_src < a_idx:
-                cap.grab()
-                n_src += 1
-            base = None
-            for fi in range(a_idx, b_idx):
-                ok, f = cap.read()
-                n_src += 1
-                if not ok:
-                    break
-                t_src, t_out = fi / FPS, n_out / FPS - dur_intro
-                zb, face = camera.passo(s.get("zoom", 1.0), rosto.em(t_src))
-                respira = 1 + 0.02 * math.sin((t_out + dur_intro) * 0.3)  # aproximação lenta e contínua
-                zf, tremor = zoom_em(t_src, zooms, s["qb"])
-                z = zb * respira * zf
-                M = matriz_enquadre(w0, h0, W, H, z, face, tremor)
-                plano = s.get("plano", "rosto")
-                els.plano = plano
-                br_e = els.broll_ativo(t_out)
-                br = els.broll(t_out) if br_e is not None else None
-                if (br is None and plano != "motion") or (br is not None and br_e.get("bolha")):
-                    look = s.get("look")
-                    atras = plano != "motion" and bool(els.ativos(t_out, "texto_atras"))
-                    precisa_m = seg_ia is not None or precisa_recorte(look) or atras
-                    base = cv2.warpAffine(f, M, (W, H), flags=interp, borderMode=cv2.BORDER_REPLICATE)
-                    m = None
-                    if precisa_m:
-                        if seg is None:
-                            seg = seg_ia or Segmentador()
-                        if fi != ultimo_src + 1:
-                            seg.reset() if seg.rvm is not None else None
-                        alfa, frente = seg.recortar(f)
-                        m = cv2.warpAffine(alfa, M, (W, H), flags=cv2.INTER_LINEAR)[..., None]
-                    if seg_ia:
-                        base = cv2.warpAffine(frente, M, (W, H), flags=interp, borderMode=cv2.BORDER_REPLICATE)
-                        if tipo_fundo == "desfoque":
-                            pq = cv2.resize(base, (W // 4, H // 4))
-                            bg = cv2.resize(cv2.GaussianBlur(pq, (0, 0), 7), (W, H))
-                        else:
-                            # parallax: o fundo anda menos que a pessoa (sensação de profundidade)
-                            par = fundo.get("parallax", True)
-                            pz = 1 + (z - 1) * 0.3 if par else 1
-                            dx = 0.5 + 0.025 * math.sin(t_out * 0.22) if par else 0.5
-                            bg = fundo_vivo.quadro(t_out, pz, dx) if bg_img is None else cobrir(bg_img, W, H, pz, dx, 0.5)
-                        if fundo.get("sombra", True) and tipo_fundo != "desfoque":
-                            sm = cv2.GaussianBlur(np.roll(m[..., 0], (22, 12), (0, 1)), (0, 0), 18)[..., None]
-                            bg = (bg.astype(np.float32) * (1 - 0.4 * sm)).astype(np.uint8)
-                        base = (base.astype(np.float32) * m + bg.astype(np.float32) * (1 - m)).astype(np.uint8)
-                    base = aplicar_cor(base, luts, cor)
-                    base = aplicar_look(base, look, m)
-                    if atras:  # texto atrás da pessoa: desenha no quadro e cola a pessoa recortada por cima
-                        camada = base.copy()
-                        els.desenhar(camada, t_out, "atras")
-                        base = (camada.astype(np.float32) * (1 - m) + base.astype(np.float32) * m).astype(np.uint8)
-                    rx_, ry_ = M @ np.array([face[0] * w0, face[1] * h0, 1.0])
-                    els.rosto = (float(rx_), float(ry_), float(face[2] * h0 * M[0, 0]))
-                    if br is not None:  # b-roll com bolha de rosto
-                        base = bolha(br.copy(), base, br_e.get("bolha"), W, H, els.rosto)
-                elif br is not None:
-                    base = br
-                    els.rosto = None
-                else:  # plano só de motion: a câmera não aparece
-                    base = None
-                    els.rosto = None
-                if plano != "rosto" and br is None:
-                    palco = palco or Palco(W, H)
-                    corte_y = s.get("corte_y", 0.36)
-                    base = compor(plano, base if base is not None else palco.quadro, palco.quadro, W, H, corte_y)
-                    if plano == "dividido" and els.rosto:
-                        y0 = int(np.clip(corte_y * H - H // 4, 0, H - H // 2))
-                        els.rosto = (els.rosto[0], els.rosto[1] - y0 + H // 2, els.rosto[2])
-                ultimo_src = fi
-                out = base
-                k = fi - a_idx
-                tipo_tr = s.get("transicao") or ("zoom" if si == 0 and dur_intro else None)
-                if tipo_tr and ultimo is not None and k < TRN:
-                    out = transicao(ultimo, base, (k + 1) / (TRN + 1), tipo_tr, W, H)
-                out = out.copy()
-                acabamento(out, t_out, t_src)
-                parado.quadro(out, t_out)
-                proc.stdin.write(out.tobytes())
-                n_out += 1
-            if base is not None:
-                ultimo = base.copy()
-            gasto = time.time() - t0
-            resta = gasto / max(n_out, 1) * (total * FPS - n_out)
-            print(f"  {n_out / FPS:5.1f}s / {total:.1f}s  ({n_out / max(gasto, 1e-3):.1f} quadros/s, faltam ~{resta / 60:.1f} min)", flush=True)
-        cap.release()
-        if seg_ia:
-            seg_ia.fechar()
-        elif seg is not None:
-            seg.fechar()
-        parado.relatar()
-        cache = {}
-        n_cta = int(round(dur_cta * FPS))
-        for k in range(n_cta):
-            out = cartao_cta(cta, W, H, k / FPS, fundo_vivo, cache)
-            if k < TRN and ultimo is not None:
-                out = transicao(ultimo, out, (k + 1) / (TRN + 1), edl.get("transicao_cta", "zoom"), W, H)
-            if barra:
-                cv2.rectangle(out, (0, 0), (int(W * (n_out / FPS) / total), 6), bgr(CORES["champanhe"]), -1)
-            proc.stdin.write(out.tobytes())
-            n_out += 1
-        proc.stdin.close()
-        proc.wait()
+        render_video(ctx, edl_p, tmp_v, a.rapido, getattr(a, "processos", None) or processos_padrao())
 
     # 3) áudio: mesmos cortes, limpeza de voz e loudness para Instagram (-16 LUFS)
     au = edl.get("audio", {})

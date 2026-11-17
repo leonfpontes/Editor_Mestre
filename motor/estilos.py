@@ -131,6 +131,25 @@ def _curva(f, contraste=1.0, gama=1.0, levanta=0.0):
     return cv2.LUT(f, (y * 255).clip(0, 255).astype(np.uint8))
 
 
+def _lut3(func):
+    """LUT de 3 canais (1×256×3) a partir de func(x) -> (b, g, r) em float, com x = 0..255."""
+    x = np.arange(256, dtype=np.float32)[:, None].repeat(3, 1)
+    return func(x).clip(0, 255).astype(np.uint8)[None]
+
+
+_LUTS_FIXOS = {
+    "quente": _lut3(lambda x: (x * np.array((0.9, 1.0, 1.1), np.float32) - 128) * 1.08 + 128),
+    "frio": _lut3(lambda x: (x * np.array((1.1, 1.02, 0.9), np.float32) - 128) * 1.05 + 128),
+}
+
+
+def _lut_duotom():
+    """Cinza -> tom escuro da marca nas sombras e claro nas luzes (depende da marca ativa)."""
+    escuro, claro = _bgr(CORES["marinho"]), _bgr(CORES["papel_2"])
+    g = np.clip((np.arange(256, dtype=np.float32) / 255 - 0.5) * 1.15 + 0.5, 0, 1)[:, None]
+    return (escuro * (1 - g) + claro * g).astype(np.uint8)[None]
+
+
 def precisa_recorte(look):
     return look == "adesivo"
 
@@ -146,24 +165,19 @@ def aplicar_look(f, look, alfa=None):
         g = _curva(g, 1.25, 1.05)
         return cv2.merge([g, g, g])
     if look == "duotom":
-        g = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY).astype(np.float32)[..., None] / 255
-        g = np.clip((g - 0.5) * 1.15 + 0.5, 0, 1)
-        escuro, claro = _bgr(CORES["marinho"]), _bgr(CORES["papel_2"])
-        return (escuro * (1 - g) + claro * g).astype(np.uint8)
-    if look in ("quente", "frio", "noite"):
-        x = f.astype(np.float32)
-        if look == "quente":
-            x *= np.array((0.9, 1.0, 1.1), np.float32)
-            x = (x - 128) * 1.08 + 128
-        elif look == "frio":
-            x *= np.array((1.1, 1.02, 0.9), np.float32)
-            x = (x - 128) * 1.05 + 128
-        else:
-            lum = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY).astype(np.float32)[..., None] / 255
-            sombra, luz = np.array((1.18, 0.98, 0.85), np.float32), np.array((0.85, 0.98, 1.12), np.float32)
-            x = x * (sombra * (1 - lum) + luz * lum) * 0.85
-            x = (x - 110) * 1.15 + 110
-        return x.clip(0, 255).astype(np.uint8)
+        g = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
+        return cv2.LUT(cv2.merge([g, g, g]), _lut_duotom())
+    if look in ("quente", "frio"):
+        return cv2.LUT(f, _LUTS_FIXOS[look])
+    if look == "noite":  # sombras azuladas, luzes quentes: x·(a + b·lum) + c, canal a canal (rápido no OpenCV)
+        lum = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY).astype(np.float32) * (1 / 255)
+        sombra, luz, k = np.array((1.18, 0.98, 0.85)), np.array((0.85, 0.98, 1.12)), 0.85 * 1.15
+        out = []
+        for ch, sa, lu in zip(cv2.split(f), sombra, luz):
+            ch = ch.astype(np.float32)
+            v = cv2.addWeighted(ch, float(sa * k), cv2.multiply(ch, lum), float((lu - sa) * k), 110 - 110 * 1.15)
+            out.append(cv2.convertScaleAbs(cv2.max(v, 0)))  # satura em 0..255
+        return cv2.merge(out)
     if look == "limpo":
         hsv = cv2.cvtColor(f, cv2.COLOR_BGR2HSV)
         hsv[..., 1] = (hsv[..., 1].astype(np.float32) * 0.45).astype(np.uint8)
@@ -174,20 +188,18 @@ def aplicar_look(f, look, alfa=None):
             raise ErroDeMarca("o look \"adesivo\" precisa do recorte da pessoa")
         g = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
         g = _curva(g, 1.3, 1.0)
-        pessoa = cv2.merge([g, g, g]).astype(np.float32)
-        a = alfa[..., 0] if alfa.ndim == 3 else alfa
+        pessoa = cv2.merge([g, g, g])
+        a = np.ascontiguousarray(alfa[..., 0] if alfa.ndim == 3 else alfa, np.float32)
         H, W = a.shape
         r = max(6, W // 90)
-        bin_ = (a > 0.5).astype(np.uint8)
-        borda = cv2.dilate(bin_, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1)))
-        borda2 = cv2.dilate(bin_, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (4 * r + 1, 4 * r + 1)))
-        fundo = np.empty_like(pessoa)
-        fundo[:] = _bgr(CORES["papel"])
-        out = fundo
-        branco = borda2[..., None].astype(np.float32)
-        out = out * (1 - branco) + _bgr(CORES["papel_2"]) * branco
-        cor = borda[..., None].astype(np.float32)
-        out = out * (1 - cor) + _bgr(CORES["champanhe"]) * cor
-        m = a[..., None].astype(np.float32)
-        return (out * (1 - m) + pessoa * m).clip(0, 255).astype(np.uint8)
+        # contornos calculados em meia resolução (a dilatação com elipse grande é o que pesa) e ampliados
+        bin_ = (cv2.resize(a, (W // 2, H // 2), interpolation=cv2.INTER_AREA) > 0.5).astype(np.uint8)
+        el = lambda d: cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * d + 1, 2 * d + 1))
+        # 0 = fundo chapado, 1 = contorno claro, 2 = contorno na cor de acento; a cor sai por LUT
+        nivel = cv2.add(cv2.dilate(bin_, el(r // 2)), cv2.dilate(bin_, el(r)))
+        nivel = cv2.resize(nivel, (W, H), interpolation=cv2.INTER_NEAREST)
+        tab = np.zeros((1, 256, 3), np.uint8)
+        tab[0, :3] = [_bgr(CORES[k]) for k in ("papel", "papel_2", "champanhe")]
+        out = cv2.LUT(cv2.merge([nivel, nivel, nivel]), tab)
+        return cv2.blendLinear(pessoa, out, a, 1 - a)
     return f

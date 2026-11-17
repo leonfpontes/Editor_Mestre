@@ -9,11 +9,13 @@ def lut_cor(c):
     q = c.get("calor", 0.0)
     b = np.clip(y * (1 - q), 0, 255)
     r = np.clip(y * (1 + q), 0, 255)
-    return [b.astype(np.uint8), np.clip(y, 0, 255).astype(np.uint8), r.astype(np.uint8)]
+    return np.stack([b.astype(np.uint8), np.clip(y, 0, 255).astype(np.uint8), r.astype(np.uint8)], axis=1)[None]
 
 
 def aplicar_cor(f, luts, c):
-    f = cv2.merge([cv2.LUT(ch, l) for ch, l in zip(cv2.split(f), luts)])
+    if not isinstance(luts, np.ndarray):  # as três curvas numa LUT só de 3 canais (uma passada no quadro)
+        luts = np.stack(luts, axis=1)[None]
+    f = cv2.LUT(f, luts)
     s = c.get("saturacao", 1.0)
     if abs(s - 1) > 0.01:
         hsv = cv2.cvtColor(f, cv2.COLOR_BGR2HSV)

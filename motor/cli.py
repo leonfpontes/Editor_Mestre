@@ -24,6 +24,7 @@ def main(argv=None):
     p.add_argument("edl")
     p.add_argument("--rapido", action="store_true", help="codificação rápida para conferir")
     p.add_argument("--so-audio", action="store_true", help="refaz só o áudio sobre o vídeo já renderizado")
+    p.add_argument("--processos", type=int, help="processos de render em paralelo (padrão: um por núcleo, até 8; 1 desliga)")
 
     p = sub.add_parser("testar", help="regressão de todas as marcas (rode antes de entregar mudanças no editor)")
     p.add_argument("--marca", help="testa só esta marca")

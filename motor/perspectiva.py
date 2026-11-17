@@ -57,7 +57,12 @@ class TelaPerspectiva:
         if self.cfg.get("luz", True):
             d = np.sqrt(((xx - W * 0.28) / (W * 0.32)) ** 2 + ((yy - H * 0.3) / (H * 0.16)) ** 2)
             g = np.exp(-d ** 2 * 1.2)[..., None]
-            self.luz = (g * (_bgr(CORES["champanhe"]) * 0.75 + _bgr(CORES["bronze"]) * 0.25)).astype(np.float32)
+            self.luz = (g * (_bgr(CORES["champanhe"]) * 0.75 + _bgr(CORES["bronze"]) * 0.25)).clip(0, 255).astype(np.uint8)
+        foco = float(self.cfg.get("foco", 0.6))
+        self.foco = foco
+        if foco > 0:  # máscara da profundidade de campo: fixa, então calculada uma vez
+            m = np.clip((self.dist - 0.2) / (0.5 - 0.2 * foco), 0, 1).astype(np.float32)
+            self.m_foco, self.m_nitido = m, 1 - m
 
     def quadro(self, tela, p):
         """tela: imagem BGR da gravação; p: 0..1 ao longo do b-roll."""
@@ -81,18 +86,19 @@ class TelaPerspectiva:
         out = cv2.warpPerspective(tela, M, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_TRANSPARENT,
                                   dst=self.fundo.copy())
         mask = cv2.warpPerspective(np.full((h0, w0), 255, np.uint8), M, (W, H), flags=cv2.INTER_LINEAR)
-        borda = cv2.GaussianBlur(mask, (0, 0), 30).astype(np.float32)[..., None] / 255
-        sombra = (1 - 0.55 * np.clip(borda - mask[..., None] / 255, 0, 1))
-        out = (out.astype(np.float32) * sombra).astype(np.uint8)
-        foco = float(self.cfg.get("foco", 0.6))
-        if foco > 0:
+        # sombra macia em volta da tela (desfoque em 1/4 da resolução: igual a olho, bem mais rápido)
+        pq = cv2.resize(mask, (W // 4, H // 4), interpolation=cv2.INTER_AREA)
+        borda = cv2.resize(cv2.GaussianBlur(pq, (0, 0), 7.5), (W, H), interpolation=cv2.INTER_LINEAR)
+        sombra = cv2.subtract(borda, mask).astype(np.float32) * (0.55 / 255)
+        out = cv2.blendLinear(out, np.zeros_like(out), 1 - sombra, sombra)
+        if self.foco > 0:
             pq = cv2.resize(out, (W // 3, H // 3))
-            borrado = cv2.resize(cv2.GaussianBlur(pq, (0, 0), 1 + 3 * foco), (W, H))
-            m = np.clip((self.dist - 0.2) / (0.5 - 0.2 * foco), 0, 1)[..., None]
-            out = (out * (1 - m) + borrado * m).astype(np.uint8)
-        if self.luz is not None:
-            f = out.astype(np.float32)
-            out = (255 - (255 - f) * (255 - self.luz * (0.85 + 0.15 * math.sin(p * 6))) / 255).clip(0, 255).astype(np.uint8)
+            borrado = cv2.resize(cv2.GaussianBlur(pq, (0, 0), 1 + 3 * self.foco), (W, H))
+            out = cv2.blendLinear(out, borrado, self.m_nitido, self.m_foco)
+        if self.luz is not None:  # luz em "screen": 255 - (255 - f)·(1 - k·luz/255)
+            inv = cv2.bitwise_not(out)
+            k = 0.85 + 0.15 * math.sin(p * 6)
+            out = cv2.bitwise_not(cv2.subtract(inv, cv2.multiply(inv, self.luz, scale=k / 255)))
         return out
 
 

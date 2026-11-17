@@ -9,6 +9,7 @@ from PIL import Image
 
 from .audio import som_padrao
 from .bibliotecas import objeto_3d
+from .config import FPS
 from .efeitos import criar_efeito
 from .graficos import Cartao, alpha_over, blend, cobrir, girar3d, pil2np, sombra, transformar
 from .marca import ErroDeMarca, arquivo_marca, marca_ativa, registrar, tem_arquivo_marca, tem_leo
@@ -258,11 +259,18 @@ class Elementos:
     def broll(self, t):
         for e in self.items:
             if e["tipo"] == "broll" and e["o_ini"] <= t < e["o_fim"]:
-                if "cap" in e:
-                    ok, f = e["cap"].read()
+                if "cap" in e:  # quadro pelo instante (não pela ordem de leitura): o render em trechos paralelos dá o mesmo
+                    cap = e["cap"]
+                    n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 1
+                    fps = cap.get(cv2.CAP_PROP_FPS) or FPS  # na velocidade real do b-roll (gravação de tela a 60 fps não fica lenta)
+                    k = int(round((t - e["o_ini"]) * fps)) % n
+                    if e.get("pos") != k:
+                        cap.set(cv2.CAP_PROP_POS_FRAMES, k)
+                    ok, f = cap.read()
                     if not ok:
-                        e["cap"].set(cv2.CAP_PROP_POS_FRAMES, 0)
-                        ok, f = e["cap"].read()
+                        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                        ok, f = cap.read()
+                    e["pos"] = k + 1
                 else:
                     f = e["still"]
                 p = (t - e["o_ini"]) / max(e["o_fim"] - e["o_ini"], 0.01)
