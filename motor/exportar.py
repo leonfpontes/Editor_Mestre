@@ -11,6 +11,7 @@ Gera, na pasta do EDL:
 Nada aqui publica: a publicação é do Leonardo (ou do PR na agenda do insta_report).
 """
 import json
+import shutil
 import subprocess
 import sys
 from datetime import datetime
@@ -150,13 +151,45 @@ def reel_instagram(final, arq):
     return arq.stat().st_size / 1e6, True
 
 
+# Pasta de mídia de cada conta dentro de instagram/ no insta_report (o @pontes_brain usa a raiz de midia/).
+PASTAS_MIDIA = {"pontes_brain": "midia", "GiraHub": "midia/girahub", "leopontesrp": "midia/leopontesrp"}
+
+
 def entrada_agenda(ctx, quando, legenda, titulo):
     conta, prefixo = CONTAS.get(CFG["id"], (CFG["id"], CFG["id"][:2]))
     dt = datetime.fromisoformat(quando)
+    if dt.utcoffset() is None or dt.utcoffset().total_seconds() != -3 * 3600:
+        sys.exit(f"--quando precisa do fuso de Brasília (-03:00): {quando}")
     pid = f"{prefixo}-{dt:%m%d-%H%M}"
-    pasta = conta.lower()
+    pasta = PASTAS_MIDIA.get(conta, f"midia/{conta.lower()}")
     return {"id": pid, "conta": conta, "quando": quando, "formato": "reel", "status": "agendado", "titulo": titulo,
-            "legenda": legenda, "midia": [f"midia/{pasta}/{pid}.mp4"], "capa": f"midia/{pasta}/{pid}-capa.jpg"}
+            "legenda": legenda, "midia": [f"{pasta}/{pid}.mp4"], "capa": f"{pasta}/{pid}-capa.jpg"}
+
+
+def enviar_insta_report(ent, pasta_video, raiz):
+    """Copia reel.mp4 e capa.jpg para o clone do insta_report e acrescenta o post no fim de posts, mantendo o formato
+    do arquivo. Não faz commit nem PR: isso segue o fluxo do insta_report (branch, PR, ok do Leonardo)."""
+    raiz = Path(raiz).expanduser().resolve()
+    agenda = raiz / "instagram" / "agenda.json"
+    if not agenda.exists():
+        sys.exit(f"não achei {agenda}: --insta-report precisa apontar para um clone do insta_report")
+    texto = agenda.read_text()
+    dados = json.loads(texto)
+    ids = {p.get("id") for p in dados.get("posts", [])}
+    pid = ent["id"]
+    while pid in ids:  # id repetido: sufixo, como manda a agenda
+        pid = pid + "b" if not pid[-1].isalpha() else pid[:-1] + chr(ord(pid[-1]) + 1)
+    if pid != ent["id"]:
+        ent = json.loads(json.dumps(ent).replace(ent["id"], pid))
+    if ent["conta"] not in dados.get("contas", {}):
+        sys.exit(f"a conta {ent['conta']} não está na agenda do insta_report")
+    for origem, destino in ((pasta_video / "reel.mp4", ent["midia"][0]), (pasta_video / "capa.jpg", ent["capa"])):
+        alvo = raiz / "instagram" / destino
+        alvo.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(origem, alvo)
+    dados["posts"].append(ent)
+    agenda.write_text(json.dumps(dados, ensure_ascii=False, indent=1) + "\n")
+    return ent
 
 
 def cmd_exportar(a):
@@ -182,9 +215,15 @@ def cmd_exportar(a):
     if a.quando:
         titulo = (titulo_capa or legenda.split("\n")[0])[:70]
         ent = entrada_agenda(ctx, a.quando, legenda, titulo)
+        if getattr(a, "insta_report", None):
+            ent = enviar_insta_report(ent, pasta, a.insta_report)
+            print(f"insta_report: {ent['id']} acrescentado em instagram/agenda.json, com {ent['midia'][0]} e {ent['capa']}. "
+                  "Agora branch, commit e PR no insta_report (o post sai só depois do merge).")
         json.dump(ent, open(pasta / "agenda-entrada.json", "w"), ensure_ascii=False, indent=1)
-        print(f"agenda-entrada.json: {ent['id']} ({ent['conta']}, {ent['quando']}). Copie reel.mp4 e capa.jpg para "
-              f"{ent['midia'][0]} e {ent['capa']} no insta_report e acrescente a entrada no fim de posts, por PR.")
+        if not getattr(a, "insta_report", None):
+            print(f"agenda-entrada.json: {ent['id']} ({ent['conta']}, {ent['quando']}). Copie reel.mp4 e capa.jpg para "
+                  f"instagram/{ent['midia'][0]} e instagram/{ent['capa']} no insta_report e acrescente a entrada no fim de posts, "
+                  "por PR (ou use --insta-report <pasta do clone>).")
     for fmt in [f.strip() for f in (a.formatos or "").split(",") if f.strip()]:
         print(f"renderizando o formato {fmt}…", flush=True)
         r = subprocess.run([sys.executable, str(RAIZ / "editor.py"), "renderizar", str(edl_p), "--formato", fmt],

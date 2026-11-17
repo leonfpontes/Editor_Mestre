@@ -288,7 +288,13 @@ def dirigir(palavras, video=None, estilo=None, db=None):
               "abertura": " ".join(w["t"] for w in wm if w["fim"] - wm[0]["ini"] <= 3.2)}
     if melhor and melhor["nota"] >= g_nota + 2:
         gancho["sugestao"] = melhor
-    return {"cortes": cortes, "enfase": [ws[i]["t"].strip(".,!?;:") for i, _ in enf],
+    conta = {}
+    for w in wm:
+        n = norm(w["t"])
+        if len(n) >= 5 and n not in STOP and numero(n) is None:
+            conta[n] = conta.get(n, 0) + 1
+    termos = [t for t, _ in sorted(conta.items(), key=lambda x: (-x[1], -len(x[0])))[:5]]
+    return {"termos_broll": termos, "cortes": cortes, "enfase": [ws[i]["t"].strip(".,!?;:") for i, _ in enf],
             "punch": [{"ini": w["ini"], "fim": round(w["fim"] + 0.35, 3), "fator": 1.14, "modo": "punch", "palavra": w["t"]}
                       for w in punch],
             "gancho": gancho, "elementos": elementos_sugeridos(ws, mantidas, estilo),
@@ -387,6 +393,8 @@ def resumo_diretor(plano):
         linhas.append("#   Ênfases: " + ", ".join(plano["enfase"]))
     if plano["punch"]:
         linhas.append("#   Punch de zoom em: " + ", ".join(z["palavra"] for z in plano["punch"]))
+    if plano.get("termos_broll"):
+        linhas.append("#   Termos para b-roll (editor.py broll \"termo\" edl.json): " + ", ".join(plano["termos_broll"]))
     if plano["elementos"]:
         linhas.append("#   Elementos sugeridos: " + ", ".join(f"{e.get('nome', e['tipo'])} em \"{e['na']}\"" for e in plano["elementos"]))
     return "\n".join(linhas)

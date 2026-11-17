@@ -41,10 +41,17 @@ def main(argv=None):
     p.add_argument("edl")
     p.add_argument("--video", help="vídeo da página (padrão: final.mp4 ou previa.mp4 da pasta)")
 
+    p = sub.add_parser("broll", help="busca b-roll vertical no Pexels (precisa de PEXELS_API_KEY) e baixa para a pasta do vídeo")
+    p.add_argument("termo")
+    p.add_argument("edl")
+    p.add_argument("--n", type=int, default=6)
+    p.add_argument("--baixar", type=int, help="baixa a opção N da lista")
+
     p = sub.add_parser("exportar", help="entrega completa: SRT, capa, legenda do post, reel para o Instagram e outros formatos")
     p.add_argument("edl")
     p.add_argument("--formatos", default="", help="outros formatos além do vertical, separados por vírgula: feed,horizontal")
     p.add_argument("--quando", help="data e hora do post para a entrada da agenda do insta_report (2026-11-20T19:00:00-03:00)")
+    p.add_argument("--insta-report", help="pasta de um clone do insta_report: copia reel e capa e acrescenta o post na agenda (sem commit)")
 
     sub.add_parser("marcas", help="lista as marcas e o que cada uma usa")
     sub.add_parser("estilos", help="lista os estilos de edição, os planos e os looks de cor")
@@ -75,6 +82,9 @@ def main(argv=None):
         elif a.cmd == "linha-do-tempo":
             from .linha_tempo import cmd_linha_tempo
             cmd_linha_tempo(a)
+        elif a.cmd == "broll":
+            from .banco import cmd_broll
+            cmd_broll(a)
         elif a.cmd == "exportar":
             from .exportar import cmd_exportar
             cmd_exportar(a)
