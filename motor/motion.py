@@ -23,6 +23,7 @@ Tipos novos de elemento (todos aceitam "na"/"ate", "x", "y" e "area": "palco"):
 | neon | texto, cor, caixa |
 | texto_atras | texto, cor, fonte, tam (desenhado atrás da pessoa) |
 | hud_rosto | rotulo (segue o rosto) |
+| letreiro | estilo (144: tratamento_entrada, `biblioteca listar titulos`), texto (linhas com "/"), cor, tam |
 """
 import math
 
@@ -32,6 +33,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 from .estilos import fonte_estilo
 from .graficos import pil2np, quebrar, sombra
+from .letreiros import Letreiro
 from .marca import CORES, PAPEIS_COR, ErroDeMarca, registrar
 from .movimento import clamp01, ease_in, ease_out, ease_out_back, mola
 
@@ -722,13 +724,13 @@ TIPOS = {
     "passo": Passo, "digitacao": Digitacao, "janela": Janela, "arvore": Arvore, "mapa": Mapa,
     "comentario": Comentario, "icone": Icone, "carrossel": Carrossel, "titulo_caixa": TituloCaixa,
     "titulo_editorial": TituloEditorial, "bilhete": Bilhete, "anotacao": Anotacao, "neon": Neon,
-    "texto_atras": TextoAtras, "hud_rosto": HudRosto,
+    "texto_atras": TextoAtras, "hud_rosto": HudRosto, "letreiro": Letreiro,
 }
 COM_SEMENTE = {"bilhete"}
 # posição padrão (y) de cada tipo; os de interface usam o palco
 Y_PADRAO = {"passo": 0.08, "digitacao": 0.5, "janela": 0.5, "arvore": 0.5, "mapa": 0.5, "comentario": 0.86,
             "icone": 0.45, "carrossel": 0.55, "titulo_caixa": 0.09, "titulo_editorial": 0.6, "bilhete": 0.7,
-            "anotacao": 0.12, "neon": 0.75, "texto_atras": 0.45}
+            "anotacao": 0.12, "neon": 0.75, "texto_atras": 0.45, "letreiro": 0.2}
 AREA_PALCO = {"passo", "digitacao", "janela", "arvore", "mapa", "icone"}
 
 

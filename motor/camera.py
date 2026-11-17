@@ -106,8 +106,24 @@ def borrao_h(frame, k):
     return cv2.blur(frame, (k, 1)) if k > 2 else frame
 
 
+CLASSICAS = {
+    "push": "Empurra a cena antiga para a esquerda com borrão de movimento.",
+    "whip": "Chicote rápido na horizontal (o push com mais energia).",
+    "zoom": "Zoom para dentro da cena antiga e saída na nova, com desfoque.",
+    "slide": "A cena desliza para cima com borrão vertical.",
+    "dissolve": "Fusão suave entre as cenas.",
+    "fade": "Fusão suave entre as cenas (o mesmo que dissolve).",
+    "flash": "Flash claro na troca.",
+    "giro": "Giro 3D no eixo vertical, como uma placa virando.",
+    "rasgo": "Papel rasgado revela a cena nova (estética de colagem).",
+    "vidro": "Vidro fosco líquido que distorce e brilha na troca.",
+    "luz": "Queima de luz quente da marca: a cena estoura em luz e a nova emerge.",
+}
+
+
 def transicao(a, b, p, tipo, W, H):
-    """Mistura o último quadro do trecho anterior (a) com o novo trecho (b). p: 0→1."""
+    """Mistura o último quadro do trecho anterior (a) com o novo trecho (b). p: 0→1. Além das clássicas daqui, aceita
+    qualquer transição da biblioteca de `motor/transicoes.py` (`editor.py biblioteca listar transicoes`)."""
     if tipo in ("push", "whip"):
         e = ease_in_out(p)
         vel = math.sin(math.pi * p)  # mais rápido no meio → mais borrão
@@ -149,6 +165,9 @@ def transicao(a, b, p, tipo, W, H):
         return _vidro(a, b, p, W, H)
     if tipo == "luz":
         return _luz(a, b, p, W, H)
+    from .transicoes import TRANSICOES
+    if tipo in TRANSICOES:
+        return TRANSICOES[tipo][0](a, b, p, W, H)
     return b
 
 

@@ -60,6 +60,8 @@ Fonte: `/mnt/project-files/girahub-instagram/conhecimento/identidade-visual.md` 
 
 **Estilos de edição** (`editor.py estilos`; guia em `docs/estilos-de-referencia.md`, campos em `docs/edl.md`): `"estilo": "tutorial_passos"` (rosto, tela dividida e só motion em corte seco, legenda limpa de 2 palavras, `passo`, `janela`, `arvore`, `mapa`, `comentario`), `"tela_perspectiva"` (gravação de tela num plano 3D com câmera e profundidade de campo: `broll` com `perspectiva`) e `"vitrine"` (um `look` por frase, `texto_atras`, `hud_rosto`, `som` com `rotulo`, `neon`). Em cada segmento: `"plano"` (`rosto`, `dividido`, `motion`) e `"look"` (`pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo`). `analisar --estilo <estilo>` já corta as pausas no ritmo do estilo. O estilo nunca troca a identidade: cores e fontes de texto continuam as da marca.
 
+**Bibliotecas ampliadas** (10x): 280 efeitos (`editor.py biblioteca listar efeitos --categoria marcacao|particulas|luz|textura|formas`), 113 transições (`listar transicoes`), 80 looks (`listar looks`) e 160 títulos, com o tipo `letreiro` (`{"tipo": "letreiro", "estilo": "<visual>_<entrada>", "texto": "linha/linha", "na": …}`, `listar titulos`). `editor.py biblioteca previa transicoes|looks|titulos|efeitos --marca <marca>` mostra a folha. Escolha pelo motivo na fala, como sempre: a descrição de cada item diz quando usar. Nesta marca: looks `espiritual`, `limpo`, `aconchego`, `hora_dourada`, `marca_luzes`; transições calmas (`dissolver_nuvem`, `fusao_desfocada`, `mergulho_papel`, `iris_circulo_abre`, `vazamento_*`, `cortina_*`); letreiros `serifa`, `manuscrito`, `tarja_escura`, `aspas` com entrada `surge`, `revela` ou `desfoca`; partículas leves (`poeira_dourada`, `poeira_no_ar`) só com motivo. Nunca os marcados "Evite em vídeo de fé" nem as transições digitais (`glitch_corte`, `rgb_separado`, `pixelar`, `tv_desliga`).
+
 **Diretor, prévia, conferência e entrega** (guia em `docs/diretor-e-entrega.md`):
 
 - **O `analisar` já dirige o rascunho.** Ele corta vícios e tomadas repetidas, escolhe as ênfases da legenda, alterna o zoom nos jump cuts (`"salto": true`), põe punch nas ênfases mais fortes e sugere elementos ancorados na fala.
@@ -182,14 +184,14 @@ Responda ao Leonardo em até 10 linhas: duração (antes → depois) e faixa da 
 - `analisar <VIDEO> --marca girahub`: normaliza (30 fps, SDR), transcreve com vocabulário de terreiro, rastreia o rosto; gera `<video>_edicao/transcricao.txt`, `analise.json` e `edl.json`.
 - `renderizar <pasta>/edl.json --rapido`: conferência + previa.jpg (12 quadros) + `manifesto.json`. Sem `--rapido`: final. `--so-audio`: refaz só o áudio.
 - `conferir <saida>.mp4 --marca girahub`: lê o selo de marca gravado no vídeo.
-- `biblioteca listar 3d|musicas|efeitos [termo] --marca girahub [--json]`: bibliotecas compartilhadas (215 objetos 3D, 35 músicas, 28 efeitos, 38 sons). `listar sons` mostra os efeitos sonoros: `"som": "<id>"` num segmento ou elemento troca o som (`false` = mudo) e `{"tipo": "som", "nome": "…", "na": "…"}` toca um som só (a marca segue com o whoosh e o pop sintéticos como padrão).
+- `biblioteca listar 3d|musicas|efeitos [termo] --marca girahub [--json]`: bibliotecas compartilhadas (215 objetos 3D, 35 músicas, 280 efeitos, 38 sons). `listar sons` mostra os efeitos sonoros: `"som": "<id>"` num segmento ou elemento troca o som (`false` = mudo) e `{"tipo": "som", "nome": "…", "na": "…"}` toca um som só (a marca segue com o whoosh e o pop sintéticos como padrão).
 - O `edl.json` precisa ter `"marca": "girahub"`. A guarda de marca recusa o render se faltar, se a análise for de outra marca, ou se o EDL tiver algo de outra conta (Leo, "mentoria de produto", leopontes.com.br, arquivos de `marcas/pontes_brain/`). Corrija o EDL; nunca a guarda.
 
 **EDL** (tempos da transcrição original):
 ```jsonc
 {
   "marca": "girahub", "formato": "vertical",
-  "segmentos": [{"id": 3, "ini": 16.84, "fim": 20.78, "zoom": 1.0, "transicao": null}],  // null|push|whip|zoom|slide|flash|dissolve|giro|rasgo|vidro|luz
+  "segmentos": [{"id": 3, "ini": 16.84, "fim": 20.78, "zoom": 1.0, "transicao": null}],  // null|push|whip|zoom|slide|flash|dissolve|giro|rasgo|vidro|luz|… (113: biblioteca listar transicoes)
   "zooms": [{"ini": 13.6, "fim": 14.4, "fator": 1.18, "modo": "punch"}],               // punch|suave
   "fundo": {"tipo": "original", "variante": "marinho", "parallax": true, "sombra": true}, // original|desfoque|marca|imagem
   "cor": {"contraste": 1.05, "saturacao": 1.05, "calor": 0.04, "nitidez": 0.25},

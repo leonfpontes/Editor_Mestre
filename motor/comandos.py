@@ -42,6 +42,25 @@ def cmd_estilos(a):
     print("\nGuia completo: docs/estilos-de-referencia.md")
 
 
+def catalogo_motor(qual):
+    """Catálogos que saem do código do motor: efeitos, transições, looks de cor e letreiros (títulos)."""
+    if qual == "efeitos":
+        from .efeitos import catalogo_efeitos
+        return catalogo_efeitos()
+    if qual == "transicoes":
+        from .transicoes import catalogo_transicoes
+        return catalogo_transicoes()
+    if qual == "looks":
+        from .estilos import GRADES, LOOKS
+        return [{"id": k, "categoria": "grade" if k in GRADES else "classico", "descricao": v} for k, v in LOOKS.items()]
+    from .letreiros import catalogo_letreiros
+    from .motion import TIPOS
+    classicos = [{"id": k, "categoria": "tipo", "descricao": (c.__doc__ or "").strip().split("\n")[0]} for k, c in TIPOS.items()
+                 if k != "letreiro"]
+    classicos.append({"id": "som (com rotulo)", "categoria": "tipo", "descricao": "Rótulo do som que toca (♪ nome), no canto da tela."})
+    return classicos + [dict(it, categoria="letreiro") for it in catalogo_letreiros()]
+
+
 def _linha(qual, it):
     if qual == "musicas":
         return (f"{it['id']:28s} {it.get('bpm') or '—':>4} bpm  {it['duracao_txt']:>5}  energia {it.get('energia', '?')}  "
@@ -50,7 +69,7 @@ def _linha(qual, it):
         return f"{it['id']:22s} {it['tipo']:9s} {it['categoria']:14s} {', '.join(it.get('tags', [])[:6])}"
     if qual == "sons":
         return f"{it['id']:18s} {it['categoria']:10s} {it['duracao']:5.2f}s  {it['usos']}"
-    return f"{it['id']:16s} {it['categoria']:12s} {it['descricao']}"
+    return f"{it['id']:24s} {it.get('categoria', ''):12s} {it['descricao']}"
 
 
 def cmd_biblioteca(a):
@@ -58,10 +77,10 @@ def cmd_biblioteca(a):
         ativar(a.marca)
     if a.acao == "listar":
         if not a.qual:
-            sys.exit("diga qual biblioteca: 3d, musicas, efeitos ou sons")
-        if a.qual == "efeitos":
-            from .efeitos import catalogo_efeitos
-            lista = [e for e in catalogo_efeitos() if not a.categoria or e["categoria"] == a.categoria]
+            sys.exit("diga qual biblioteca: 3d, musicas, efeitos, sons, transicoes, looks ou titulos")
+        if a.qual in ("efeitos", "transicoes", "looks", "titulos"):
+            lista = catalogo_motor(a.qual)
+            lista = [e for e in lista if not a.categoria or e.get("categoria") == a.categoria]
             termo = " ".join(a.termo).lower()
             lista = [e for e in lista if termo in json.dumps(e, ensure_ascii=False).lower()]
         else:
@@ -103,7 +122,10 @@ def cmd_biblioteca(a):
         if not a.marca:
             sys.exit("a prévia usa a paleta de uma marca: passe --marca")
         saida = a.saida or f"previa-{a.qual}-{a.marca}.png"
-        img = {"efeitos": previa_efeitos, "3d": previa_3d}[a.qual]()
+        if a.qual == "efeitos":
+            img = previa_efeitos(categoria=a.categoria)
+        else:
+            img = {"3d": previa_3d, "transicoes": previa_transicoes, "looks": previa_looks, "titulos": previa_titulos}[a.qual]()
         cv2.imwrite(saida, img)
         print(f"gravado: {saida}")
 
@@ -187,15 +209,68 @@ def _grade(quadros, rotulos, colunas, w=270, h=480, titulo_cor=(255, 255, 255)):
     return np.vstack(linhas)
 
 
-def previa_efeitos(W=1080, H=1920):
+def previa_efeitos(W=540, H=960, categoria=None, nomes=None, colunas=10):
     from .efeitos import REGISTRO, quadro_exemplo
     from .fundo import FundoMarca
     fundo = FundoMarca(W, H)
     instante = {"confete": 0.55, "flash": 0.12, "glitch": 0.1, "tremor": 0.08, "brilhos": 0.7, "contador": 1.4,
-                "vazamento_luz": 0.9, "chuva_3d": 1.2, "check": 0.8, "xis": 0.8}
-    nomes = sorted(REGISTRO)
+                "vazamento_luz": 0.9, "chuva_3d": 1.2, "check": 0.8, "xis": 0.8, "persiana": 0.3, "cortina_luz": 0.4}
+    nomes = nomes or sorted(n for n, c in REGISTRO.items() if not categoria or c.categoria == categoria)
     q = [quadro_exemplo(n, W, H, instante.get(n, 1.0), fundo) for n in nomes]
-    return _grade(q, nomes, 5)
+    return _grade(q, nomes, colunas)
+
+
+def _quadros_ab(W, H):
+    """Dois quadros bem diferentes da marca ativa para mostrar uma transição (A sai, B entra)."""
+    from .fundo import FundoMarca
+    from .graficos import fonte
+    fundo = FundoMarca(W, H)
+    a = fundo.quadro(0.5)
+    b = cv2.cvtColor(cv2.flip(fundo.quadro(1.5), 1), cv2.COLOR_BGR2HSV)
+    b[..., 0] = (b[..., 0].astype(np.int32) + 30) % 180
+    b = cv2.cvtColor(b, cv2.COLOR_HSV2BGR)
+    for img, t in ((a, "A"), (b, "B")):
+        im = Image.fromarray(img)
+        ImageDraw.Draw(im).text((W / 2, H / 2), t, font=fonte("Black", int(W * 0.5)), fill=(240, 240, 240), anchor="mm")
+        img[:] = np.array(im)
+    return a, b
+
+
+def previa_transicoes(W=540, H=960, p=0.4):
+    from .camera import transicao
+    from .transicoes import catalogo_transicoes
+    a, b = _quadros_ab(W, H)
+    nomes = [t["id"] for t in catalogo_transicoes()]
+    return _grade([transicao(a, b, p, n, W, H) for n in nomes], nomes, 12)
+
+
+def previa_looks(foto=None):
+    from .estilos import LOOKS, aplicar_look
+    f = cv2.imread(str(foto or BIBLIOTECA.parent / "docs" / "img" / "vitrine-leopontesrp.jpg"))
+    f = cv2.resize(f, (540, int(540 * f.shape[0] / f.shape[1])))[:960]
+    alfa = np.zeros(f.shape[:2] + (1,), np.float32)
+    alfa[f.shape[0] // 5:, f.shape[1] // 4:3 * f.shape[1] // 4] = 1
+    nomes = list(LOOKS)
+    return _grade([aplicar_look(f.copy(), n, alfa) for n in nomes], nomes, 10)
+
+
+def previa_titulos(W=1080, H=1920, dt=1.5):
+    from .fundo import FundoMarca
+    from .letreiros import ENTRADAS, TRATAMENTOS, Letreiro
+    fundo = FundoMarca(W // 2, H // 2)
+    q, nomes = [], []
+    for t in TRATAMENTOS:  # um quadro por tratamento (as entradas só mudam o movimento)
+        f = fundo.quadro(1.0)
+        sp = Letreiro({"estilo": f"{t}_surge", "texto": "O problema certo/vem antes"}, W, H).render(dt, 2.0)
+        s = min((f.shape[1] - 20) / sp.shape[1], 0.5)
+        sp = cv2.resize(sp, (int(sp.shape[1] * s), int(sp.shape[0] * s)), interpolation=cv2.INTER_AREA)
+        y0, x0 = (f.shape[0] - sp.shape[0]) // 2, (f.shape[1] - sp.shape[1]) // 2
+        al = sp[..., 3:4] / 255.0
+        roi = f[y0:y0 + sp.shape[0], x0:x0 + sp.shape[1]]
+        roi[:] = (roi * (1 - al) + sp[..., 2::-1] * al).astype(np.uint8)
+        q.append(f)
+        nomes.append(f"{t} ×{len(ENTRADAS)}")
+    return _grade(q, nomes, 6)
 
 
 def previa_3d(lado=180):

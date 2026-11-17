@@ -58,9 +58,9 @@ def main(argv=None):
     sub.add_parser("marcas", help="lista as marcas e o que cada uma usa")
     sub.add_parser("estilos", help="lista os estilos de edição, os planos e os looks de cor")
 
-    p = sub.add_parser("biblioteca", help="bibliotecas compartilhadas: 3D, músicas, efeitos e sons")
+    p = sub.add_parser("biblioteca", help="bibliotecas compartilhadas: 3D, músicas, efeitos, sons, transições, looks e títulos")
     p.add_argument("acao", choices=["listar", "baixar", "verificar", "previa", "catalogo", "criar"])
-    p.add_argument("qual", nargs="?", choices=["3d", "musicas", "efeitos", "sons"])
+    p.add_argument("qual", nargs="?", choices=["3d", "musicas", "efeitos", "sons", "transicoes", "looks", "titulos"])
     p.add_argument("termo", nargs="*", help="texto a procurar (listar) ou nomes do Fluent Emoji (baixar 3d)")
     p.add_argument("--marca", help="mostra só o que serve a esta marca (e usa a paleta dela na prévia)")
     p.add_argument("--clima")

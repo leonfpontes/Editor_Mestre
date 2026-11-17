@@ -25,6 +25,7 @@ EXEMPLOS = {
     "anotacao": {"texto": "+ E NÃO SÃO", "cor": "champanhe"},
     "neon": {"texto": "CLICA EM / SAIBA MAIS"},
     "texto_atras": {"texto": "PALAVRAS"},
+    "letreiro": {"estilo": "marca_texto_digita", "texto": "O problema certo/vem antes"},
 }
 SPRITES = sorted(EXEMPLOS)
 

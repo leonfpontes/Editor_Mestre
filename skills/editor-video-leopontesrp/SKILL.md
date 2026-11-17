@@ -51,7 +51,7 @@ Todos os tempos estão na linha do tempo do vídeo **original** (os mesmos da `t
   "formato": "vertical",
   "segmentos": [                       // trechos que FICAM, em ordem. Apague os que saem.
     {"id": 0, "ini": 0.0, "fim": 3.4, "zoom": 1.0,
-     "transicao": null}                // null (corte seco) | "dissolve" | "push" | "zoom" | "slide" | "flash" | "giro" | "rasgo" | "vidro" | "luz"
+     "transicao": null}                // null (corte seco) | "dissolve" | "push" | "zoom" | "slide" | "flash" | "giro" | "rasgo" | "vidro" | "luz" | … (113)
   ],
   "duracao_transicao": 0.5,            // 0.3 é o padrão; "dissolve" fica melhor com 0.5 a 0.7
   "zooms": [{"ini": 13.6, "fim": 15.0, "fator": 1.1, "modo": "suave"}],
@@ -83,6 +83,8 @@ O rascunho do `analisar` já vem com esses padrões (estão em `marcas/leopontes
 Âncoras dos elementos: `na` (texto exato da transcrição; `ocorrencia` se repetir), `ate` (sai no fim dessa fala), `antecipa` (padrão 0,12 s antes da palavra), `segura` (quanto fica depois). Sem fala para ancorar, use `ini`/`fim`. Opcionais: `x`/`y` (0 a 1) e `tam`.
 
 **Estilos de edição** (`editor.py estilos`; guia em `docs/estilos-de-referencia.md`, campos em `docs/edl.md`): `"estilo": "tutorial_passos"` (rosto, tela dividida e só motion em corte seco, legenda limpa de 2 palavras, `passo`, `janela`, `arvore`, `mapa`, `comentario`), `"tela_perspectiva"` (gravação de tela num plano 3D com câmera e profundidade de campo: `broll` com `perspectiva`) e `"vitrine"` (um `look` por frase, `texto_atras`, `hud_rosto`, `som` com `rotulo`, `neon`). Em cada segmento: `"plano"` (`rosto`, `dividido`, `motion`) e `"look"` (`pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo`). `analisar --estilo <estilo>` já corta as pausas no ritmo do estilo. O estilo nunca troca a identidade: cores e fontes de texto continuam as da marca.
+
+**Bibliotecas ampliadas** (10x): 280 efeitos (`editor.py biblioteca listar efeitos --categoria marcacao|particulas|luz|textura|formas`), 113 transições (`listar transicoes`), 80 looks (`listar looks`) e 160 títulos, com o tipo `letreiro` (`{"tipo": "letreiro", "estilo": "<visual>_<entrada>", "texto": "linha/linha", "na": …}`, `listar titulos`). `editor.py biblioteca previa transicoes|looks|titulos|efeitos --marca <marca>` mostra a folha. Escolha pelo motivo na fala, como sempre: a descrição de cada item diz quando usar. Nesta conta pessoal: looks `natural`, `hora_dourada`, `aconchego`, `filme_kodak`, `nostalgia`; transições `dissolve`, `fusao_desfocada`, `mergulho_preto`, `vazamento_*`; letreiros `manuscrito`, `serifa`, `sublinhado` com `surge` ou `desfoca`. Pouco efeito: um traço à mão ou partícula leve só quando a fala pedir.
 
 **Diretor, prévia, conferência e entrega** (guia em `docs/diretor-e-entrega.md`):
 

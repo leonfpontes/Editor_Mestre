@@ -4,6 +4,15 @@
 
 ### Novo
 
+- **Bibliotecas 10x maiores** para o editor escolher com o motivo da fala:
+  - efeitos de 28 para **280** (`motor/efeitos_familias.py`): 90 traços à mão, 64 partículas, 48 de luz e textura,
+    50 formas de motion design;
+  - transições de 11 para **113** (`motor/transicoes.py`): cortinas, íris de formas, persianas, relógio, dissoluções,
+    portas, empurrar/cobrir/revelar, giros sem canto vazio, mergulhos de cor, formas da marca e cortes digitais, cada
+    uma com som padrão;
+  - looks de cor de 8 para **80** (72 grades em `GRADES`, incluindo 10 que puxam para a paleta da marca);
+  - títulos de 16 para **160**: novo tipo `letreiro` com 144 estilos (18 visuais × 8 entradas, `motor/letreiros.py`);
+  - `biblioteca listar|previa transicoes|looks|titulos`; a guarda recusa transição e letreiro desconhecidos.
 - **Tour pela casa no automático** (`motor/tour.py`): no vídeo em que a câmera anda pelo ambiente, o `analisar` escreve
   até 3 capítulos por cômodo (fala de passagem, mudança de cor do ambiente, caminhada cortada; título do lugar citado)
   com transição `luz` e sopro, e até 8 rótulos editoriais presos ao ponto para onde o dedo aponta (`cena.json` ganha

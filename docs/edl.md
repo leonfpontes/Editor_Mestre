@@ -36,13 +36,13 @@ Trechos que **ficam**, na ordem em que aparecem no vídeo. Apague os que saem.
 |---|---|
 | `id`, `ini`, `fim` | Identificador e tempos no original |
 | `zoom` | Enquadramento base: 1.0 (no máximo 1.08); muda devagar entre cortes |
-| `transicao` | Entrada do trecho: `null` (corte seco), `push`, `whip`, `zoom`, `slide`, `flash`, `dissolve`, `giro` (giro 3D), `rasgo` (papel rasgado), `vidro` (vidro líquido), `luz` (queima de luz) |
+| `transicao` | Entrada do trecho: `null` (corte seco), `push`, `whip`, `zoom`, `slide`, `flash`, `dissolve`, `giro` (giro 3D), `rasgo` (papel rasgado), `vidro` (vidro líquido), `luz` (queima de luz) ou uma das 102 da biblioteca (`cortina_faixa_direita`, `iris_circulo_abre`, `queimar`, `forma_circulo_dourada`…; `editor.py biblioteca listar transicoes`) |
 | `som` | Som da transição (id de `biblioteca listar sons`); `false` deixa muda. Sem o campo, vale o padrão da marca |
 | `gancho` | `true` repete o trecho no início do vídeo (a frase mais forte abrindo). O original continua no lugar |
 | `salto` | `true` troca o `zoom` no corte, sem deslizar (jump cut com mudança de enquadramento; o diretor marca sozinho) |
 | `plano` | `rosto` (padrão) · `dividido` (palco de motion em cima, rosto embaixo) · `motion` (só o palco; a voz continua) |
 | `corte_y` | No `dividido`, o centro da faixa de rosto mostrada (fração da altura; padrão 0.36) |
-| `look` | Cor do trecho: `pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo` |
+| `look` | Cor do trecho: `pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo` ou uma das 72 grades (`teal_laranja`, `hora_dourada`, `marca_split`, `espiritual`…; `editor.py biblioteca listar looks`) |
 | `texto` | A fala do trecho (referência para o agente) |
 
 ## `zooms`
@@ -196,6 +196,7 @@ Guia com os três estilos estudados e quando usar cada um: [estilos-de-referenci
 | `neon` | `texto` (linhas com `/`), `cor`, `caixa` | Manuscrito em neon que acende tremulando |
 | `texto_atras` | `texto`, `fonte`, `tam`, `cor` | Texto enorme **atrás da pessoa** (recorte automático); combina com o look `pb_acento` |
 | `hud_rosto` | `rotulo` | Mira, malha e anéis que seguem o rosto |
+| `letreiro` | `estilo` (144: `<visual>_<entrada>`), `texto` (linhas com `/`), `cor`, `tam` | Título ou rótulo em 18 visuais × 8 entradas (`editor.py biblioteca listar titulos`; veja [bibliotecas.md](bibliotecas.md#títulos)) |
 
 Os de interface (`passo`, `digitacao`, `janela`, `arvore`, `mapa`, `icone`) usam `"area": "palco"`: `x`/`y` são relativos
 ao palco e eles só aparecem nos planos `dividido` e `motion` (`"sempre": true` mostra também no `rosto`).

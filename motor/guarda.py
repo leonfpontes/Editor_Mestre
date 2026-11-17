@@ -134,16 +134,21 @@ def conferir_edl(edl, analise=None, pasta=None):
                 som(sid)
             except ErroDeMarca as err:
                 pr.append(f"{onde}: {err}")
+    from .camera import CLASSICAS
     from .estilos import LOOKS, PRESETS
+    from .letreiros import ESTILOS as ESTILOS_LETREIRO
     from .motion import TIPOS
     from .planos import PLANOS
+    from .transicoes import TRANSICOES
     if edl.get("estilo") and edl["estilo"] not in PRESETS:
         pr.append(f"estilo desconhecido: {edl['estilo']} (opções: {', '.join(PRESETS)})")
     for i, sg in enumerate(edl.get("segmentos", [])):
         if sg.get("plano") and sg["plano"] not in PLANOS:
             pr.append(f"segmentos[{i}].plano desconhecido: {sg['plano']} (opções: {', '.join(PLANOS)})")
         if sg.get("look") and sg["look"] not in LOOKS:
-            pr.append(f"segmentos[{i}].look desconhecido: {sg['look']} (opções: {', '.join(LOOKS)})")
+            pr.append(f"segmentos[{i}].look desconhecido: {sg['look']} (veja `editor.py biblioteca listar looks`)")
+        if sg.get("transicao") and sg["transicao"] not in CLASSICAS and sg["transicao"] not in TRANSICOES:
+            pr.append(f"segmentos[{i}].transicao desconhecida: {sg['transicao']} (veja `editor.py biblioteca listar transicoes`)")
     papeis = ("marinho", "marinho_2", "champanhe", "bronze", "papel", "papel_2", "nevoa")
     for i, e in enumerate(edl.get("elementos", [])):
         tp = e.get("tipo")
@@ -153,6 +158,8 @@ def conferir_edl(edl, analise=None, pasta=None):
             for onde, c in cores:
                 if c is not None and c not in papeis:
                     pr.append(f"elementos[{i}].{onde}: use um papel da paleta da marca, não {c!r}")
+        if tp == "letreiro" and e.get("estilo", "tarja_surge") not in ESTILOS_LETREIRO:
+            pr.append(f"elementos[{i}]: letreiro com estilo desconhecido {e.get('estilo')!r} (veja `editor.py biblioteca listar titulos`)")
         if tp == "leo" and not tem_leo():
             pr.append(f"elementos[{i}]: o Leo é personagem do @pontes_brain; a marca {mid} não o usa")
         elif tp == "objeto3d":
