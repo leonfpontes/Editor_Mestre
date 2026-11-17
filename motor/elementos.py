@@ -1,4 +1,5 @@
-"""Elementos sobre o vídeo: títulos, destaques, Leo, objetos 3D, efeitos, imagens e b-roll."""
+"""Elementos sobre o vídeo: títulos, destaques, Leo, objetos 3D, efeitos, imagens, b-roll e o motion de estilo
+(motor/motion.py: passo, janela, árvore, neon, texto atrás da pessoa, HUD…)."""
 import math
 import sys
 
@@ -11,7 +12,9 @@ from .bibliotecas import objeto_3d
 from .efeitos import criar_efeito
 from .graficos import Cartao, alpha_over, blend, cobrir, girar3d, pil2np, sombra, transformar
 from .marca import ErroDeMarca, arquivo_marca, marca_ativa, registrar, tem_arquivo_marca, tem_leo
+from .motion import AREA_PALCO, TIPOS, Y_PADRAO, HudRosto, RotuloSom, criar
 from .movimento import clamp01, ease_in, ease_out, ease_out_back, mola
+from .perspectiva import TelaPerspectiva
 
 
 class Leo:
@@ -151,6 +154,8 @@ class Elementos:
 
     def __init__(self, lst, W, H, map_out, palavras=()):
         self.W, self.H, self.items = W, H, []
+        self.plano = "rosto"  # plano do quadro atual (o render atualiza): define a área do palco
+        self.rosto = None  # (cx, cy, altura) do rosto no quadro de saída, para o HUD
         norm = lambda t: t.lower().strip(".,!?;:\"'")
 
         def achar(txt, n=1, depois=0.0):
@@ -176,7 +181,7 @@ class Elementos:
                 if "ate" in e:
                     e["fim"] = achar(e["ate"], 1, a)[1] + e.get("segura", 0.25)
             if e["tipo"] == "som":  # só áudio: o ápice do som cai no início do elemento (ex.: riser chegando na palavra)
-                e.setdefault("fim", e["ini"] + 0.5)
+                e.setdefault("fim", e["ini"] + (0.9 if e.get("rotulo") else 0.5))
             if "saida" in e:  # tempos já na linha do tempo final (ex.: título sobre o gancho)
                 e["o_ini"], e["o_fim"] = e["saida"]
             else:
@@ -200,7 +205,17 @@ class Elementos:
                 im = im.resize((lw, int(im.height * lw / im.width)), Image.LANCZOS)
                 e["img"], _ = sombra(pil2np(im), 20, 0.4)
                 e.setdefault("y", 0.3)
+            elif tp in TIPOS:
+                e["obj"] = criar(e, W, H, len(self.items))
+                e.setdefault("y", Y_PADRAO.get(tp, 0.5))
+                if tp in AREA_PALCO:
+                    e.setdefault("area", "palco")
+            elif tp == "som" and e.get("rotulo"):
+                e["obj"] = RotuloSom(e, W, H)
+                e.setdefault("y", 0.3)
             elif tp == "broll":
+                if e.get("perspectiva"):
+                    e["persp"] = TelaPerspectiva(e["perspectiva"] if isinstance(e["perspectiva"], dict) else {}, W, H)
                 p = registrar(e["arquivo"])
                 if p.suffix.lower() in (".mp4", ".mov", ".m4v"):
                     e["cap"] = cv2.VideoCapture(str(p))
@@ -227,12 +242,18 @@ class Elementos:
                     out.append((e["o_ini"], sid, g))
                     batidas = getattr(e["obj"], "batidas", None) if tp == "efeito" else None
                     out += [(e["o_ini"] + b, sid, g) for b in (batidas() if batidas else []) if e["o_ini"] + b < e["o_fim"]]
-            elif tp in ("titulo", "destaque", "leo", "imagem", "objeto3d") or (tp == "efeito" and e["obj"].pop):
+            elif tp in ("titulo", "destaque", "leo", "imagem", "objeto3d") or tp in TIPOS or (tp == "efeito" and e["obj"].pop):
                 out.append((e["o_ini"], "pop", g))
         return out
 
     def ativo(self, t, tipo):
         return any(e["tipo"] == tipo and e["o_ini"] <= t < e["o_fim"] for e in self.items)
+
+    def ativos(self, t, tipo):
+        return [e for e in self.items if e["tipo"] == tipo and e["o_ini"] <= t < e["o_fim"]]
+
+    def broll_ativo(self, t):
+        return next((e for e in self.items if e["tipo"] == "broll" and e["o_ini"] <= t < e["o_fim"]), None)
 
     def broll(self, t):
         for e in self.items:
@@ -245,21 +266,39 @@ class Elementos:
                 else:
                     f = e["still"]
                 p = (t - e["o_ini"]) / max(e["o_fim"] - e["o_ini"], 0.01)
+                if "persp" in e:
+                    return e["persp"].quadro(f, p)
                 return cobrir(f, self.W, self.H, 1.0 + 0.08 * p)
         return None
 
+    def posicao(self, e, w, h):
+        """Canto superior esquerdo do sprite: x/y são o centro, na tela ou dentro do palco ("area": "palco")."""
+        y0, alt = 0, self.H
+        if e.get("area") == "palco" and self.plano == "dividido":
+            alt = self.H // 2
+        return self.W * e.get("x", 0.5) - w / 2, y0 + alt * e["y"] - h / 2
+
     def desenhar(self, frame, t, fase="elementos"):
-        """fase "elementos": tudo que fica sob a legenda; fase "pos": efeitos de quadro inteiro (grão, vinheta,
+        """fase "atras": o que fica atrás da pessoa (texto_atras; o render cola a pessoa por cima);
+        fase "elementos": tudo que fica sob a legenda; fase "pos": efeitos de quadro inteiro (grão, vinheta,
         glitch…), aplicados por último, por cima de tudo."""
         for e in self.items:
-            if e["tipo"] in ("broll", "som") or not (e["o_ini"] <= t < e["o_fim"]):
+            if e["tipo"] == "broll" or (e["tipo"] == "som" and "obj" not in e) or not (e["o_ini"] <= t < e["o_fim"]):
                 continue
+            if (e["tipo"] == "texto_atras") != (fase == "atras"):
+                continue
+            if e.get("area") == "palco" and self.plano == "rosto" and not e.get("sempre"):
+                continue  # motion de palco só aparece nos planos dividido e motion
             dt, rest = t - e["o_ini"], e["o_fim"] - t
+            if isinstance(e.get("obj"), HudRosto):
+                if fase == "elementos":
+                    e["obj"].desenhar(frame, dt, rest, self.rosto)
+                continue
             if e["tipo"] == "efeito":
                 if e["obj"].fase == fase:
                     e["obj"].desenhar(frame, dt, rest)
                 continue
-            if fase != "elementos":
+            if fase not in ("elementos", "atras"):
                 continue
             if e["tipo"] in ("leo", "objeto3d"):
                 e["obj"].desenhar(frame, dt, rest)
@@ -272,5 +311,6 @@ class Elementos:
             else:
                 img, alpha = e["obj"].render(dt, rest), 1.0
             h, w = img.shape[:2]
-            blend(frame, img, self.W * e.get("x", 0.5) - w / 2, self.H * e["y"] - h / 2, alpha)
+            x, y = self.posicao(e, w, h)
+            blend(frame, img, x, y, alpha)
 

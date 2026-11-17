@@ -17,6 +17,8 @@ def main(argv=None):
     p.add_argument("--sem-fala", action="store_true", help="vídeo sem fala: pula o Whisper e desliga as legendas")
     p.add_argument("--estabilizar", action="store_true", help="estabiliza vídeo feito na mão (deshake)")
     p.add_argument("--modelo", default="small", help="tiny|base|small|medium|large-v3")
+    p.add_argument("--estilo", choices=["tutorial_passos", "tela_perspectiva", "vitrine"],
+                   help="estilo de edição (docs/estilos-de-referencia.md): ajusta o corte de pausas e o rascunho")
 
     p = sub.add_parser("renderizar", help="aplica o edl.json e gera final.mp4 + previa.jpg")
     p.add_argument("edl")
@@ -29,6 +31,7 @@ def main(argv=None):
     p.add_argument("--so-visual", action="store_true", help="pula o render ponta a ponta")
 
     sub.add_parser("marcas", help="lista as marcas e o que cada uma usa")
+    sub.add_parser("estilos", help="lista os estilos de edição, os planos e os looks de cor")
 
     p = sub.add_parser("biblioteca", help="bibliotecas compartilhadas: 3D, músicas, efeitos e sons")
     p.add_argument("acao", choices=["listar", "baixar", "verificar", "previa", "catalogo"])
@@ -58,6 +61,6 @@ def main(argv=None):
             cmd_testar(a)
         else:
             from . import comandos
-            {"marcas": comandos.cmd_marcas, "biblioteca": comandos.cmd_biblioteca, "conferir": comandos.cmd_conferir}[a.cmd](a)
+            {"marcas": comandos.cmd_marcas, "estilos": comandos.cmd_estilos, "biblioteca": comandos.cmd_biblioteca, "conferir": comandos.cmd_conferir}[a.cmd](a)
     except ErroDeMarca as e:
         sys.exit(f"Erro de marca: {e}")

@@ -8,6 +8,7 @@ import numpy as np
 
 from . import __version__
 from .config import FPS, MODELOS
+from .estilos import PRESETS
 from .marca import CFG, ativar
 from .util import probe, sh, tem_audio
 
@@ -212,7 +213,14 @@ def cmd_analisar(a):
         rosto = rosto_por_clipe(rosto, clipes)
     json.dump({"marca": CFG["id"], "editor": __version__, "duracao": dur, "palavras": palavras, "rosto": rosto, "clipes": clipes},
               open(pasta / "analise.json", "w"), ensure_ascii=False)
-    edl = rascunho_edl(cfr, palavras, dur=dur, clipes=clipes)
+    estilo = getattr(a, "estilo", None)
+    silencio = PRESETS[estilo]["edl"].get("corte_pausa_max", 0.35) if estilo else 0.35
+    edl = rascunho_edl(cfr, palavras, silencio_min=silencio, dur=dur, clipes=clipes)
+    if estilo:
+        edl["estilo"] = estilo
+        for k in ("legendas", "audio"):
+            if k in PRESETS[estilo]["edl"]:
+                edl[k] = dict(edl[k], **PRESETS[estilo]["edl"][k])
     json.dump(edl, open(pasta / "edl.json", "w"), ensure_ascii=False, indent=1)
     with open(pasta / "transcricao.txt", "w") as f:
         f.write(f"# {', '.join(s.name for s in srcs)} — {dur:.1f}s, {len(palavras)} palavras. "

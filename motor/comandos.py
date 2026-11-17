@@ -1,4 +1,4 @@
-"""Comandos de apoio: `marcas`, `biblioteca` e `conferir`."""
+"""Comandos de apoio: `marcas`, `estilos`, `biblioteca` e `conferir`."""
 import json
 import re
 import sys
@@ -25,6 +25,21 @@ def cmd_marcas(a):
         print(f"{'':14s} vinheta {c['intro']['tipo']} · fundo {c['fundo_motivo']} · Leo {'sim' if c.get('leo') else 'não'} · "
               f"música {politica_musica(c)} · CTA {cta}")
         print(f"{'':14s} termos exclusivos: {', '.join(c['exclusivo']['termos'])}")
+
+
+def cmd_estilos(a):
+    from .estilos import LOOKS, PRESETS
+    from .planos import PLANOS
+    print("Estilos (\"estilo\" no EDL ou analisar --estilo):")
+    for k, v in PRESETS.items():
+        print(f"  {k:18s} {v['descricao']}")
+    print("\nPlanos (\"plano\" em cada segmento):")
+    for k, v in PLANOS.items():
+        print(f"  {k:18s} {v}")
+    print("\nLooks de cor (\"look\" em cada segmento):")
+    for k, v in LOOKS.items():
+        print(f"  {k:18s} {v}")
+    print("\nGuia completo: docs/estilos-de-referencia.md")
 
 
 def _linha(qual, it):

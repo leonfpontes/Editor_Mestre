@@ -1,5 +1,11 @@
-"""Legenda palavra a palavra com a marcação na cor de destaque da marca."""
-from PIL import Image, ImageDraw
+"""Legenda palavra a palavra com a marcação na cor de destaque da marca.
+
+Estilos ("estilo" em legendas):
+- "marcada" (padrão): palavra atual com marcação na cor de destaque, contorno escuro.
+- "limpa": 1 ou 2 palavras, branco quase puro, sem caixa e sem contorno, só uma sombra macia (tutorial em passos).
+"""
+import numpy as np
+from PIL import Image, ImageDraw, ImageFilter
 
 from .graficos import fonte, pil2np
 from .marca import CORES
@@ -33,8 +39,9 @@ class Legendas:
             if len(cur) >= n or fim_frase or pausa or i == len(ws) - 1:
                 self.blocos.append(cur)
                 cur = []
-        tam = cfg.get("tamanho", 76 if W < 1500 else 64)
-        self.f = fonte("Black", tam)
+        self.limpa = cfg.get("estilo") == "limpa"
+        tam = cfg.get("tamanho", (64 if self.limpa else 76) if W < 1500 else 56)
+        self.f = fonte("Bold" if self.limpa else "Black", tam)
         self.lay = {}
 
     def bloco_em(self, t):
@@ -77,6 +84,8 @@ class Legendas:
         return self.lay[i]
 
     def render(self, i, t):
+        if self.limpa:
+            return self.render_limpa(i, t)
         b = self.blocos[i]
         Wc, Hc, pos, sprites, lh = self.layout(i)
         im = Image.new("RGBA", (Wc, Hc), (0, 0, 0, 0))
@@ -107,3 +116,28 @@ class Legendas:
             im.alpha_composite(sp, (int(x + w / 2 - sp.width / 2), int(y + lh / 2 + 4 - sp.height / 2 + dy)))
         return pil2np(im)
 
+
+    def render_limpa(self, i, t):
+        """Palavras brancas com sombra macia; cada uma sobe 10 px e acende quando é falada. Sem marcação."""
+        b = self.blocos[i]
+        Wc, Hc, pos, _, lh = self.layout(i)
+        txt = Image.new("RGBA", (Wc, Hc), (0, 0, 0, 0))
+        d = ImageDraw.Draw(txt)
+        up = self.cfg.get("maiusculas")
+        for k, wd in enumerate(b):
+            dt = t - wd["ini"]
+            if dt < -0.03:
+                continue
+            p = clamp01(max(dt, 0) / 0.14)
+            x, y, _ = pos[k]
+            cor = CORES["champanhe"] if wd["enf"] else CORES["papel_2"]
+            d.text((x + 12, y + 4 + (1 - p) * 10), wd["t"].upper() if up else wd["t"], font=self.f,
+                   fill=tuple(cor) + (int(255 * (0.35 + 0.65 * p)),))
+        a = np.array(txt)[..., 3]
+        sombra = Image.fromarray(a).filter(ImageFilter.GaussianBlur(9))
+        out = Image.new("RGBA", (Wc, Hc), (0, 0, 0, 0))
+        camada = Image.new("RGBA", (Wc, Hc), tuple(CORES["marinho"]) + (0,))
+        camada.putalpha(sombra.point(lambda v: int(v * 0.75)))
+        out.alpha_composite(camada, (0, 4))
+        out.alpha_composite(txt)
+        return pil2np(out)

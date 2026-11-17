@@ -17,11 +17,14 @@ from .camera import Camera, Rosto, matriz_enquadre, transicao, zoom_em
 from .config import FORMATOS, FPS
 from .cor import aplicar_cor, lut_cor
 from .elementos import Elementos
+from .estilos import aplicar_estilo, aplicar_look, precisa_recorte
 from .fundo import FundoMarca
 from .graficos import blend, cobrir, pil2np, sombra
 from .guarda import conferir_auditoria, conferir_edl
 from .legendas import Legendas
 from .marca import CFG, CORES, ErroDeMarca, ativar, logo_marca, padrao, registrar, tem_logo
+from .perspectiva import bolha
+from .planos import Palco, compor, legenda_y
 from .segmentacao import Segmentador
 from .util import bgr, sh, tem_audio
 from .vinhetas import cartao_cta, quadro_intro
@@ -73,10 +76,36 @@ def sons_do_video(segs, els, au, dur_intro, dur_fala, dur_cta, pasta):
     return sorted(eventos, key=lambda ev: ev[0])
 
 
+class Parado:
+    """Mede o maior trecho sem mudança visual (regra "nada parado por mais de N segundos" dos estilos)."""
+
+    def __init__(self, limite):
+        self.limite, self.ant, self.desde, self.pior = limite, None, 0.0, (0.0, 0.0)
+
+    def quadro(self, f, t):
+        if not self.limite:
+            return
+        pq = cv2.cvtColor(cv2.resize(f, (54, 96), interpolation=cv2.INTER_AREA), cv2.COLOR_BGR2GRAY).astype(np.int16)
+        if self.ant is None or np.abs(pq - self.ant).mean() > 2.2:  # mudou: começa a contar de novo
+            self.ant, self.desde = pq, t
+        elif t - self.desde > self.pior[1] - self.pior[0]:
+            self.pior = (self.desde, t)
+
+    def relatar(self):
+        if not self.limite:
+            return
+        a, b = self.pior
+        if b - a > self.limite:
+            print(f"Aviso de ritmo: {b - a:.1f}s sem mudança visual (de {a:.1f}s a {b:.1f}s); o estilo pede no máximo "
+                  f"{self.limite:.1f}s. Ponha um elemento, um zoom ou um corte nesse trecho.")
+        else:
+            print(f"Ritmo: maior trecho parado {b - a:.1f}s (limite {self.limite:.1f}s)")
+
+
 def cmd_renderizar(a):
     edl_p = Path(a.edl).resolve()
     pasta = edl_p.parent
-    edl = json.load(open(edl_p))
+    edl = aplicar_estilo(json.load(open(edl_p)))
     if not edl.get("marca"):
         raise ErroDeMarca("o edl.json não diz a marca (\"marca\"): rode `analisar --marca <marca>` de novo")
     ativar(edl["marca"])
@@ -158,6 +187,9 @@ def cmd_renderizar(a):
         ultimo = None  # último quadro-base do trecho anterior (para as transições)
         ultimo_src = -10
         camera = Camera()
+        seg = None  # recorte da pessoa sob demanda (texto atrás, look adesivo), quando o fundo não pede
+        palco = None
+        parado = Parado(edl.get("parado_max"))
 
         def acabamento(out, t_out, t_src):
             els.desenhar(out, t_out)
@@ -165,7 +197,9 @@ def cmd_renderizar(a):
                 bi = leg.bloco_em(t_src)
                 if bi is not None:
                     img = leg.render(bi, t_src)
-                    blend(out, img, W / 2 - img.shape[1] / 2, H * leg.cfg.get("posicao_y", 0.68))
+                    pl = els.plano
+                    y = H * legenda_y(pl, leg.cfg.get("posicao_y", 0.68), leg.cfg)
+                    blend(out, img, W / 2 - img.shape[1] / 2, y if pl == "rosto" else y - img.shape[0] / 2)
             if marca is not None and not els.ativo(t_out, "titulo"):
                 blend(out, marca, W - marca.shape[1] - 30, H * CFG.get("marca_dagua_y", 0.115) if H > W else 40, 0.85)
             if barra:
@@ -203,16 +237,24 @@ def cmd_renderizar(a):
                 zf, tremor = zoom_em(t_src, zooms, s["qb"])
                 z = zb * respira * zf
                 M = matriz_enquadre(w0, h0, W, H, z, face, tremor)
-                br = els.broll(t_out)
-                if br is not None:
-                    base = br
-                else:
+                plano = s.get("plano", "rosto")
+                els.plano = plano
+                br_e = els.broll_ativo(t_out)
+                br = els.broll(t_out) if br_e is not None else None
+                if (br is None and plano != "motion") or (br is not None and br_e.get("bolha")):
+                    look = s.get("look")
+                    atras = plano != "motion" and bool(els.ativos(t_out, "texto_atras"))
+                    precisa_m = seg_ia is not None or precisa_recorte(look) or atras
                     base = cv2.warpAffine(f, M, (W, H), flags=interp, borderMode=cv2.BORDER_REPLICATE)
-                    if seg_ia:
+                    m = None
+                    if precisa_m:
+                        if seg is None:
+                            seg = seg_ia or Segmentador()
                         if fi != ultimo_src + 1:
-                            seg_ia.reset() if seg_ia.rvm is not None else None
-                        alfa, frente = seg_ia.recortar(f)
+                            seg.reset() if seg.rvm is not None else None
+                        alfa, frente = seg.recortar(f)
                         m = cv2.warpAffine(alfa, M, (W, H), flags=cv2.INTER_LINEAR)[..., None]
+                    if seg_ia:
                         base = cv2.warpAffine(frente, M, (W, H), flags=interp, borderMode=cv2.BORDER_REPLICATE)
                         if tipo_fundo == "desfoque":
                             pq = cv2.resize(base, (W // 4, H // 4))
@@ -228,6 +270,28 @@ def cmd_renderizar(a):
                             bg = (bg.astype(np.float32) * (1 - 0.4 * sm)).astype(np.uint8)
                         base = (base.astype(np.float32) * m + bg.astype(np.float32) * (1 - m)).astype(np.uint8)
                     base = aplicar_cor(base, luts, cor)
+                    base = aplicar_look(base, look, m)
+                    if atras:  # texto atrás da pessoa: desenha no quadro e cola a pessoa recortada por cima
+                        camada = base.copy()
+                        els.desenhar(camada, t_out, "atras")
+                        base = (camada.astype(np.float32) * (1 - m) + base.astype(np.float32) * m).astype(np.uint8)
+                    rx_, ry_ = M @ np.array([face[0] * w0, face[1] * h0, 1.0])
+                    els.rosto = (float(rx_), float(ry_), float(face[2] * h0 * M[0, 0]))
+                    if br is not None:  # b-roll com bolha de rosto
+                        base = bolha(br.copy(), base, br_e.get("bolha"), W, H, els.rosto)
+                elif br is not None:
+                    base = br
+                    els.rosto = None
+                else:  # plano só de motion: a câmera não aparece
+                    base = None
+                    els.rosto = None
+                if plano != "rosto" and br is None:
+                    palco = palco or Palco(W, H)
+                    corte_y = s.get("corte_y", 0.36)
+                    base = compor(plano, base if base is not None else palco.quadro, palco.quadro, W, H, corte_y)
+                    if plano == "dividido" and els.rosto:
+                        y0 = int(np.clip(corte_y * H - H // 4, 0, H - H // 2))
+                        els.rosto = (els.rosto[0], els.rosto[1] - y0 + H // 2, els.rosto[2])
                 ultimo_src = fi
                 out = base
                 k = fi - a_idx
@@ -236,6 +300,7 @@ def cmd_renderizar(a):
                     out = transicao(ultimo, base, (k + 1) / (TRN + 1), tipo_tr, W, H)
                 out = out.copy()
                 acabamento(out, t_out, t_src)
+                parado.quadro(out, t_out)
                 proc.stdin.write(out.tobytes())
                 n_out += 1
             if base is not None:
@@ -246,6 +311,9 @@ def cmd_renderizar(a):
         cap.release()
         if seg_ia:
             seg_ia.fechar()
+        elif seg is not None:
+            seg.fechar()
+        parado.relatar()
         cache = {}
         n_cta = int(round(dur_cta * FPS))
         for k in range(n_cta):
