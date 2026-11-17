@@ -154,7 +154,9 @@ A identidade abaixo já está em `marcas/pontes_brain/marca.json` (cores, fontes
     - No máximo 1 grupo de texto na tela ao mesmo tempo, além da legenda.
 11. **Legendas**: sempre ligadas. Revise a transcrição e preencha `correcoes` (nomes, termos em inglês, "por que" e "porque", números). Marque em `enfase` de 3 a 6 palavras-chave do vídeo.
 
-#**Bordas:** nenhum quadro pode mostrar borda esticada, espelhada ou preta (pixel da beira repetido em faixa). Ao conferir os quadros, olhe as quatro bordas, principalmente em vídeo feito na mão; o render acusa "borda esticada" e esse aviso nunca vai para entrega. Nunca entregue com borda esticada.
+#**Direção de arte (sempre):** antes de montar o EDL, leia "Direção de arte: o que o editor sempre considera" em `docs/diretor-e-entrega.md` e siga os 10 pontos: gancho primeiro sem repetir (o `analisar` já move a frase forte e põe a vinheta depois dela), 45 a 60 s em tour, capítulos, rótulo editorial preso ao objeto com `sem_legenda`, 3D só quando o tom pede, luz igualada entre ambientes, som sob a voz, nunca borda esticada e autocrítica com nota por critério antes de entregar (abaixo de 8 volta para o EDL).
+
+**Bordas:** nenhum quadro pode mostrar borda esticada, espelhada ou preta (pixel da beira repetido em faixa). Ao conferir os quadros, olhe as quatro bordas, principalmente em vídeo feito na mão; o render acusa "borda esticada" e esse aviso nunca vai para entrega. Nunca entregue com borda esticada.
 
 ## Fase 4: imagem e som
 12. **Fundo**: se o fundo gravado estiver bagunçado ou com pouca luz, use `marca` (marinho com o ciclo PDCA em traço fino) ou `desfoque`. O recorte usa Robust Video Matting (`modelos/rvm_mobilenetv3_fp32.onnx`), que limpa cabelo e bordas e remove o vazamento de cor do ambiente. Se estiver limpo e bonito, deixe `original`. Confira as bordas do recorte (cabelo, ombros, mãos) na prévia; se ficarem ruins, volte para `desfoque`.

@@ -56,6 +56,33 @@ def fixar_pontos(elementos, video, pasta):
     json.dump(cache, open(arq, "w"))
 
 
+def igualar_luz(segs, video, forca=0.8):
+    """Mede a luz média de cada trecho (3 quadros) e grava em s["_lut_luz"] uma curva de gama que leva o trecho para a
+    mediana do vídeo. Corrige sala escura e cozinha clara sem estourar (gama entre 0,75 e 1,3)."""
+    cap = cv2.VideoCapture(str(video))
+    medias = []
+    for s in segs:
+        vals = []
+        for q in (0.2, 0.5, 0.8):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(s["ia"] + (s["ib"] - s["ia"]) * q))
+            ok, f = cap.read()
+            if ok:
+                g = cv2.cvtColor(cv2.resize(f, (90, 160)), cv2.COLOR_BGR2GRAY)
+                vals.append(float(np.clip(g.mean() / 255, 0.05, 0.95)))
+        medias.append(float(np.mean(vals)) if vals else None)
+    cap.release()
+    ok = [m for m in medias if m]
+    if not ok:
+        return
+    alvo = float(np.median(ok))
+    x = np.arange(256) / 255
+    for s, m in zip(segs, medias):
+        if not m:
+            continue
+        gama = float(np.clip(math.log(alvo) / math.log(m), 0.75, 1.3)) ** forca
+        s["_lut_luz"] = np.clip(255 * x ** gama + 0.5, 0, 255).astype(np.uint8) if abs(gama - 1) > 0.02 else None
+
+
 def sons_do_video(segs, els, au, dur_intro, dur_fala, dur_cta, pasta):
     """Todos os efeitos sonoros do vídeo: [(início em s, arquivo, ganho em dB)], na linha do tempo final.
     Modo "biblioteca": o ápice de cada som (campo "ataque" do catálogo) cai no corte ou na entrada do elemento.
@@ -212,6 +239,14 @@ class Contexto:
         self.dur_intro = round(intro.get("duracao", 2.2) * FPS) / FPS if intro.get("ativo", True) else 0.0
         self.n_intro = int(round(self.dur_intro * FPS))
         self.total = self.dur_intro + self.dur_fala + self.dur_cta
+        # "intro": {"apos_gancho": true}: o gancho abre o vídeo e a vinheta entra logo depois dele, fazendo a ponte
+        n_g = 0
+        while n_g < len(segs) and segs[n_g].get("gancho"):
+            n_g += 1
+        self.apos_gancho = bool(intro.get("apos_gancho") and self.n_intro and 0 < n_g < len(segs))
+        self.i_pos_gancho = n_g if self.apos_gancho else None
+        self.dur_gancho = segs[n_g]["o"] if self.apos_gancho else 0.0
+        self.n_gancho = sum(sg["n"] for sg in segs[:n_g]) if self.apos_gancho else 0
 
         # componentes
         self.rosto = Rosto(an["rosto"])
@@ -227,6 +262,8 @@ class Contexto:
             arq = self.cor["lut"]
             caminho = registrar(arq if Path(arq).exists() else BIBLIOTECA / "luts" / f"{arq}.cube")
             self.lut3d = tabela_lut3d(ler_cube(caminho), float(self.cor.get("lut_intensidade", 1.0)))
+        if self.cor.get("igualar_luz"):  # cômodos com luz diferente: cada trecho vai para a exposição do meio do vídeo
+            igualar_luz(segs, self.src, float(self.cor.get("igualar_luz_forca", 0.8)))
         cc = an.get("cor_clipes")
         self.luts_clipes = [lut_clipe(x) for x in cc] if cc and self.cor.get("igualar_clipes", True) else None
         self.leg = (Legendas(an["palavras"], edl.get("legendas", {}), W, H, self.keep)
@@ -332,6 +369,8 @@ class Trecho:
         z = zb * respira * zf
         M = matriz_enquadre(c.w0, c.h0, W, H, z, face, tremor)
         els.M, els.t_src = M, t_src  # elementos com "seguir" acompanham a mão, o rosto ou a parede neste quadro
+        if s.get("_lut_luz") is not None:
+            f = cv2.LUT(f, s["_lut_luz"])
         if c.luts_clipes:  # clipes gravados em momentos diferentes ficam com a mesma cor
             f = cv2.LUT(f, c.luts_clipes[min(c.clipe_de(t_src), len(c.luts_clipes) - 1)])
         plano = s.get("plano", "rosto")
@@ -398,7 +437,9 @@ class Trecho:
         els.caixas = [] if conferir else None
         els.desenhar(out, t_out)
         caixa_leg = fundo_leg = None
-        if c.leg:
+        # elemento com "sem_legenda": true tira a legenda enquanto está na tela (o rótulo já diz a mesma coisa)
+        cala = any(e.get("sem_legenda") and e["o_ini"] <= t_out < e["o_fim"] for e in els.items)
+        if c.leg and not cala:
             bi = c.leg.bloco_em(t_src)
             if bi is not None:
                 img = c.leg.render(bi, t_src)
@@ -423,7 +464,8 @@ class Trecho:
         if c.marca is not None and not els.ativo(t_out, "titulo"):
             blend(out, c.marca, W - c.marca.shape[1] - 30, H * CFG.get("marca_dagua_y", 0.115) if H > W else 40, 0.85)
         if c.barra:
-            cv2.rectangle(out, (0, 0), (int(W * (t_out + c.dur_intro) / c.total), 6), bgr(CORES["champanhe"]), -1)
+            t_barra = t_out if c.apos_gancho and t_out < c.dur_gancho else t_out + c.dur_intro  # o gancho vem antes da vinheta
+            cv2.rectangle(out, (0, 0), (int(W * t_barra / c.total), 6), bgr(CORES["champanhe"]), -1)
         els.desenhar(out, t_out, "pos")  # efeitos de quadro inteiro (grão, vinheta, glitch…) por cima de tudo
 
     def salto(self, s):
@@ -485,7 +527,12 @@ class Trecho:
                 self.camera = Camera()  # outra cena: o enquadramento começa no lugar certo, sem deslizar
             self.salto(s)
             base = None
-            tipo_tr = s.get("transicao") or ("zoom" if si == 0 and c.dur_intro else None)
+            tipo_tr = s.get("transicao") or ("zoom" if si == 0 and c.dur_intro and not c.apos_gancho else None)
+            if c.apos_gancho and si == 0:
+                tipo_tr = None  # o gancho abre o vídeo seco
+            if c.apos_gancho and si == c.i_pos_gancho:  # depois da vinheta: a transição sai do último quadro dela
+                self.ultimo = quadro_intro(W, H, (c.n_intro - 1) / FPS, c.fundo_vivo, {}, c.dur_intro)
+                tipo_tr = s.get("transicao") or "zoom"
             for k, fi in enumerate(range(s["ia"], s["ib"])):
                 if not quer(n_out) and k != s["n"] - 1:  # prévia: fora da janela só a câmera anda
                     self.camera.passo(s.get("zoom", 1.0), c.rosto.em(fi / FPS))
@@ -700,6 +747,20 @@ def render_audio(ctx, trilha):
     return tmp_a, [voz_bruta, voz]
 
 
+def gancho_antes_da_vinheta(ctx, tmp_v, tmp_a, pasta):
+    """Troca de lugar os dois blocos do começo: [vinheta][gancho][resto] vira [gancho][vinheta][resto]."""
+    a, b = ctx.dur_intro, ctx.dur_intro + ctx.n_gancho / FPS
+    v2, a2 = pasta / "_video_gancho.mp4", pasta / "_audio_gancho.wav"
+    partes = [(a, b), (0, a), (b, None)]
+    fv = "".join(f"[0:v]trim=start={x:.4f}" + (f":end={y:.4f}" if y else "") + f",setpts=PTS-STARTPTS[v{i}];" for i, (x, y) in enumerate(partes))
+    fa = "".join(f"[1:a]atrim=start={x:.4f}" + (f":end={y:.4f}" if y else "") + f",asetpts=PTS-STARTPTS[a{i}];" for i, (x, y) in enumerate(partes))
+    sh(["ffmpeg", "-y", "-i", str(tmp_v), "-i", str(tmp_a), "-filter_complex", fv + "[v0][v1][v2]concat=n=3:v=1:a=0[v]", "-map", "[v]",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "14", "-pix_fmt", "yuv420p", str(v2)])
+    sh(["ffmpeg", "-y", "-i", str(tmp_v), "-i", str(tmp_a), "-filter_complex", fa + "[a0][a1][a2]concat=n=3:v=0:a=1[a]", "-map", "[a]",
+        "-c:a", "pcm_s16le", str(a2)])
+    return v2, a2
+
+
 def cmd_renderizar(a):
     edl_p = Path(a.edl).resolve()
     if getattr(a, "previa", False):
@@ -716,6 +777,9 @@ def cmd_renderizar(a):
         avisos = render_video(ctx, edl_p, tmp_v, a.rapido, getattr(a, "processos", None) or processos_padrao())
 
     tmp_a, temporarios = render_audio(ctx, trilha)
+    if ctx.apos_gancho:  # o render sai com a vinheta na frente; aqui o gancho passa para antes dela (vídeo e áudio)
+        temporarios = [*temporarios, tmp_v, tmp_a]
+        tmp_v, tmp_a = gancho_antes_da_vinheta(ctx, tmp_v, tmp_a, pasta)
     sh(["ffmpeg", "-y", "-i", str(tmp_v), "-i", str(tmp_a), "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
         "-metadata", f"comment=marca={CFG['id']}; editor=edicao-video {__version__}", "-metadata", f"artist={CFG['nome']}",
         "-shortest", "-movflags", "+faststart", str(final)])

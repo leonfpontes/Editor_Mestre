@@ -129,3 +129,29 @@ A licença do Pexels permite uso comercial sem crédito. A origem de cada vídeo
 | `lut_intensidade` | 0 a 1 (padrão 1): mistura a LUT com a imagem |
 | `proteger_pele` | `true` (padrão): nos looks `quente`, `frio`, `noite` e `limpo`, a pele fica perto do tom original |
 | `igualar_clipes` | `true` (padrão): com vários clipes, o `analisar` mede a cor de cada um e o render deixa todos iguais |
+
+## Direção de arte: o que o editor sempre considera
+
+Lições da edição do vídeo de espiritualidade do GiraHub (v1 a v4), que valem para todo vídeo novo, em qualquer marca:
+
+1. **Gancho primeiro, sem repetir.** O `analisar` move a frase mais forte para a abertura (`"gancho": true`), tira o
+   anúncio do começo ("agora eu vou fazer um vídeo…") e põe a vinheta logo depois do gancho (`intro.apos_gancho`).
+   O mesmo trecho nunca aparece duas vezes. `"diretor": {"gancho_automatico": false}` no `marca.json` desliga.
+2. **Ritmo.** Tour e vlog: 45 a 60 s. Corte caminhadas mudas e pausas pelo **início** das palavras (no Whisper, o
+   `fim` de uma palavra estica até a próxima quando há pausa). Muletas ("bom", "voltando pra cá", "seguindo para
+   cá") saem.
+3. **Estrutura.** Vídeo com mais de um assunto ou ambiente ganha capítulos (`passo` com `rotulo: "Parte"`) e passagem
+   de luz (`transicao: "luz"`, som `whoosh-sopro`) só na troca de capítulo.
+4. **Rótulo que informa, não que repete.** Objeto nomeado ganha `anotacao` com `estilo: "editorial"`
+   ("firmeza de/Caboclo"), `fixar` no objeto, `caixa` e `sem_legenda` (a legenda some enquanto o rótulo diz a mesma
+   coisa). Um rótulo por vez, de 6 a 8 no vídeo. Nada de fonte mono com mira em conteúdo íntimo: é cara de interface.
+5. **3D só quando o tom pede.** Objeto 3D (e o criado sob demanda) é para conceito concreto em vídeo de ritmo leve.
+   Em fé, documentário ou emoção, o emoji 3D fica infantil: não use.
+6. **Legenda.** Marcas calmas usam `"marcacao": "enfase"` (o ouro só nas palavras de ênfase, sem deslizar).
+7. **Luz e cor.** Vídeo com vários ambientes liga `cor.igualar_luz` (o `analisar` liga sozinho quando a câmera anda
+   pelo ambiente em mais de 25% do vídeo). Grão e vinheta leves (0,35) dão textura sem pesar.
+8. **Som.** A voz manda. Fundo musical calmo da biblioteca a -24 dB com `ducking`, se a política da marca deixar
+   (no GiraHub, com o ok do Leonardo).
+9. **Bordas.** Nenhum quadro com borda esticada, espelhada ou preta (veja a conferência acima).
+10. **Autocrítica antes de entregar.** Dê nota de 0 a 10 para roteiro, gancho, ritmo, motion, direção de arte,
+    legenda, câmera, cor, som e CTA. O que ficar abaixo de 8 volta para o EDL antes da entrega.

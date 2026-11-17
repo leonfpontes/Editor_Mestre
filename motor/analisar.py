@@ -7,11 +7,11 @@ import cv2
 import numpy as np
 
 from . import __version__
-from .cena import aplicar_cena, dirigir_cena, ler_cena, resumo_cena
+from .cena import DICA_TOUR, aplicar_cena, dirigir_cena, ler_cena, resumo_cena, tour_pela_casa
 from .config import FPS, MODELOS
 from .cor import igualar_clipes
 from .diretor import aplicar as aplicar_diretor
-from .diretor import dirigir, resumo_diretor
+from .diretor import dirigir, montar_gancho, resumo_diretor
 from .estilos import PRESETS
 from .marca import CFG, ativar
 from .util import probe, sh, tem_audio
@@ -257,6 +257,8 @@ def cmd_analisar(a):
         plano = dirigir(palavras, cfr, estilo)
         edl = aplicar_diretor(edl, plano, palavras, rosto.get("clipes_ini", [0.0]) if isinstance(rosto, dict) else [0.0],
                                  alternar=CFG.get("diretor", {}).get("alternar_zoom", True))
+        if CFG.get("diretor", {}).get("gancho_automatico", True):
+            edl = montar_gancho(edl, plano, palavras)
         if not getattr(a, "sem_cena", False):
             print("Cena: gestos, cabeça e câmera…", flush=True)
             cena = ler_cena(cfr)
@@ -264,6 +266,10 @@ def cmd_analisar(a):
             pc = dirigir_cena(cena, palavras, edl["segmentos"], calmo=CFG.get("diretor", {}).get("calmo", False))
             edl = aplicar_cena(edl, pc, palavras)
             plano["cena"] = resumo_cena(cena)
+            tour = tour_pela_casa(cena, dur)
+            if tour:  # câmera andando pelo ambiente: luz igualada entre cômodos e roteiro de documentário no relatório
+                edl.setdefault("cor", {})["igualar_luz"] = True
+                plano["cena"] += "\n" + DICA_TOUR.format(p=round(tour * 100))
         json.dump(plano, open(pasta / "diretor.json", "w"), ensure_ascii=False, indent=1)
     json.dump(edl, open(pasta / "edl.json", "w"), ensure_ascii=False, indent=1)
     with open(pasta / "transcricao.txt", "w") as f:

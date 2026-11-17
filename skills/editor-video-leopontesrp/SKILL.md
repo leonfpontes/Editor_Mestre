@@ -144,7 +144,9 @@ A identidade já está em `marcas/leopontesrp/marca.json`. Sempre rode `analisar
     - Entra na palavra que justifica (`na`) e sai quando a ideia acaba (`ate`). No máximo 1 texto na tela além da legenda.
 13. **Legendas**: ligadas quando há fala. Revise a transcrição e preencha `correcoes` (nomes de pessoas e lugares, "por que" e "porque"). Marque em `enfase` de 2 a 4 palavras que carregam o sentimento do vídeo. Sem fala, ficam desligadas.
 
-#**Bordas:** nenhum quadro pode mostrar borda esticada, espelhada ou preta (pixel da beira repetido em faixa). Ao conferir os quadros, olhe as quatro bordas, principalmente em vídeo feito na mão; o render acusa "borda esticada" e esse aviso nunca vai para entrega. Nunca entregue com borda esticada.
+#**Direção de arte (sempre):** antes de montar o EDL, leia "Direção de arte: o que o editor sempre considera" em `docs/diretor-e-entrega.md` e siga os 10 pontos: gancho primeiro sem repetir (o `analisar` já move a frase forte e põe a vinheta depois dela), 45 a 60 s em tour, capítulos, rótulo editorial preso ao objeto com `sem_legenda`, 3D só quando o tom pede, luz igualada entre ambientes, som sob a voz, nunca borda esticada e autocrítica com nota por critério antes de entregar (abaixo de 8 volta para o EDL).
+
+**Bordas:** nenhum quadro pode mostrar borda esticada, espelhada ou preta (pixel da beira repetido em faixa). Ao conferir os quadros, olhe as quatro bordas, principalmente em vídeo feito na mão; o render acusa "borda esticada" e esse aviso nunca vai para entrega. Nunca entregue com borda esticada.
 
 ## Fase 4: imagem e som
 14. **Fundo**: sempre `original`. É vida real; não troque o fundo nem recorte a pessoa.

@@ -156,15 +156,23 @@ class Legendas:
             esc = 1.0
         else:
             esc = 0.6 + 0.4 * clamp01(mola((t - b[cur]["ini"]) / 0.35))
+        so_enfase = self.cfg.get("marcacao") == "enfase"  # a marcação fica só nas palavras de ênfase (sem deslizar)
         cx, cy = x + w / 2, y + lh / 2 + 2
         hw, hh = (w / 2 + 16) * esc, (lh / 2 + 2) * esc
-        ImageDraw.Draw(im).rounded_rectangle([cx - hw, cy - hh, cx + hw, cy + hh], 10, fill=CORES["champanhe"] + (255,))
+        if not so_enfase:
+            ImageDraw.Draw(im).rounded_rectangle([cx - hw, cy - hh, cx + hw, cy + hh], 10, fill=CORES["champanhe"] + (255,))
         for k, wd in enumerate(b):
             dt = t - wd["ini"]
             if dt < -0.03:
                 continue
             p = clamp01(mola(max(dt, 0) / 0.32, 8, 13))
-            sp = sprites[k][1] if k == cur else sprites[k][0]
+            if so_enfase and wd["enf"]:
+                ex, ey, ew = pos[k]
+                q = 0.6 + 0.4 * clamp01(mola(max(dt, 0) / 0.35))
+                ehw, ehh = (ew / 2 + 16) * q, (lh / 2 + 2) * q
+                ecx, ecy = ex + ew / 2, ey + lh / 2 + 2
+                ImageDraw.Draw(im).rounded_rectangle([ecx - ehw, ecy - ehh, ecx + ehw, ecy + ehh], 10, fill=CORES["champanhe"] + (255,))
+            sp = (sprites[k][1] if wd["enf"] else sprites[k][0]) if so_enfase else (sprites[k][1] if k == cur else sprites[k][0])
             s = 0.55 + 0.45 * p
             if s < 0.995:
                 sp = sp.resize((max(2, int(sp.width * s)), max(2, int(sp.height * s))), Image.BILINEAR)

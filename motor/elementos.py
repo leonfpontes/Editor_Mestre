@@ -321,7 +321,8 @@ class Elementos:
         else:  # rótulo pequeno (anotação): a mira cai no objeto e o texto sai para a direita, sem deixar a área segura
             meia = getattr(ob, "W", 0) / 2 / self.W
             x = X / self.W + (meia if e["tipo"] == "anotacao" else 0)
-            y = min(max(Y / self.H, 0.12), 0.62)
+            meia_h = getattr(ob, "H", 0) / 2 / self.H
+            y = min(max(Y / self.H, 0.1 + meia_h), 0.62)
             e["x"], e["y"] = min(max(x, 0.06 + meia), (0.85 if y > 0.5 else 0.94) - meia), y  # longe dos botões do Reels
 
     def posicao(self, e, w, h):

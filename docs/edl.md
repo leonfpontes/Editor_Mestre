@@ -17,7 +17,7 @@ tudo depois dos cortes. Um exemplo real está em [exemplos/edl-pontes_brain.json
   "musica": { … },
   "legendas": { … },
   "elementos": [ … ],
-  "intro": {"ativo": true, "duracao": 2.2},
+  "intro": {"ativo": true, "duracao": 2.2, "apos_gancho": true},  // apos_gancho: o gancho abre e a vinheta vem depois
   "marca_dagua": true,
   "barra_progresso": true,
   "cta": { … },
@@ -92,6 +92,8 @@ translúcida atrás (legível sobre parede clara).
 
 ## `cor` e `audio`
 
+`cor.igualar_luz: true` leva cada trecho para a exposição do meio do vídeo (sala escura e cozinha clara ficam iguais).
+
 ```jsonc
 "cor":   {"contraste": 1.05, "saturacao": 1.06, "calor": 0.03, "nitidez": 0.25,
           "lut": "filme.cube", "lut_intensidade": 0.6, "proteger_pele": true, "igualar_clipes": true},
@@ -118,7 +120,8 @@ de −1,5 dBFS.
              "correcoes": {"porque": "por que"}}         // conserta o Whisper
 ```
 
-`largura_max` (padrão 0,70 da tela) é a largura máxima da caixa da legenda antes de quebrar em duas linhas, para não
+`"marcacao": "enfase"` deixa a marcação só nas palavras de ênfase, sem deslizar de palavra em palavra (padrão do
+GiraHub). `largura_max` (padrão 0,70 da tela) é a largura máxima da caixa da legenda antes de quebrar em duas linhas, para não
 chegar aos botões do Reels. `quebra_sentido` (padrão `true`) não deixa um bloco terminar em artigo, preposição ou conjunção ("de", "o", "que"). `emoji`
 (`true` ou um mapa `{"palavra": "objeto-3d"}`) faz um objeto 3D da biblioteca pular acima da legenda quando a palavra é
 falada ("dinheiro", "ideia", "foguete"…); `emoji_tam` (0.13) e `emoji_espaco` (4 s entre um e outro).
@@ -156,7 +159,7 @@ E posição: `x`, `y` (0 a 1), `altura` ou `largura` (fração da tela).
 `broll` aceita ainda `perspectiva` (tela num plano 3D com câmera e profundidade de campo) e `bolha` (o rosto numa
 bolha circular por cima do b-roll): veja abaixo.
 
-Qualquer elemento aceita `"som": "<id>"` (troca o som de entrada) ou `"som": false` (mudo). `"sfx_elementos": false`
+Qualquer elemento aceita `"sem_legenda": true` (a legenda some enquanto ele está na tela) e `"som": "<id>"` (troca o som de entrada) ou `"som": false` (mudo). `"sfx_elementos": false`
 (em `audio`) desliga os sons automáticos dos elementos; os do `tipo` `som` continuam. Veja [bibliotecas.md](bibliotecas.md#sons).
 
 ## Estilos, planos e looks
@@ -189,7 +192,7 @@ Guia com os três estilos estudados e quando usar cada um: [estilos-de-referenci
 | `titulo_caixa` | `texto` (linhas com `/`) | Gancho em caixas justas com colchete no canto |
 | `titulo_editorial` | `partes` [{`t`, `fonte`, `cor`}], `numero` | Fontes misturadas (condensada, manuscrita, serifa) e número circulado |
 | `bilhete` | `texto` | Letras de bilhete de resgate |
-| `anotacao` | `texto` | Rótulo mono pequeno com cruz de mira |
+| `anotacao` | `texto`, `estilo`, `caixa` | Rótulo mono pequeno com cruz de mira; `estilo: "editorial"` com `texto` "sobrelinha/Nome" vira sobrelinha em sans e nome em serifa itálica, com ponto e fio |
 | `neon` | `texto` (linhas com `/`), `cor`, `caixa` | Manuscrito em neon que acende tremulando |
 | `texto_atras` | `texto`, `fonte`, `tam`, `cor` | Texto enorme **atrás da pessoa** (recorte automático); combina com o look `pb_acento` |
 | `hud_rosto` | `rotulo` | Mira, malha e anéis que seguem o rosto |

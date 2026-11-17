@@ -512,13 +512,49 @@ class Anotacao:
     """Rótulo pequeno em fonte mono, com cruz de mira e revelado letra a letra (anotação de interface)."""
 
     def __init__(self, e, W, H):
-        self.f = fonte_estilo("mono", int(W * e.get("tam", 0.022)))
+        self.editorial = e.get("estilo") == "editorial"
         self.txt = e.get("texto", "")
         self.c = cor(e.get("cor"), "papel_2")
         self.caixa = e.get("caixa", False)  # tarja escura translúcida atrás (rótulo legível sobre fundo claro)
+        if self.editorial:  # "firmeza de/Caboclo": sobrelinha pequena em sans e o nome em serifa itálica, com ponto e fio
+            tam = int(W * e.get("tam", 0.05))
+            sobre, _, nome = self.txt.rpartition("/")
+            self.sobre, self.nome = sobre.strip().upper(), nome.strip()
+            self.fs, self.fn = fonte_estilo("sans", int(tam * 0.36)), fonte_estilo("serifa_italica", tam)
+            self.c2 = cor(e.get("cor2"), "champanhe")
+            larg = max(self.fs.getlength(" ".join(self.sobre)) if self.sobre else 0, self.fn.getlength(self.nome))
+            self.W, self.H = int(larg) + 76, int(tam * (1.75 if self.sobre else 1.3))
+            return
+        self.f = fonte_estilo("mono", int(W * e.get("tam", 0.022)))
         self.W, self.H = int(self.f.getlength(self.txt)) + 60 + (16 if self.caixa else 0), int(self.f.size * 1.6)
 
+    def render_editorial(self, dt, rest):
+        im = Image.new("RGBA", (self.W, self.H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(im)
+        p = ease_out(min(dt / 0.45, 1))
+        cy = self.H // 2
+        if self.caixa:
+            d.rounded_rectangle([30, 0, self.W - 1, self.H - 1], self.H // 6, fill=rgba(cor("marinho"), int(150 * p)))
+        r = 7
+        d.ellipse([2, cy - r, 2 + 2 * r, cy + r], outline=rgba(self.c2), width=3)  # ponto sobre o objeto
+        d.ellipse([2 + r - 2, cy - 2, 2 + r + 2, cy + 2], fill=rgba(self.c2))
+        d.line([2 + 2 * r, cy, 2 + 2 * r + int(22 * p), cy], fill=rgba(self.c2), width=2)  # fio até o texto
+        txt = Image.new("RGBA", (self.W, self.H), (0, 0, 0, 0))
+        dt_ = ImageDraw.Draw(txt)
+        y = (self.H - (self.fn.size * 1.15 + (self.fs.size * 1.5 if self.sobre else 0))) / 2
+        if self.sobre:
+            dt_.text((46, y), " ".join(self.sobre), font=self.fs, fill=rgba(self.c2))
+            y += self.fs.size * 1.5
+        dt_.text((46, y - self.fn.size * 0.08), self.nome, font=self.fn, fill=rgba(self.c))
+        a = np.array(txt)
+        a[..., 3] = (a[..., 3] * p).astype(np.uint8)
+        txt = Image.fromarray(a)
+        im.alpha_composite(txt, (0, int((1 - p) * 10)))
+        return pil2np(_alpha(im, 1 - _saida(rest, 0.25)))
+
     def render(self, dt, rest):
+        if self.editorial:
+            return self.render_editorial(dt, rest)
         im = Image.new("RGBA", (self.W, self.H), (0, 0, 0, 0))
         d = ImageDraw.Draw(im)
         n = min(len(self.txt), int(dt * 40))

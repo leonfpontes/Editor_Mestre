@@ -4,6 +4,15 @@
 
 ### Novo
 
+- **Direção de arte no motor** (lições da edição do GiraHub):
+  - o `analisar` abre pela frase mais forte, tira o anúncio do começo e não repete o trecho (`montar_gancho`);
+  - `intro.apos_gancho`: a vinheta entra logo depois do gancho;
+  - tour detectado pela cena (câmera andando em mais de 25% do vídeo) liga `cor.igualar_luz` e põe o roteiro de
+    documentário no relatório;
+  - `anotacao` com `estilo: "editorial"` (sobrelinha em sans e nome em serifa itálica, ponto e fio) e `sem_legenda`
+    em qualquer elemento;
+  - legenda com `"marcacao": "enfase"` (padrão no GiraHub);
+  - regras de direção de arte em `docs/diretor-e-entrega.md` e nas três skills.
 - **Objetos 3D criados sob demanda** (`motor/criar3d.py`, `biblioteca criar 3d`, ou `fluent`/`emoji` no `objeto3d`):
   Fluent Emoji 3D, emoji extrudado ou placa da marca. Primeiros criados: `casa`, `broto`, `balao-fala`.
 - **Rótulo preso a um objeto do ambiente**: `"fixar": [t, x, y]` rastreia o ponto pelo fluxo óptico, também com `na`/`ate`;

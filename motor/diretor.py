@@ -35,6 +35,8 @@ ORDINAIS = {"primeiro": 1, "primeira": 1, "segundo": 2, "segunda": 2, "terceiro"
             "quarta": 4, "quinto": 5, "quinta": 5}
 SAUDACOES = ("oi", "olá", "ola", "e aí", "eai", "fala galera", "fala pessoal", "bom dia", "boa tarde", "boa noite",
              "tudo bem", "hoje eu vou", "hoje eu quero", "agora eu vou", "pois bem", "deixa eu", "nesse vídeo", "neste vídeo", "no vídeo de hoje")
+TRANSICOES = ("vamos seguir", "seguindo", "voltando", "agora vamos", "vamos lá", "continuando", "para cá", "pra cá",
+              "um pouquinho mais", "mais para frente")  # frase de passagem não abre vídeo
 GANCHO_FORTE = ("você", "vocês", "pare", "nunca", "ninguém", "erro", "segredo", "por que", "porque", "como", "se você",
                 "o maior", "a maior", "o pior", "a pior", "não")
 
@@ -175,6 +177,9 @@ def nota_gancho(ws):
     if any(txt.startswith(s) or f" {s} " in f" {txt[:30]} " for s in SAUDACOES):
         nota -= 3
         motivos.append("abre com saudação ou anúncio (\"oi\", \"hoje eu vou\"): vá direto ao ponto")
+    if any(f" {x} " in f" {txt} " for x in TRANSICOES):
+        nota -= 3
+        motivos.append("frase de passagem (\"vamos seguir\", \"voltando pra cá\")")
     if any(w["t"].rstrip().endswith("?") for w in ab):
         nota += 2
         motivos.append("pergunta na abertura")
@@ -369,6 +374,40 @@ def aplicar(edl, plano, palavras, clipes_ini=(0.0,), alternar=True):
     return edl
 
 
+def montar_gancho(edl, plano, palavras, max_dur=6.5):
+    """Abre o vídeo pela frase mais forte, sem repetir: tira o anúncio do começo ("agora eu vou fazer um vídeo…"),
+    move o trecho do gancho para a abertura ("gancho": true) e põe a vinheta logo depois dele (intro.apos_gancho).
+    A fala não muda: só a ordem. Devolve o EDL; o plano ganha "gancho.aplicado"."""
+    g = plano.get("gancho", {})
+    sug = g.get("sugestao")
+    if not sug or not edl.get("segmentos"):
+        return edl
+    ws = [w for w in palavras if sug["ini"] - 0.01 <= w["ini"] and w["fim"] <= sug["fim"] + 0.01]
+    fim = sug["fim"]
+    for w in ws:  # gancho curto: termina na última palavra que cabe em max_dur
+        if w["fim"] - sug["ini"] <= max_dur:
+            fim = w["fim"]
+    ini, fim = round(max(sug["ini"] - 0.08, 0), 3), round(fim + 0.08, 3)
+    cortes = [(ini, fim, "gancho movido para a abertura")]
+    if any("anúncio" in m for m in g.get("motivos", [])):  # o anúncio do começo sai: o gancho já diz do que é o vídeo
+        fr = frases(palavras)
+        if fr:
+            a, b = fr[0]
+            cortes.append((round(palavras[a]["ini"] - 0.05, 3), round(palavras[b - 1]["fim"] + 0.05, 3), "anúncio na abertura"))
+    resto = [dict(sg, fim=min(sg["fim"], ini) if sg["ini"] < ini else sg["fim"]) for sg in aplicar_cortes(edl["segmentos"], cortes)]
+    resto = [sg for sg in resto if sg["fim"] - sg["ini"] >= 0.2]
+    abre = {"id": 0, "ini": ini, "fim": fim, "zoom": 1.0, "transicao": None, "gancho": True,
+            "texto": " ".join(w["t"] for w in palavras if ini <= (w["ini"] + w["fim"]) / 2 < fim)}
+    edl["segmentos"] = [abre] + resto
+    for i, sg in enumerate(edl["segmentos"]):
+        sg["id"] = i
+    intro = edl.setdefault("intro", {"ativo": True})
+    if intro.get("ativo", True):
+        intro["apos_gancho"] = True
+    g["aplicado"] = {"ini": ini, "fim": fim, "anuncio_cortado": len(cortes) > 1}
+    return edl
+
+
 def _tempo_na(e, palavras):
     alvo = [norm(x) for x in e["na"].split()]
     n = 0
@@ -388,6 +427,10 @@ def resumo_diretor(plano):
         sg = g["sugestao"]
         linhas.append(f"#   Abertura mais forte ({sg['nota']:.1f}/10), em {sg['ini']:.2f}–{sg['fim']:.2f}: \"{sg['texto']}\". "
                       "Para abrir com ela, copie o trecho para o início com \"gancho\": true.")
+    if g.get("aplicado"):
+        ap = g["aplicado"]
+        linhas.append(f"#   Aplicado: o trecho {ap['ini']:.2f}–{ap['fim']:.2f} abre o vídeo (gancho), a vinheta vem logo depois"
+                      + (" e o anúncio do começo saiu." if ap["anuncio_cortado"] else ". Confira se a história continua sem ele."))
     vic = [c for c in plano["cortes"] if c[2] == "vício"]
     if vic:
         linhas.append(f"#   {len(vic)} vícios cortados")

@@ -404,3 +404,16 @@ def rastrear_ponto(video, t0, x, y, a, b, largura=360):
             k += passo
             pos[k] = (float(centro[0] / pw), float(centro[1] / ph))
     return [[round((i_a + k) / FPS, 3), round(px, 4), round(py, 4)] for k, (px, py) in sorted(pos.items())]
+
+
+DICA_TOUR = ("# Tour: a câmera anda pelo ambiente em {p}% do vídeo. Roteiro de documentário: gancho na frase mais forte, "
+             "capítulos por cômodo (passo com rotulo \"Parte\" e transição luz), rótulo editorial preso a cada objeto que ele "
+             "nomeia (anotacao com estilo \"editorial\", fixar, caixa e sem_legenda), corte as caminhadas mudas e mire 45 a 60 s. "
+             "A luz entre cômodos já sai igualada (cor.igualar_luz).")
+
+
+def tour_pela_casa(cena, dur):
+    """Fração do vídeo com a câmera andando pelo ambiente (giro, panorâmica, passeio). Devolve a fração se passar de 25%."""
+    mov = sum(c["fim"] - c["ini"] for c in cena.get("camera", []) if c.get("tipo") in ("giro", "panoramica", "passeio", "afasta"))
+    frac = mov / max(dur, 1e-6)
+    return frac if frac >= 0.25 else 0.0
