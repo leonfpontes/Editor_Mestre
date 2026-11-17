@@ -364,12 +364,18 @@ class Trecho:
             cv2.rectangle(out, (0, 0), (int(W * (t_out + c.dur_intro) / c.total), 6), bgr(CORES["champanhe"]), -1)
         els.desenhar(out, t_out, "pos")  # efeitos de quadro inteiro (grão, vinheta, glitch…) por cima de tudo
 
+    def salto(self, s):
+        """"salto": true no segmento troca o zoom no corte (jump cut com mudança de enquadramento), sem deslizar."""
+        if s.get("salto") and self.camera.z is not None:
+            self.camera.z = s.get("zoom", 1.0)
+
     def aquecer(self, i0):
         """Põe câmera, recorte e quadro da transição no estado em que o render corrido chegaria ao segmento i0."""
         c = self.c
         for j, s in enumerate(c.segs[:i0]):
             if j and c.clipe_de(s["qa"]) != c.clipe_de(c.segs[j - 1]["qa"]):
                 self.camera = Camera()
+            self.salto(s)
             ultimo_seg = j == i0 - 1
             cheios = (12 if c.usa_recorte else 1) if ultimo_seg else 0  # quadros finais refeitos por inteiro
             n_out = c.quadros_antes(j)
@@ -409,6 +415,7 @@ class Trecho:
             s = c.segs[si]
             if si > i0 and c.clipe_de(s["qa"]) != c.clipe_de(c.segs[si - 1]["qa"]):
                 self.camera = Camera()  # outra cena: o enquadramento começa no lugar certo, sem deslizar
+            self.salto(s)
             base = None
             tipo_tr = s.get("transicao") or ("zoom" if si == 0 and c.dur_intro else None)
             for k, fi in enumerate(range(s["ia"], s["ib"])):

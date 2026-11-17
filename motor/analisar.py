@@ -8,6 +8,8 @@ import numpy as np
 
 from . import __version__
 from .config import FPS, MODELOS
+from .diretor import aplicar as aplicar_diretor
+from .diretor import dirigir, resumo_diretor
 from .estilos import PRESETS
 from .marca import CFG, ativar
 from .util import probe, sh, tem_audio
@@ -221,6 +223,12 @@ def cmd_analisar(a):
         for k in ("legendas", "audio"):
             if k in PRESETS[estilo]["edl"]:
                 edl[k] = dict(edl[k], **PRESETS[estilo]["edl"][k])
+    plano = None
+    if palavras and not getattr(a, "sem_diretor", False):
+        print("Diretor: vícios, tomadas repetidas, ênfases, zooms, gancho e elementos…", flush=True)
+        plano = dirigir(palavras, cfr, estilo)
+        edl = aplicar_diretor(edl, plano, palavras, rosto.get("clipes_ini", [0.0]) if isinstance(rosto, dict) else [0.0])
+        json.dump(plano, open(pasta / "diretor.json", "w"), ensure_ascii=False, indent=1)
     json.dump(edl, open(pasta / "edl.json", "w"), ensure_ascii=False, indent=1)
     with open(pasta / "transcricao.txt", "w") as f:
         f.write(f"# {', '.join(s.name for s in srcs)} — {dur:.1f}s, {len(palavras)} palavras. "
@@ -231,8 +239,12 @@ def cmd_analisar(a):
             f.write("# Sem fala: legendas desligadas; cada clipe entra inteiro. Corte pelo ritmo da imagem e da música.\n")
         for s in edl["segmentos"]:
             f.write(f"[{s['id']:03d}] {s['ini']:7.2f}–{s['fim']:7.2f}  {s['texto']}\n")
+        if plano:
+            f.write("\n" + resumo_diretor(plano) + "\n")
         baixas = [w for w in palavras if w["p"] < 0.5]
         if baixas:
             f.write("\n# Baixa confiança: " + ", ".join(f"{w['t']}@{w['ini']:.1f}" for w in baixas) + "\n")
+    if plano:
+        print(resumo_diretor(plano))
     print(f"Pronto: {pasta}/transcricao.txt e edl.json ({len(edl['segmentos'])} segmentos)")
 
