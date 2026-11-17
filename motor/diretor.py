@@ -34,7 +34,7 @@ NUMEROS = {"um": 1, "uma": 1, "dois": 2, "duas": 2, "três": 3, "quatro": 4, "ci
 ORDINAIS = {"primeiro": 1, "primeira": 1, "segundo": 2, "segunda": 2, "terceiro": 3, "terceira": 3, "quarto": 4,
             "quarta": 4, "quinto": 5, "quinta": 5}
 SAUDACOES = ("oi", "olá", "ola", "e aí", "eai", "fala galera", "fala pessoal", "bom dia", "boa tarde", "boa noite",
-             "tudo bem", "hoje eu vou", "hoje eu quero", "nesse vídeo", "neste vídeo", "no vídeo de hoje")
+             "tudo bem", "hoje eu vou", "hoje eu quero", "agora eu vou", "pois bem", "deixa eu", "nesse vídeo", "neste vídeo", "no vídeo de hoje")
 GANCHO_FORTE = ("você", "vocês", "pare", "nunca", "ninguém", "erro", "segredo", "por que", "porque", "como", "se você",
                 "o maior", "a maior", "o pior", "a pior", "não")
 
@@ -47,9 +47,12 @@ def sem_acento(t):
     return "".join(c for c in unicodedata.normalize("NFD", t) if unicodedata.category(c) != "Mn")
 
 
-def numero(t):
-    """Valor numérico de uma palavra ('87%', '3', 'três'), ou None."""
+def numero(t, artigo=False):
+    """Valor numérico de uma palavra ('87%', '3', 'três'), ou None. "um"/"uma" quase sempre são artigo ("um vídeo"),
+    então só contam como número com artigo=True (depois de "passo", por exemplo)."""
     n = norm(t).replace("%", "")
+    if n in ("um", "uma") and not artigo:
+        return None
     m = re.fullmatch(r"\d+(?:[.,]\d+)?", n)
     if m:
         return float(n.replace(".", "").replace(",", ".")) if "," in n else float(n.replace(".", ""))
@@ -227,8 +230,8 @@ def elementos_sugeridos(ws, mantidas, estilo, espaco=3.0):
                 e = {"tipo": "passo", "numero": num, "texto": " ".join(resto[:5]).capitalize(), "na": na}
             else:
                 e = {"tipo": "destaque", "texto": f"{prox[0].capitalize()} {num}", "na": na}
-        elif n == "passo" and i + 1 < len(ws) and (numero(ws[i + 1]["t"]) or 0) >= 1:
-            num = int(numero(ws[i + 1]["t"]))
+        elif n == "passo" and i + 1 < len(ws) and (numero(ws[i + 1]["t"], True) or 0) >= 1:
+            num = int(numero(ws[i + 1]["t"], True))
             resto = [x["t"].strip(".,!?;:") for x in ws[i + 2:i + 7]]
             na, oc = ancora(ws, i, 2)
             e = ({"tipo": "passo", "numero": num, "texto": " ".join(resto[:5]).capitalize(), "na": na}
@@ -295,7 +298,7 @@ def dirigir(palavras, video=None, estilo=None, db=None):
             conta[n] = conta.get(n, 0) + 1
     termos = [t for t, _ in sorted(conta.items(), key=lambda x: (-x[1], -len(x[0])))[:5]]
     return {"termos_broll": termos, "cortes": cortes, "enfase": [ws[i]["t"].strip(".,!?;:") for i, _ in enf],
-            "punch": [{"ini": w["ini"], "fim": round(w["fim"] + 0.35, 3), "fator": 1.14, "modo": "punch", "palavra": w["t"]}
+            "punch": [{"ini": w["ini"], "fim": round(w["fim"] + 0.35, 3), "fator": 1.14, "modo": "punch", "palavra": w["t"].strip(".,!?;:")}
                       for w in punch],
             "gancho": gancho, "elementos": elementos_sugeridos(ws, mantidas, estilo),
             "retakes": [{"ini": ws[a]["ini"], "fim": ws[b - 1]["fim"], "texto": " ".join(w["t"] for w in ws[a:b])}
@@ -347,13 +350,14 @@ def texto_segmento(s, palavras):
     return " ".join(w["t"] for w in palavras if s["ini"] <= (w["ini"] + w["fim"]) / 2 < s["fim"])
 
 
-def aplicar(edl, plano, palavras, clipes_ini=(0.0,)):
-    """Põe o plano do diretor no rascunho do EDL (cortes, zoom alternado, ênfases, punches e elementos)."""
+def aplicar(edl, plano, palavras, clipes_ini=(0.0,), alternar=True):
+    """Põe o plano do diretor no rascunho do EDL (cortes, zoom alternado, ênfases, punches e elementos).
+    alternar=False (marca com enquadramento contínuo, `"diretor": {"alternar_zoom": false}`) deixa o zoom 1.0 nos cortes."""
     segs = aplicar_cortes(edl["segmentos"], plano["cortes"])
     for s in segs:
         if s.get("texto") != "(sem fala)":
             s["texto"] = texto_segmento(s, palavras)
-    edl["segmentos"] = alternar_zoom(segs, clipes_ini)
+    edl["segmentos"] = alternar_zoom(segs, clipes_ini) if alternar else segs
     leg = edl.setdefault("legendas", {})
     if leg.get("ativo", True) and not leg.get("enfase"):
         leg["enfase"] = plano["enfase"]

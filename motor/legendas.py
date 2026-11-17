@@ -114,7 +114,9 @@ class Legendas:
         txt = [w["t"].upper() if up else w["t"] for w in b]
         larg = [f.getlength(x) for x in txt]
         linhas = [list(range(len(txt)))]
-        if sum(larg) + gap * (len(txt) - 1) > self.W * 0.82 and len(txt) > 1:
+        # quebra em duas linhas antes de a caixa (texto + 80 px) passar de 70% da largura: centrada, fica entre 15% e 85%,
+        # fora dos botões do Reels à direita
+        if sum(larg) + gap * (len(txt) - 1) + 80 > self.W * self.cfg.get("largura_max", 0.70) and len(txt) > 1:
             m = (len(txt) + 1) // 2
             linhas = [list(range(m)), list(range(m, len(txt)))]
         lh = int(f.size * 1.34)

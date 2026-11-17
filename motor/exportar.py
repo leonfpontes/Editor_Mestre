@@ -120,15 +120,24 @@ def texto_post(ctx, faixa=None):
     """Rascunho da legenda do post: a frase de abertura (o que já está dito no vídeo), o crédito da música, as hashtags
     da marca ("post": {"hashtags"}) e, por último, o CTA da marca ("post": {"cta"} ou a chamada e o link do "cta").
     É rascunho: o texto final é do Leonardo."""
+    corr = {k.lower(): v for k, v in ctx.edl.get("legendas", {}).get("correcoes", {}).items()}
     ws = [w for w in ctx.an["palavras"] if any(qa <= (w["ini"] + w["fim"]) / 2 < qb for qa, qb in ctx.keep)]
     frase = []
     for w in ws:
-        frase.append(w["t"])
-        if w["t"][-1:] in ".?!" and len(frase) >= 5:
+        t = w["t"]
+        nucleo = t.strip(".,!?;:")
+        if nucleo.lower() in corr:
+            t = t.replace(nucleo, corr[nucleo.lower()])
+        frase.append(t)
+        if t[-1:] in ".?!" and len(frase) >= 5:
             break
-    post, cta = CFG.get("post", {}), CFG.get("cta", {})
-    chamada = post.get("cta") or " ".join(x for x in (cta.get("chamada"), cta.get("url")) if x)
-    partes = [" ".join(frase[:40]).strip()]
+    abertura = " ".join(frase[:40]).strip()
+    abertura = abertura[:1].upper() + abertura[1:]
+    post, cta = CFG.get("post", {}), dict(CFG.get("cta", {}), **(ctx.edl.get("cta") or {}))
+    chamada = None
+    if cta.get("ativo", True):  # vídeo sem CTA (ex.: fala de fé no GiraHub) também não leva CTA na legenda
+        chamada = post.get("cta") or " ".join(x for x in (cta.get("chamada"), cta.get("url")) if x)
+    partes = [abertura]
     if faixa:
         partes.append(faixa["credito"])
     if post.get("hashtags"):

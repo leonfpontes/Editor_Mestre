@@ -21,7 +21,7 @@ no vídeo. `--sem-diretor` volta ao rascunho cru.
 | **Vícios** | Corta "ãh", "hum", "éé", "né" no fim de frase, "tipo," de muleta e palavra gaguejada ("eu eu"). "Um", "é" e "ah" ficam: são palavras de verdade |
 | **Tomadas repetidas** | Quando a frase seguinte (ou a próxima depois de um "não, peraí") recomeça igual, fica só a última tomada |
 | **Ênfases** | `legendas.enfase` com as palavras mais fortes: voz acima da vizinhança, números, palavras como "nunca" e "segredo"; uma a cada 2,5 s no máximo |
-| **Zoom nos cortes** | Em jump cut no mesmo plano, alterna o enquadramento (1.0 ↔ 1.08) com `"salto": true` (a câmera troca no corte, sem deslizar) |
+| **Zoom nos cortes** | Em jump cut no mesmo plano, alterna o enquadramento (1.0 ↔ 1.08) com `"salto": true` (a câmera troca no corte, sem deslizar). Marcas com enquadramento contínuo desligam no `marca.json` com `"diretor": {"alternar_zoom": false}` (@pontes_brain e GiraHub) |
 | **Punch** | `zooms` com tranco nas 1 a 3 ênfases mais fortes |
 | **Gancho** | Nota de 0 a 10 para os primeiros 3 s (saudação e ritmo lento descontam; pergunta, número e "você" somam) e a frase mais forte do vídeo, quando ela é bem melhor que a abertura. Para abrir com ela, copie o trecho para o início com `"gancho": true` |
 | **Elementos** | Contador em "40%", `passo` (no estilo `tutorial_passos`) ou `destaque` em "primeiro passo", `check` em "certo", `xis` em "errado", todos ancorados na fala |

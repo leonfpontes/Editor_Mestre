@@ -59,6 +59,14 @@
 
 ### Mudou
 
+- Ajustes do primeiro teste com vídeos reais:
+  - "um" e "uma" não contam mais como número no diretor ("um vídeo" não é número concreto);
+  - o gancho da conferência é medido na abertura do vídeo editado, não na do bruto;
+  - a legenda quebra em duas linhas antes de chegar aos botões do Reels (`legendas.largura_max`, padrão 0,70);
+  - o rascunho do `post.txt` usa as `correcoes` da legenda, abre com maiúscula e não leva CTA quando o vídeo não tem;
+  - marcas com enquadramento contínuo (`"diretor": {"alternar_zoom": false}`, ligado no @pontes_brain e no GiraHub) não
+    recebem o zoom alternado nos jump cuts;
+  - `analisar --modelo` aceita a pasta de um modelo Whisper local.
 - Caminhos de arquivo no EDL são relativos à pasta do próprio `edl.json`, não à pasta de onde o comando roda.
 - O b-roll é lido pelo instante, na velocidade real do arquivo (gravação de tela a 60 fps não fica mais em câmera lenta).
 - Por causa da quebra por sentido, as folhas de referência de todas as marcas foram regeradas: a legenda de teste agora

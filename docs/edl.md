@@ -91,7 +91,8 @@ de −1,5 dBFS.
              "correcoes": {"porque": "por que"}}         // conserta o Whisper
 ```
 
-`quebra_sentido` (padrão `true`) não deixa um bloco terminar em artigo, preposição ou conjunção ("de", "o", "que"). `emoji`
+`largura_max` (padrão 0,70 da tela) é a largura máxima da caixa da legenda antes de quebrar em duas linhas, para não
+chegar aos botões do Reels. `quebra_sentido` (padrão `true`) não deixa um bloco terminar em artigo, preposição ou conjunção ("de", "o", "que"). `emoji`
 (`true` ou um mapa `{"palavra": "objeto-3d"}`) faz um objeto 3D da biblioteca pular acima da legenda quando a palavra é
 falada ("dinheiro", "ideia", "foguete"…); `emoji_tam` (0.13) e `emoji_espaco` (4 s entre um e outro).
 

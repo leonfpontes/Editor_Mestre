@@ -34,6 +34,9 @@
   },
   "fundo_motivo": "ticket",
   "leo": false,
+  "diretor": {
+    "alternar_zoom": false
+  },
   "musica": {
     "politica": "opcional"
   },

@@ -92,3 +92,16 @@ def test_aplicar_no_rascunho():
     assert edl["segmentos"][0]["ini"] >= ws[0]["fim"] - 0.1  # o "ãh" saiu
     assert "ãh" not in edl["segmentos"][0]["texto"]
     assert edl["elementos"] and "_motivo" not in edl["elementos"][0]
+
+
+def test_um_artigo_nao_e_numero():
+    from motor.diretor import numero
+    assert numero("um") is None and numero("uma,") is None
+    assert numero("um", artigo=True) == 1 and numero("três") == 3 and numero("40%") == 40
+
+
+def test_abertura_com_anuncio_nao_ganha_ponto_de_numero():
+    from motor.diretor import nota_gancho
+    ws = [{"t": t, "ini": i * 0.3, "fim": i * 0.3 + 0.25} for i, t in enumerate("Agora eu vou fazer um vídeo mostrando".split())]
+    nota, motivos = nota_gancho(ws)
+    assert nota < 6 and "número concreto" not in motivos

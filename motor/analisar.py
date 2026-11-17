@@ -201,7 +201,7 @@ def cmd_analisar(a):
         json.dump(dict(receita, clipes=clipes), open(rp, "w"), ensure_ascii=False, indent=1)
     _, dur = probe(cfr)
     clipes = clipes or [{"arquivo": src.name, "ini": 0.0, "fim": round(dur, 3)}]
-    cache = pasta / f"palavras_{a.modelo}.json"
+    cache = pasta / f"palavras_{Path(a.modelo).name}.json"  # --modelo pode ser uma pasta local com o modelo
     if a.sem_fala:  # vídeo só de imagem (ou fala que não deve virar legenda): pula o Whisper
         palavras = []
     elif cache.exists():
@@ -229,7 +229,8 @@ def cmd_analisar(a):
     if palavras and not getattr(a, "sem_diretor", False):
         print("Diretor: vícios, tomadas repetidas, ênfases, zooms, gancho e elementos…", flush=True)
         plano = dirigir(palavras, cfr, estilo)
-        edl = aplicar_diretor(edl, plano, palavras, rosto.get("clipes_ini", [0.0]) if isinstance(rosto, dict) else [0.0])
+        edl = aplicar_diretor(edl, plano, palavras, rosto.get("clipes_ini", [0.0]) if isinstance(rosto, dict) else [0.0],
+                                 alternar=CFG.get("diretor", {}).get("alternar_zoom", True))
         json.dump(plano, open(pasta / "diretor.json", "w"), ensure_ascii=False, indent=1)
     json.dump(edl, open(pasta / "edl.json", "w"), ensure_ascii=False, indent=1)
     with open(pasta / "transcricao.txt", "w") as f:

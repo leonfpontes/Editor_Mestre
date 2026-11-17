@@ -12,6 +12,7 @@ O resultado vai para o terminal e para conferencia.json, ao lado do final.mp4.
 import json
 
 from .audio import medir_audio
+from .diretor import nota_gancho
 
 # Área segura do Reels em 9:16 (fração da tela): o topo tem a barra do app, o rodapé a legenda do post e o nome,
 # a coluna da direita os botões de curtir, comentar e compartilhar.
@@ -83,6 +84,19 @@ DICAS = {
 }
 
 
+def nota_abertura(ctx):
+    """Nota do gancho na abertura do vídeo editado (depois dos cortes e na ordem dos segmentos), não na do bruto."""
+    ws = []
+    for sg in ctx.segs:
+        for w in ctx.an.get("palavras", []):
+            if sg["qa"] <= (w["ini"] + w["fim"]) / 2 < sg["qb"]:
+                ws.append(dict(w, ini=sg["o"] + w["ini"] - sg["qa"], fim=sg["o"] + w["fim"] - sg["qa"]))
+    if not ws:
+        return None
+    nota, motivos = nota_gancho(ws)
+    return {"nota": round(nota, 1), "motivos": motivos, "abertura": " ".join(w["t"] for w in ws if w["fim"] - ws[0]["ini"] <= 3.2)}
+
+
 def relatorio(ctx, final, avisos):
     """Imprime e grava conferencia.json. Devolve a lista de problemas (vazia = confere)."""
     probs = agrupar(avisos)
@@ -97,12 +111,14 @@ def relatorio(ctx, final, avisos):
     if ctx.total > 90:
         probs.append({"problema": "vídeo longo", "onde": f"{ctx.total:.0f}s (Reels rende melhor até 90 s)", "de": 0,
                       "ate": round(ctx.total, 2)})
+    gancho = nota_abertura(ctx)
     diretor = ctx.pasta / "diretor.json"
-    gancho = None
-    if diretor.exists():
-        gancho = json.load(open(diretor)).get("gancho", {})
-        if gancho.get("nota", 10) < 6 and not any(s.get("gancho") for s in ctx.edl["segmentos"]):
-            probs.append({"problema": "gancho fraco", "onde": f"nota {gancho['nota']}/10 nos primeiros 3 s", "de": 0, "ate": 3})
+    if diretor.exists() and gancho is not None:
+        sug = json.load(open(diretor)).get("gancho", {}).get("sugestao")
+        if sug:
+            gancho["sugestao"] = sug
+    if gancho and gancho["nota"] < 6 and not any(s.get("gancho") for s in ctx.edl["segmentos"]):
+        probs.append({"problema": "gancho fraco", "onde": f"nota {gancho['nota']}/10 nos primeiros 3 s", "de": 0, "ate": 3})
     json.dump({"confere": not probs, "loudness": lufs, "pico": pico, "problemas": probs,
                "gancho": gancho}, open(ctx.pasta / "conferencia.json", "w"), ensure_ascii=False, indent=1)
     if not probs:
