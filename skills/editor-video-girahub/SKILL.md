@@ -27,7 +27,7 @@ Querem ouvir: gira organizada e sem confusão no portão, mensalidade sem constr
 
 Tom: caloroso, respeitoso e simples, como alguém da comunidade explicando para outra casa ("a casa", "a gira", "os filhos da casa", "a corrente", "o consulente"). Nada de jargão de software nem visual "de IA".
 
-Respeito religioso (não negociável): nada de exotismo, estereótipo ou elemento sagrado como enfeite (orixás, guias, pontos riscados, atabaques, velas). Sem piada com a fé, sem inventar regra de fundamento. Cada casa tem seu jeito; o GiraHub só organiza. Data religiosa (Iemanjá, Preto Velho, Cosme e Damião…): vídeo sóbrio, sem CTA comercial (`"cta": {"ativo": false}`), sem preço, sem "comece grátis".
+Respeito religioso (não negociável): nada de exotismo, estereótipo ou elemento sagrado como enfeite (orixás, guias, pontos riscados, atabaques, velas). Sem piada com a fé, sem inventar regra de fundamento. Cada casa tem seu jeito; o GiraHub só organiza. Data religiosa ou fala de fé (Iemanjá, Preto Velho, Cosme e Damião…): vídeo sóbrio, sem preço e sem "comece grátis" na tela. Vinheta e CTA continuam ligados: **todo vídeo leva intro e CTA**, e só saem quando o Leonardo pedir.
 
 ## 2. Identidade visual (não negociável)
 
@@ -67,6 +67,7 @@ Fonte: `/mnt/project-files/girahub-instagram/conhecimento/identidade-visual.md` 
   - Confira cada corte proposto: se um corte mudar o sentido, desfaça.
   - A nota do gancho e a frase mais forte vêm junto. Para abrir com essa frase, use um segmento `"gancho": true`.
   - `--sem-diretor` dá o rascunho cru.
+- **O `analisar` também lê a imagem** (`cena.json`): gestos (dedo para cima, apontar para a câmera, mão aberta, joinha), aceno de cabeça (sim e não) e câmera (giro pelo ambiente, câmera se afastando). Cada leitura vira um elemento que **acompanha o movimento** (`"seguir"`): brilho na ponta do dedo, ondas ao apontar para a câmera, círculo na mão aberta, check ao lado da cabeça no "sim", palavra grudada na parede no giro e zoom `abre` quando a câmera se afasta. O motivo do efeito é o gesto: confira na prévia e apague o que não fizer sentido. `--sem-cena` desliga.
 - **Ajuste por trechos.** `renderizar --previa --de S --ate S` mostra só o trecho alterado, em segundos.
 - **O render final faz a conferência visual.** Ele avisa sobre:
   - área segura do Reels;

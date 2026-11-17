@@ -27,6 +27,31 @@ no vídeo. `--sem-diretor` volta ao rascunho cru.
 | **Elementos** | Contador em "40%", `passo` (no estilo `tutorial_passos`) ou `destaque` em "primeiro passo", `check` em "certo", `xis` em "errado", todos ancorados na fala |
 | **Termos de b-roll** | As palavras de conteúdo que mais aparecem, para `editor.py broll` |
 
+## Leitura da cena (`analisar`)
+
+Além da fala, o `analisar` lê a imagem a 10 quadros por segundo (`motor/cena.py`) e grava `cena.json`. Cada leitura
+vira um elemento que acompanha o movimento (`"seguir"`, em [edl.md](edl.md)). O motivo do efeito é o gesto: confira na
+prévia e apague o que não fizer sentido. `--sem-cena` desliga.
+
+| Na imagem | No vídeo |
+|---|---|
+| Dedo para cima, "V", mão de rock | Brilho na ponta do dedo |
+| Apontar para a câmera | Ondas saindo do dedo e punch de zoom (aproximação suave em marca calma) |
+| Mão aberta | Círculo desenhado em volta da mão |
+| Joinha / joinha para baixo | Check / xis acima da mão |
+| Cabeça dizendo "sim" / "não" | Check / xis ao lado da cabeça |
+| Giro ou panorâmica pelo ambiente | Luz quente atravessando (no máximo a cada 10 s), `whip` no corte e a palavra dita grudada na parede |
+| Câmera se afastando ("ampliar a perspectiva") | Zoom `abre`: entra fechado e abre junto com o movimento |
+
+Regras:
+
+- gesto sem o rosto na tela (a mão mostrando um objeto) só vira círculo ou brilho de "olha aqui", e nunca em marca
+  calma (`"diretor": {"calmo": true}`, o GiraHub);
+- aceno durante um giro da câmera não conta (a cabeça "virou" porque a câmera andou);
+- texto da cena não entra por cima de outro texto, e marcação não cobre outra marcação nem o Leo.
+
+O gesto da mão usa `modelos/gesture_recognizer.task` (baixado pelo `setup-mac.sh`). Sem ele, o resto da leitura continua.
+
 ## Prévia rápida (`renderizar --previa`)
 
 `--previa` desenha 10 quadros por segundo e só a janela de `--de` a `--ate` (segundos do vídeo final), com o áudio de

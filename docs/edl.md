@@ -52,7 +52,22 @@ Trechos que **ficam**, na ordem em que aparecem no vídeo. Apague os que saem.
 ```jsonc
 {"ini": 13.6, "fim": 14.4, "fator": 1.2, "modo": "punch"}   // tranco curto numa palavra
 {"ini": 27.2, "fim": 32.0, "fator": 1.12, "modo": "suave"}  // aproximação lenta
+{"ini": 17.0, "fim": 18.5, "fator": 1.15, "modo": "abre"}   // entra fechado e abre (a câmera se afasta)
 ```
+
+## Elementos que acompanham o movimento (`seguir`)
+
+Qualquer elemento aceita `"seguir"`: uma trilha `[[t, x, y], …]` com o tempo e a posição (0 a 1) **na fonte**. O
+render projeta a trilha no quadro de saída depois do enquadramento (zoom, rosto, punch), então o elemento fica colado
+na ponta do dedo, no rosto ou num ponto da parede. `dx`/`dy` (fração da tela) deslocam o elemento em relação ao ponto.
+Cartões (`titulo`, `destaque`) ficam presos à área segura e acima da legenda.
+
+```jsonc
+{"tipo": "efeito", "nome": "brilhos", "ini": 2.6, "fim": 5.0, "seguir": [[2.6, 0.62, 0.41], [3.0, 0.6, 0.35]], "raio": 0.1}
+{"tipo": "efeito", "nome": "check", "ini": 11.8, "fim": 13.4, "seguir": [[11.8, 0.5, 0.33]], "dx": 0.22, "dy": -0.06}
+```
+
+O `analisar` escreve essas trilhas sozinho a partir de `cena.json` (veja [diretor-e-entrega.md](diretor-e-entrega.md)).
 
 ## `fundo`
 

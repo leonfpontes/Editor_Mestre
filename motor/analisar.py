@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 
 from . import __version__
+from .cena import aplicar_cena, dirigir_cena, ler_cena, resumo_cena
 from .config import FPS, MODELOS
 from .cor import igualar_clipes
 from .diretor import aplicar as aplicar_diretor
@@ -231,6 +232,13 @@ def cmd_analisar(a):
         plano = dirigir(palavras, cfr, estilo)
         edl = aplicar_diretor(edl, plano, palavras, rosto.get("clipes_ini", [0.0]) if isinstance(rosto, dict) else [0.0],
                                  alternar=CFG.get("diretor", {}).get("alternar_zoom", True))
+        if not getattr(a, "sem_cena", False):
+            print("Cena: gestos, cabeça e câmera…", flush=True)
+            cena = ler_cena(cfr)
+            json.dump(cena, open(pasta / "cena.json", "w"), ensure_ascii=False)
+            pc = dirigir_cena(cena, palavras, edl["segmentos"], calmo=CFG.get("diretor", {}).get("calmo", False))
+            edl = aplicar_cena(edl, pc, palavras)
+            plano["cena"] = resumo_cena(cena)
         json.dump(plano, open(pasta / "diretor.json", "w"), ensure_ascii=False, indent=1)
     json.dump(edl, open(pasta / "edl.json", "w"), ensure_ascii=False, indent=1)
     with open(pasta / "transcricao.txt", "w") as f:

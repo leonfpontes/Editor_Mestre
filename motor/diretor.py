@@ -401,4 +401,6 @@ def resumo_diretor(plano):
         linhas.append("#   Termos para b-roll (editor.py broll \"termo\" edl.json): " + ", ".join(plano["termos_broll"]))
     if plano["elementos"]:
         linhas.append("#   Elementos sugeridos: " + ", ".join(f"{e.get('nome', e['tipo'])} em \"{e['na']}\"" for e in plano["elementos"]))
+    if plano.get("cena"):
+        linhas.append(plano["cena"])
     return "\n".join(linhas)

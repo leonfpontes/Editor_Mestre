@@ -40,6 +40,7 @@ edicao-video/
 | `cor.py` | LUT de cor, LUT 3D `.cube`, proteção da pele e cor igual entre clipes |
 | `audio.py`, `movimento.py`, `util.py` | Loudness e SFX, curvas de easing, ffmpeg |
 | `diretor.py` | Diretor automático do `analisar`: vícios, tomadas repetidas, ênfases, zoom nos cortes, gancho, elementos |
+| `cena.py` | Leitura da imagem (gestos, aceno de cabeça, giro e afastamento da câmera) e os elementos que acompanham o movimento |
 | `qa.py` | Conferência visual do render (área segura, rosto, legenda, contraste, loudness, gancho) |
 | `linha_tempo.py` | Página HTML com o vídeo e a linha do tempo do EDL |
 | `exportar.py` | SRT, capa, legenda do post, reel até 20 MB, outros formatos e a entrada da agenda do insta_report |

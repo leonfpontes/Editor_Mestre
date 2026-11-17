@@ -211,6 +211,7 @@ class Contexto:
         self.leg = (Legendas(an["palavras"], edl.get("legendas", {}), W, H, self.keep)
                     if edl.get("legendas", {}).get("ativo", True) else None)
         self.els = Elementos(edl.get("elementos", []), W, H, self.map_out, an["palavras"])
+        self.els.fonte = (self.w0, self.h0)  # para projetar as trilhas ("seguir") da fonte no quadro de saída
         self.zooms = edl.get("zooms", [])
         self.marca = None
         self.barra = padrao(edl, "barra_progresso", True)
@@ -308,6 +309,7 @@ class Trecho:
         zf, tremor = zoom_em(t_src, c.zooms, s["qb"])
         z = zb * respira * zf
         M = matriz_enquadre(c.w0, c.h0, W, H, z, face, tremor)
+        els.M, els.t_src = M, t_src  # elementos com "seguir" acompanham a mão, o rosto ou a parede neste quadro
         if c.luts_clipes:  # clipes gravados em momentos diferentes ficam com a mesma cor
             f = cv2.LUT(f, c.luts_clipes[min(c.clipe_de(t_src), len(c.luts_clipes) - 1)])
         plano = s.get("plano", "rosto")

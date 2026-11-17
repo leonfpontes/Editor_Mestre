@@ -44,7 +44,8 @@ def matriz_enquadre(w0, h0, W, H, z, face, desloc=(0.0, 0.0)):
 
 
 def zoom_em(t, zooms, fim_seg=1e9):
-    """Ênfases de zoom (fator multiplicador): punch = tranco curto e volta macia; suave = aproximação lenta.
+    """Ênfases de zoom (fator multiplicador): punch = tranco curto e volta macia; suave = aproximação lenta;
+    abre = entra fechado e abre devagar (quando a câmera se afasta).
     A volta sempre termina antes do fim do trecho, para o corte seguinte encontrar o mesmo enquadramento."""
     z, tremor = 1.0, (0.0, 0.0)
     for zz in zooms:
@@ -52,7 +53,10 @@ def zoom_em(t, zooms, fim_seg=1e9):
         b = min(zz["fim"], fim_seg - 0.4) if a < fim_seg else zz["fim"]
         b = max(b, a + 0.15)
         if a <= t < b + 0.35:
-            if zz.get("modo", "suave") == "punch":
+            modo = zz.get("modo", "suave")
+            if modo == "abre":  # a câmera se afasta: entra fechado e abre junto com o movimento (revela o ambiente)
+                p = ease_out((t - a) / 0.2) * (1 - ease_in_out((t - a - 0.2) / max(b + 0.35 - a - 0.2, 0.3)))
+            elif modo == "punch":
                 p = ease_out((t - a) / 0.1) * (1 - ease_in_out((t - b) / 0.35))
                 k = math.exp(-14 * (t - a))
                 tremor = (6 * k * math.sin(70 * (t - a)), 4 * k * math.cos(55 * (t - a)))

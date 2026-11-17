@@ -158,6 +158,7 @@ class Elementos:
         self.plano = "rosto"  # plano do quadro atual (o render atualiza): define a área do palco
         self.rosto = None  # (cx, cy, altura) do rosto no quadro de saída, para o HUD
         self.caixas = None  # lista ligada pelo render nos quadros conferidos: caixas dos elementos desenhados
+        self.M, self.t_src, self.fonte = None, 0.0, (W, H)  # enquadramento do quadro atual (o render atualiza)
         norm = lambda t: t.lower().strip(".,!?;:\"'")
 
         def achar(txt, n=1, depois=0.0):
@@ -190,6 +191,8 @@ class Elementos:
                 e["o_ini"], e["o_fim"] = map_out(e["ini"]), map_out(e["fim"])
             if e["o_fim"] <= e["o_ini"]:
                 continue
+            if e.get("seguir"):  # [[t da fonte, x, y], …] em fração da fonte: o elemento acompanha esse ponto
+                e["seguir"] = np.array(e["seguir"], np.float64).reshape(-1, 3)
             tp = e["tipo"]
             if tp in ("titulo", "destaque"):
                 e["obj"] = Cartao(e["texto"], W * (0.86 if tp == "titulo" else 0.8), tp, e.get("tam"))
@@ -216,6 +219,7 @@ class Elementos:
                 e["obj"] = RotuloSom(e, W, H)
                 e.setdefault("y", 0.3)
             elif tp == "broll":
+                e.pop("seguir", None)
                 if e.get("perspectiva"):
                     e["persp"] = TelaPerspectiva(e["perspectiva"] if isinstance(e["perspectiva"], dict) else {}, W, H)
                 p = registrar(e["arquivo"])
@@ -280,6 +284,31 @@ class Elementos:
                 return cobrir(f, self.W, self.H, 1.0 + 0.08 * p)
         return None
 
+    def alvo(self, e):
+        """Ponto da trilha "seguir" no quadro de saída (px), com o deslocamento "dx"/"dy" (fração da tela) e preso à
+        área segura. A trilha está na fonte; o enquadramento (zoom, rosto, punch) é aplicado aqui."""
+        tr = e["seguir"]
+        xs = float(np.interp(self.t_src, tr[:, 0], tr[:, 1])) * self.fonte[0]
+        ys = float(np.interp(self.t_src, tr[:, 0], tr[:, 2])) * self.fonte[1]
+        M = self.M if self.M is not None else np.float32([[self.W / self.fonte[0], 0, 0], [0, self.H / self.fonte[1], 0]])
+        X = M[0, 0] * xs + M[0, 1] * ys + M[0, 2] + e.get("dx", 0) * self.W
+        Y = M[1, 0] * xs + M[1, 1] * ys + M[1, 2] + e.get("dy", 0) * self.H
+        return min(max(X, 0.08 * self.W), 0.86 * self.W), min(max(Y, 0.1 * self.H), 0.8 * self.H)
+
+    def seguir(self, e):
+        X, Y = self.alvo(e)
+        ob = e.get("obj")
+        if e["tipo"] == "efeito":
+            if not hasattr(ob, "_x0"):
+                ob._x0, ob._y0, ob._pts0 = ob.x, ob.y, getattr(ob, "pts", None)
+            ob.x, ob.y = X, Y
+            if isinstance(ob._pts0, np.ndarray) and ob._pts0.ndim == 2 and ob._pts0.shape[1] == 2:
+                ob.pts = ob._pts0 + np.array([X - ob._x0, Y - ob._y0])  # traços já desenhados (círculo, seta) andam juntos
+        elif hasattr(ob, "cx") and hasattr(ob, "cy"):
+            ob.cx, ob.cy = X, Y
+        else:  # cartão: o centro fica longe das bordas para a caixa inteira caber na área segura (e longe dos botões)
+            e["x"], e["y"] = min(max(X / self.W, 0.3), 0.66), min(max(Y / self.H, 0.14), 0.55)  # acima da legenda
+
     def posicao(self, e, w, h):
         """Canto superior esquerdo do sprite: x/y são o centro, na tela ou dentro do palco ("area": "palco")."""
         y0, alt = 0, self.H
@@ -299,6 +328,8 @@ class Elementos:
             if e.get("area") == "palco" and self.plano == "rosto" and not e.get("sempre"):
                 continue  # motion de palco só aparece nos planos dividido e motion
             dt, rest = t - e["o_ini"], e["o_fim"] - t
+            if isinstance(e.get("seguir"), np.ndarray):
+                self.seguir(e)
             if isinstance(e.get("obj"), HudRosto):
                 if fase == "elementos":
                     e["obj"].desenhar(frame, dt, rest, self.rosto)

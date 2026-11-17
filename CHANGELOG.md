@@ -4,6 +4,15 @@
 
 ### Novo
 
+- **Leitura da cena** no `analisar` (`motor/cena.py`, `cena.json`, `--sem-cena` desliga): gestos da mão (dedo para cima,
+  apontar para a câmera, mão aberta, joinha), aceno de cabeça (sim e não) e câmera (giro pelo ambiente, câmera se
+  afastando). Cada leitura vira brilho, ondas, círculo, check, xis, luz, `whip` ou zoom `abre`, que acompanham o
+  movimento.
+- **Elementos que acompanham o movimento**: campo `"seguir"` (trilha na fonte, projetada depois do enquadramento) e
+  `dx`/`dy`.
+- Zoom `"modo": "abre"` (entra fechado e abre).
+- `"diretor": {"calmo": true}` no `marca.json` (GiraHub): a cena não usa tranco de zoom nem marca a mão sem o rosto.
+- Intro e CTA ficam sempre ligados, também no GiraHub em fala de fé; só saem com pedido do Leonardo.
 - **Peças fixas no Pencil**: capa de Reel do @pontes_brain em `marcas/pontes_brain/pencil/capa-reel.pen` (fonte) e
   `capa-reel.png` (1080×1920); convenção documentada em `docs/marcas.md`.
 - **Diretor automático** no `analisar` (`motor/diretor.py`, `--sem-diretor` desliga):

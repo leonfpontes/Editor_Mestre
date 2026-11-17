@@ -35,7 +35,7 @@ Editor de vídeo automático e multimarca. Você grava falando para a câmera; o
 ## Comandos
 
 ```bash
-.venv/bin/python editor.py analisar VIDEO [VIDEO2 …] --marca <marca> [--pasta P] [--sem-fala] [--estabilizar] [--estilo E] [--sem-diretor]
+.venv/bin/python editor.py analisar VIDEO [VIDEO2 …] --marca <marca> [--pasta P] [--sem-fala] [--estabilizar] [--estilo E] [--sem-diretor] [--sem-cena]
 .venv/bin/python editor.py renderizar P/edl.json [--rapido] [--so-audio] [--previa --de S --ate S] [--formato feed] [--processos N]
 .venv/bin/python editor.py linha-do-tempo P/edl.json
 .venv/bin/python editor.py exportar P/edl.json [--quando 2026-11-20T19:00:00-03:00] [--formatos feed] [--insta-report CLONE]
