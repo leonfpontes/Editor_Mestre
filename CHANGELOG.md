@@ -6,6 +6,8 @@
 
 - **Peças fixas no Pencil**: capa de Reel do @pontes_brain em `marcas/pontes_brain/pencil/capa-reel.pen` (fonte) e
   `capa-reel.png` (1080×1920); convenção documentada em `docs/marcas.md`.
+- **Estilos de referência** em `docs/estilos-de-referencia.md`: três estilos de Reels estudados (tela em perspectiva,
+  tutorial em passos, vitrine de estilos), com números medidos, receita para o motor atual e lista do que falta construir.
 
 ## 2.1.0 (2026-10-29)
 
