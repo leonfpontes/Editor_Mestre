@@ -44,6 +44,17 @@ def aponta_camera(lm):
     return perto and curto and dobrado(12, 10) and dobrado(16, 14)
 
 
+def alvo_do_dedo(lm):
+    """Indicador esticado (médio e anelar dobrados) apontando para algo do ambiente: devolve o ponto (0 a 1) um pouco
+    além da ponta do dedo, na direção do dedo; None se a mão não aponta."""
+    pulso, mcp, pip, ponta = lm[0], lm[5], lm[6], lm[8]
+    dobrado = lambda tip, p_: _dist(lm[tip], pulso) < _dist(lm[p_], pulso) * 1.12
+    if _dist(ponta, pulso) < _dist(pip, pulso) * 1.15 or not (dobrado(12, 10) and dobrado(16, 14)) or aponta_camera(lm):
+        return None
+    dx, dy = ponta.x - mcp.x, ponta.y - mcp.y
+    return min(max(ponta.x + 1.2 * dx, 0.03), 0.97), min(max(ponta.y + 1.2 * dy, 0.03), 0.97)
+
+
 def _juntar(amostras, chave, gap=0.35, minimo=0.3):
     """[(t, rotulo, x, y)] → eventos contínuos {tipo, ini, fim, trilha} (buracos curtos não quebram o gesto)."""
     eventos, cur = [], None
@@ -185,7 +196,7 @@ def ler_cena(video):
             base_options=BaseOptions(model_asset_path=str(modelo_mao)), running_mode=vision.RunningMode.VIDEO, num_hands=2,
             min_hand_detection_confidence=0.55, min_tracking_confidence=0.5))
     cap = cv2.VideoCapture(str(video))
-    n, maos, rostos, passos = 0, [], [], []
+    n, maos, rostos, passos, alvos, assin = 0, [], [], [], [], []
     ant, face = None, None
     while True:
         ok = cap.grab()
@@ -221,6 +232,12 @@ def ler_cena(video):
                 if rot:
                     ponto = lm[8] if rot in ("dedo_cima", "aponta_camera") else (lm[4] if rot.startswith("joinha") else lm[9])
                     maos.append((t, rot, ponto.x, ponto.y))
+                alvo = alvo_do_dedo(lm)
+                if alvo:
+                    alvos.append((t, "aponta_objeto", *alvo))
+        if n % (PASSO * 10) == 0:  # 1 vez por segundo: assinatura de cor do ambiente (grade 4x4 em Lab), para achar troca de cômodo
+            lab = cv2.cvtColor(cv2.resize(pq, (4, 4), interpolation=cv2.INTER_AREA), cv2.COLOR_BGR2LAB)
+            assin.append([round(t, 2), *(int(v) for v in lab.reshape(-1))])
         cinza = cv2.cvtColor(pq, cv2.COLOR_BGR2GRAY)
         if ant is not None:
             pts = cv2.goodFeaturesToTrack(ant, 150, 0.01, 8, mask=_mascara_fundo(ant.shape, face))
@@ -243,7 +260,8 @@ def ler_cena(video):
     for e in _juntar(sorted(maos), "tipo"):
         gestos.append(e)
     return {"gestos": gestos, "cabeca": cabeca(rostos), "camera": camera(passos, rostos, dur), "maos_lidas": rec is not None,
-            "com_rosto": [r[0] for r in rostos]}
+            "com_rosto": [r[0] for r in rostos], "apontar": _juntar(sorted(alvos), "tipo", gap=0.5, minimo=0.2),
+            "assinaturas": assin}
 
 
 def resumo_cena(cena):
@@ -407,8 +425,8 @@ def rastrear_ponto(video, t0, x, y, a, b, largura=360):
 
 
 DICA_TOUR = ("# Tour: a câmera anda pelo ambiente em {p}% do vídeo. Roteiro de documentário: gancho na frase mais forte, "
-             "capítulos por cômodo (passo com rotulo \"Parte\" e transição luz), rótulo editorial preso a cada objeto que ele "
-             "nomeia (anotacao com estilo \"editorial\", fixar, caixa e sem_legenda), corte as caminhadas mudas e mire 45 a 60 s. "
+             "capítulos por cômodo e rótulo editorial preso a cada coisa que ele nomeia (já sugeridos abaixo: confira o título "
+             "de cada capítulo e o ponto de cada rótulo na prévia), corte as caminhadas mudas e mire 45 a 60 s. "
              "A luz entre cômodos já sai igualada (cor.igualar_luz).")
 
 

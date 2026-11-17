@@ -14,6 +14,8 @@ from .diretor import aplicar as aplicar_diretor
 from .diretor import dirigir, montar_gancho, resumo_diretor
 from .estilos import PRESETS
 from .marca import CFG, ativar
+from .pausas import aparar_palavras, volume_db
+from .tour import dirigir_tour
 from .util import probe, sh, tem_audio
 
 
@@ -160,15 +162,17 @@ def rascunho_edl(fonte_cfr, palavras, silencio_min=0.35, respiro=0.08, dur=None,
             out.append({"id": len(out), "ini": round(c["ini"], 3), "fim": round(c["fim"], 3),
                         "zoom": 1.0, "transicao": None, "texto": "(sem fala)"})
             continue
+        # silêncio no meio de uma palavra (motor/pausas.py): vira duas meias palavras para o corte pular a pausa
+        ws = [m for w in ws for m in ([dict(w, fim=w["pausa"][0]), dict(w, t="", ini=w["pausa"][1])] if w.get("pausa") else [w])]
         segs, cur = [], None
         for i, w in enumerate(ws):
             if cur and w["ini"] - ws[i - 1]["fim"] < silencio_min:
                 cur["fim"] = w["fim"]
-                cur["texto"] += " " + w["t"]
+                cur["texto"] += (" " + w["t"]) if w["t"] else ""
             else:
                 if cur:
                     segs.append(cur)
-                cur = {"ini": w["ini"], "fim": w["fim"], "texto": w["t"]}
+                cur = {"ini": w["ini"], "fim": w["fim"], "texto": w["t"] or "…"}
         segs.append(cur)
         for s in segs:
             ini = max(c["ini"], s["ini"] - respiro)
@@ -236,6 +240,9 @@ def cmd_analisar(a):
         print(f"2/3 transcrevendo com Whisper ({a.modelo})…", flush=True)
         palavras = transcrever(cfr, a.modelo)
         json.dump(palavras, open(cache, "w"), ensure_ascii=False)
+    aparadas = 0
+    if palavras and not getattr(a, "sem_aparar", False):  # o Whisper estica a palavra sobre a pausa: o áudio acerta
+        palavras, aparadas = aparar_palavras(palavras, volume_db(cfr))
     print("3/3 rastreando rosto…", flush=True)
     rosto = rastrear_rosto(cfr)
     if len(clipes) > 1:
@@ -263,13 +270,15 @@ def cmd_analisar(a):
             print("Cena: gestos, cabeça e câmera…", flush=True)
             cena = ler_cena(cfr)
             json.dump(cena, open(pasta / "cena.json", "w"), ensure_ascii=False)
+            tour, linhas_tour = tour_pela_casa(cena, dur), []
+            if tour:  # câmera andando pelo ambiente: capítulos por cômodo, rótulos presos ao que ele aponta, luz igualada
+                edl.setdefault("cor", {})["igualar_luz"] = True
+                edl, linhas_tour = dirigir_tour(cena, palavras, edl)
             pc = dirigir_cena(cena, palavras, edl["segmentos"], calmo=CFG.get("diretor", {}).get("calmo", False))
             edl = aplicar_cena(edl, pc, palavras)
             plano["cena"] = resumo_cena(cena)
-            tour = tour_pela_casa(cena, dur)
-            if tour:  # câmera andando pelo ambiente: luz igualada entre cômodos e roteiro de documentário no relatório
-                edl.setdefault("cor", {})["igualar_luz"] = True
-                plano["cena"] += "\n" + DICA_TOUR.format(p=round(tour * 100))
+            if tour:
+                plano["cena"] += "\n" + DICA_TOUR.format(p=round(tour * 100)) + ("\n" + "\n".join(linhas_tour) if linhas_tour else "")
         json.dump(plano, open(pasta / "diretor.json", "w"), ensure_ascii=False, indent=1)
     json.dump(edl, open(pasta / "edl.json", "w"), ensure_ascii=False, indent=1)
     with open(pasta / "transcricao.txt", "w") as f:
@@ -286,6 +295,8 @@ def cmd_analisar(a):
         baixas = [w for w in palavras if w["p"] < 0.5]
         if baixas:
             f.write("\n# Baixa confiança: " + ", ".join(f"{w['t']}@{w['ini']:.1f}" for w in baixas) + "\n")
+    if aparadas:
+        print(f"Pausas: {aparadas} palavras esticadas sobre silêncio foram acertadas pelo áudio (--sem-aparar desliga)")
     if plano:
         print(resumo_diretor(plano))
     print(f"Pronto: {pasta}/transcricao.txt e edl.json ({len(edl['segmentos'])} segmentos)")

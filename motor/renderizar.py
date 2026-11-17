@@ -43,7 +43,10 @@ def fixar_pontos(elementos, video, pasta):
         return
     from .cena import rastrear_ponto
     arq = Path(pasta) / "_cache" / "fixar.json"
-    cache = json.load(open(arq)) if arq.exists() else {}
+    try:  # os processos do render leem e gravam o mesmo cache: leitura tolerante e gravação atômica
+        cache = json.load(open(arq)) if arq.exists() else {}
+    except (json.JSONDecodeError, OSError):
+        cache = {}
     for e in alvo:
         t0, x, y = e["fixar"]
         # ancorado pela fala ("na"/"ate"), o tempo exato só sai depois; a janela em volta do ponto cobre a entrada e a saída
@@ -53,7 +56,9 @@ def fixar_pontos(elementos, video, pasta):
             cache[chave] = rastrear_ponto(video, t0, x, y, ini - 0.3, fim + 0.3)
         e["seguir"] = cache[chave]
     arq.parent.mkdir(parents=True, exist_ok=True)
-    json.dump(cache, open(arq, "w"))
+    tmp = arq.with_name(f"fixar.{os.getpid()}.tmp")
+    json.dump(cache, open(tmp, "w"))
+    os.replace(tmp, arq)
 
 
 def igualar_luz(segs, video, forca=0.8):

@@ -68,6 +68,8 @@ Fonte: `/mnt/project-files/girahub-instagram/conhecimento/identidade-visual.md` 
   - A nota do gancho e a frase mais forte vêm junto. Para abrir com essa frase, use um segmento `"gancho": true`.
   - `--sem-diretor` dá o rascunho cru.
 - **O `analisar` também lê a imagem** (`cena.json`): gestos (dedo para cima, apontar para a câmera, mão aberta, joinha), aceno de cabeça (sim e não) e câmera (giro pelo ambiente, câmera se afastando). Cada leitura vira um elemento que **acompanha o movimento** (`"seguir"`): brilho na ponta do dedo, ondas ao apontar para a câmera, círculo na mão aberta, check ao lado da cabeça no "sim", palavra grudada na parede no giro e zoom `abre` quando a câmera se afasta. O motivo do efeito é o gesto: confira na prévia e apague o que não fizer sentido. `--sem-cena` desliga.
+- **Tour pela casa sai pré-montado.** Quando a câmera anda pelo ambiente, o `analisar` já escreve até 3 capítulos por cômodo (`passo` "Parte" com título do lugar e transição `luz`) e até 8 rótulos editoriais presos ao objeto que o dedo aponta ("firmeza de/Caboclo", com `fixar` e `sem_legenda`). O relatório lista cada um com o motivo: confira os títulos e o ponto de cada rótulo na prévia.
+- **Pausas pelo áudio.** O Whisper estica a palavra sobre o silêncio seguinte; o `analisar` acerta os tempos pelo volume e a caminhada muda já sai cortada (`--sem-aparar` desliga).
 - **Ajuste por trechos.** `renderizar --previa --de S --ate S` mostra só o trecho alterado, em segundos.
 - **O render final faz a conferência visual.** Ele avisa sobre:
   - área segura do Reels;

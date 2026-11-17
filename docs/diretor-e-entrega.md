@@ -137,14 +137,19 @@ Lições da edição do vídeo de espiritualidade do GiraHub (v1 a v4), que vale
 1. **Gancho primeiro, sem repetir.** O `analisar` move a frase mais forte para a abertura (`"gancho": true`), tira o
    anúncio do começo ("agora eu vou fazer um vídeo…") e põe a vinheta logo depois do gancho (`intro.apos_gancho`).
    O mesmo trecho nunca aparece duas vezes. `"diretor": {"gancho_automatico": false}` no `marca.json` desliga.
-2. **Ritmo.** Tour e vlog: 45 a 60 s. Corte caminhadas mudas e pausas pelo **início** das palavras (no Whisper, o
-   `fim` de uma palavra estica até a próxima quando há pausa). Muletas ("bom", "voltando pra cá", "seguindo para
-   cá") saem.
+2. **Ritmo.** Tour e vlog: 45 a 60 s. O Whisper estica uma palavra sobre a pausa seguinte ("algumas" com 2,7 s); o
+   `analisar` acerta o começo e o fim de cada palavra pelo volume do áudio (`motor/pausas.py`, `--sem-aparar` desliga),
+   então a caminhada muda já sai cortada no rascunho. Muletas ("bom", "voltando pra cá", "seguindo para cá") saem.
 3. **Estrutura.** Vídeo com mais de um assunto ou ambiente ganha capítulos (`passo` com `rotulo: "Parte"`) e passagem
-   de luz (`transicao: "luz"`, som `whoosh-sopro`) só na troca de capítulo.
+   de luz (`transicao: "luz"`, som `whoosh-sopro`) só na troca de capítulo. Em tour, o `analisar` já escreve até 3
+   capítulos (`motor/tour.py`): a troca de cômodo sai da fala ("vamos seguir", "aqui na sala"), da mudança de cor do
+   ambiente e da caminhada cortada, e o título do lugar citado ("esse cantinho" → "O cantinho"). Confira os títulos.
 4. **Rótulo que informa, não que repete.** Objeto nomeado ganha `anotacao` com `estilo: "editorial"`
    ("firmeza de/Caboclo"), `fixar` no objeto, `caixa` e `sem_legenda` (a legenda some enquanto o rótulo diz a mesma
    coisa). Um rótulo por vez, de 6 a 8 no vídeo. Nada de fonte mono com mira em conteúdo íntimo: é cara de interface.
+   Em tour, o `analisar` escreve os rótulos sozinho: cada "X de Y" que a pessoa diz fica preso ao ponto para onde o
+   dedo aponta naquela hora (`cena.json`, "apontar"); sem mão na imagem, ao centro do quadro. Até 8, a 2,2 s um do
+   outro, com a grafia de `legendas.correcoes` (o GiraHub já traz Exu, Oxum, Oxalá, Ifá). Confira o ponto na prévia.
 5. **3D só quando o tom pede.** Objeto 3D (e o criado sob demanda) é para conceito concreto em vídeo de ritmo leve.
    Em fé, documentário ou emoção, o emoji 3D fica infantil: não use.
 6. **Legenda.** Marcas calmas usam `"marcacao": "enfase"` (o ouro só nas palavras de ênfase, sem deslizar).

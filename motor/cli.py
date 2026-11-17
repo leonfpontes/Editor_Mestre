@@ -18,6 +18,7 @@ def main(argv=None):
     p.add_argument("--estabilizar", action="store_true", help="estabiliza vídeo feito na mão (deshake)")
     p.add_argument("--sem-diretor", action="store_true", help="rascunho cru: sem cortar vícios e tomadas repetidas, sem ênfases, zooms e elementos sugeridos")
     p.add_argument("--sem-cena", action="store_true", help="não lê gestos, cabeça e câmera (sem efeitos que acompanham o movimento)")
+    p.add_argument("--sem-aparar", action="store_true", help="usa os tempos crus do Whisper (não acerta pausas pelo áudio)")
     p.add_argument("--modelo", default="small", help="tiny|base|small|medium|large-v3")
     p.add_argument("--estilo", choices=["tutorial_passos", "tela_perspectiva", "vitrine"],
                    help="estilo de edição (docs/estilos-de-referencia.md): ajusta o corte de pausas e o rascunho")

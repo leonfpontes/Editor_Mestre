@@ -4,6 +4,19 @@
 
 ### Novo
 
+- **Tour pela casa no automático** (`motor/tour.py`): no vídeo em que a câmera anda pelo ambiente, o `analisar` escreve
+  até 3 capítulos por cômodo (fala de passagem, mudança de cor do ambiente, caminhada cortada; título do lugar citado)
+  com transição `luz` e sopro, e até 8 rótulos editoriais presos ao ponto para onde o dedo aponta (`cena.json` ganha
+  "apontar" e a assinatura de cor de cada segundo). No vídeo do GiraHub saiu a mesma estrutura da v4 feita à mão.
+- **Pausas pelo áudio** (`motor/pausas.py`): o `analisar` acerta o começo e o fim das palavras que o Whisper esticou
+  sobre o silêncio; o rascunho do vídeo do GiraHub caiu de 84 s para 66 s. `--sem-aparar` usa os tempos crus.
+- `legendas.correcoes` padrão do GiraHub para as entidades (echu → Exu, ochum → Oxum, xalá → Oxalá, fá → Ifá).
+
+### Corrigido
+
+- Render em vários processos com `fixar`: o cache de trilhas (`_cache/fixar.json`) agora é gravado de forma atômica
+  (antes, dois processos podiam ler o arquivo pela metade).
+
 - **Direção de arte no motor** (lições da edição do GiraHub):
   - o `analisar` abre pela frase mais forte, tira o anúncio do começo e não repete o trecho (`montar_gancho`);
   - `intro.apos_gancho`: a vinheta entra logo depois do gancho;
