@@ -4,6 +4,15 @@
 
 ### Novo
 
+- **Estilo D, lista de ferramentas** (referência nova da pasta Swap, `docs/estilos-de-referencia.md`):
+  - 6 transições de **estilhaços** (`motor/cacos.py`): a imagem trinca e quebra em cacos triangulares de vidro que voam
+    ou se montam, com a aresta acesa na cor da marca; `estilhacar`, `estilhacar_toque`, `estilhacar_lateral`,
+    `estilhacar_suave`, `cacos_montam`, `cacos_montam_lateral`;
+  - elemento **`celulares`**: vitrine de telas em moldura de celular, a do centro grande e as vizinhas recuadas, dentro da
+    área segura;
+  - o diretor reconhece a **lista falada** ("a primeira delas é o X… por último é o Z", 3 itens ou mais) e põe o letreiro
+    "N de total / nome" em cada item, e transforma "comenta X" na barra de comentário com a palavra;
+  - transição com **duração própria**: `duracao_transicao` no segmento, e padrão por transição (estilhaços: 0,6 s).
 - **Bibliotecas 10x maiores** para o editor escolher com o motivo da fala:
   - efeitos de 28 para **280** (`motor/efeitos_familias.py`): 90 traços à mão, 64 partículas, 48 de luz e textura,
     50 formas de motion design;

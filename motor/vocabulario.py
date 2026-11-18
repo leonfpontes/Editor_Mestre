@@ -127,3 +127,79 @@ def look_sugerido(palavras, calmo=False):
     if fe >= 3:
         return "espiritual", f"{fe} palavras de fé na fala"
     return None, ""
+
+
+# ───────────────────────────── lista falada ─────────────────────────────
+ORDINAIS_LISTA = {"primeiro": 1, "primeira": 1, "segundo": 2, "segunda": 2, "terceiro": 3, "terceira": 3, "quarto": 4,
+                  "quarta": 4, "quinto": 5, "quinta": 5, "sexto": 6, "sexta": 6, "setimo": 7, "setima": 7, "ultimo": 0,
+                  "ultima": 0}
+_DEPOIS_DO_ORDINAL = {"dela", "delas", "dele", "deles", "dessas", "desses", "item", "ferramenta", "ferramentas", "dica",
+                      "aqui"}
+_FIM_DO_NOME = {"ele", "ela", "eles", "elas", "que", "e", "sao", "vai", "faz", "tem", "para", "pra", "porque"}
+LETREIRO_LISTA = {False: "tarja_destaque_desliza", True: "serifa_surge"}  # marca normal, marca calma
+
+
+def lista_falada(ws, mantidas, calmo=False):
+    """Itens de uma lista dita em voz alta ("a primeira delas é o X", "o segundo é o Y", "o último é o Z"): um letreiro
+    "1 de 5 / X" em cada item. Só vale com 3 itens ou mais; "primeiro passo" e afins ficam com as regras do diretor."""
+    toks = _tokens(ws)
+    mant = set(mantidas)
+    itens = []
+    for i, t in enumerate(toks):
+        if t not in ORDINAIS_LISTA or i not in mant or i == 0:
+            continue
+        if toks[i - 1] not in ("o", "a") and not (ORDINAIS_LISTA[t] == 0 and toks[i - 1] == "por"):  # "e por último é o X"
+            continue
+        j = i + 1
+        while j < len(toks) and toks[j] in _DEPOIS_DO_ORDINAL:
+            j += 1
+        if j >= len(toks) or toks[j] != "e":  # "é" sem acento
+            continue
+        j += 1
+        if j < len(toks) and toks[j] in ("o", "a", "um", "uma"):
+            j += 1
+        nome = []
+        while j < len(toks) and len(nome) < 5 and toks[j] not in _FIM_DO_NOME:
+            bruto = ws[j]["t"]
+            nome.append(bruto.strip(".,!?;:\"'"))
+            j += 1
+            if bruto[-1:] in ".,!?;:":
+                break
+        while nome and sem_acento(nome[-1].lower()) in ("o", "a", "com", "de", "do", "da", "e", "junto"):
+            nome.pop()  # não termina em artigo ou preposição
+        if nome:
+            itens.append((i, ORDINAIS_LISTA[t], " ".join(nome)))
+    if len(itens) < 3:
+        return []
+    maior = max(n for _, n, _ in itens)
+    total = maior + (1 if any(n == 0 for _, n, _ in itens) else 0)
+    out = []
+    from .diretor import ancora
+    for i, n, nome in itens:
+        num = n or total
+        na, oc = ancora(ws, i - 1, 2)
+        e = {"tipo": "letreiro", "estilo": LETREIRO_LISTA[calmo], "texto": f"{num} de {total}/{nome}", "na": na,
+             "segura": 2.4, "y": 0.14, "_motivo": f"lista falada: item {num} de {total}"}
+        if oc > 1:
+            e["ocorrencia"] = oc
+        out.append(e)
+    return out
+
+
+def cta_comenta(ws, mantidas):
+    """'Comenta SKILL', 'comente a palavra X': a barra de comentário com a palavra digitada, ancorada na fala."""
+    toks = _tokens(ws)
+    for i in mantidas:
+        if toks[i] in ("comenta", "comente") and i + 1 < len(toks):
+            j = i + 1
+            while j < len(toks) and toks[j] in ("ai", "aqui", "a", "palavra", "o", "nos", "comentarios", "embaixo"):
+                j += 1
+            if j < len(toks) and len(toks[j]) >= 3 and toks[j] not in ("que", "pra", "para", "se"):
+                from .diretor import ancora
+                na, oc = ancora(ws, i, 1)
+                e = {"tipo": "comentario", "texto": ws[j]["t"].strip(".,!?;:\"'“”").upper(), "na": na, "segura": 2.0,
+                     "_motivo": "CTA de comentário"}
+                if oc > 1:
+                    e["ocorrencia"] = oc
+                return [e]
+    return []

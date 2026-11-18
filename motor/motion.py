@@ -23,6 +23,7 @@ Tipos novos de elemento (todos aceitam "na"/"ate", "x", "y" e "area": "palco"):
 | neon | texto, cor, caixa |
 | texto_atras | texto, cor, fonte, tam (desenhado atrás da pessoa) |
 | hud_rosto | rotulo (segue o rosto) |
+| celulares | arquivos (2 a 8 telas), altura (fração da altura, 0.36), troca (s por tela) |
 | letreiro | estilo (144: tratamento_entrada, `biblioteca listar titulos`), texto (linhas com "/"), cor, tam |
 """
 import math
@@ -719,18 +720,91 @@ class RotuloSom:
         return pil2np(_alpha(im, 1 - _saida(rest, 0.2)))
 
 
+class Celulares:
+    """Vitrine de celulares: telas (prints ou quadros) em molduras de celular, a do centro grande e as vizinhas menores e
+    recuadas dos lados, trocando para a próxima a cada `troca` segundos com mola. Para mostrar "vários jeitos", modelos,
+    resultados lado a lado. Os prints entram como são (objeto externo leva a identidade dele); a moldura usa a paleta."""
+
+    def __init__(self, e, W, H):
+        self.W = W
+        self.alt = int(H * e.get("altura", 0.36))
+        self.troca = float(e.get("troca", 1.2))
+        larg = int(self.alt * 9 / 19.5)
+        aro, raio = max(4, larg // 28), max(10, larg // 8)
+        self.telas = []
+        for a in e.get("arquivos", [])[:8]:
+            im = Image.open(registrar(a)).convert("RGBA")
+            iw, ih = larg - 2 * aro, self.alt - 2 * aro
+            k = max(iw / im.width, ih / im.height)
+            im = im.resize((max(1, int(im.width * k)), max(1, int(im.height * k))), Image.LANCZOS)
+            im = im.crop(((im.width - iw) // 2, (im.height - ih) // 2, (im.width - iw) // 2 + iw, (im.height - ih) // 2 + ih))
+            cel = Image.new("RGBA", (larg, self.alt), (0, 0, 0, 0))
+            d = ImageDraw.Draw(cel)
+            d.rounded_rectangle([0, 0, larg - 1, self.alt - 1], raio, fill=rgba(cor("marinho")))
+            m = Image.new("L", (iw, ih), 0)
+            ImageDraw.Draw(m).rounded_rectangle([0, 0, iw - 1, ih - 1], max(4, raio - aro), fill=255)
+            cel.paste(im, (aro, aro), m)
+            d.rounded_rectangle([0, 0, larg - 1, self.alt - 1], raio, outline=rgba(cor("champanhe"), 200), width=max(2, aro // 2))
+            ilha = larg // 4  # câmera frontal
+            d.rounded_rectangle([(larg - ilha) // 2, aro + 6, (larg + ilha) // 2, aro + 6 + max(6, larg // 22)], 8, fill=(8, 8, 10, 255))
+            self.telas.append(_sombra_pil(cel, 16, 0.5, (0, 12))[0])
+        if len(self.telas) < 2:
+            raise ErroDeMarca("celulares precisa de \"arquivos\" (2 a 8 imagens)")
+        self.passo = int(W * 0.36)
+
+    def render(self, dt, rest):
+        n = len(self.telas)
+        cel_h = self.telas[0].height
+        out = Image.new("RGBA", (self.W, cel_h), (0, 0, 0, 0))
+        faixa = int(self.W * 0.9)  # as vizinhas somem antes da borda: o sprite fica na área segura (5–95%)
+        idx = dt / self.troca
+        base = math.floor(idx)
+        pos = base + clamp01(mola(clamp01((idx - base) / 0.45), 7, 12)) if dt > self.troca * 0.6 else 0.0
+        entra = clamp01(ease_out_back(clamp01(dt / 0.45)))
+        camadas = []
+        for k in range(int(pos) - 2, int(pos) + 4):
+            off = k - pos  # 0 = no centro
+            if abs(off) > 1.6:
+                continue
+            esc = 1 - 0.32 * min(1.0, abs(off))
+            c = self.telas[k % n]
+            c = c.resize((max(1, int(c.width * esc * entra)), max(1, int(c.height * esc * entra))), Image.LANCZOS)
+            a = 1 - 0.45 * min(1.0, abs(off))
+            x = int(self.W / 2 + off * self.passo - c.width / 2)
+            y = int((cel_h - c.height) / 2)
+            camadas.append((-abs(off), x, y, _alpha(c, a)))
+        for _, x, y, c in sorted(camadas, key=lambda t: t[0]):  # a do centro por cima
+            _colar(out, c, x, y)
+        out = out.crop(((self.W - faixa) // 2, 0, (self.W + faixa) // 2, cel_h))
+        bordas = np.ones(faixa, np.float32)
+        r = max(1, faixa // 10)
+        bordas[:r] = np.linspace(0, 1, r)
+        bordas[-r:] = np.linspace(1, 0, r)
+        arr = np.array(out)
+        arr[..., 3] = (arr[..., 3] * bordas[None, :]).astype(np.uint8)
+        return pil2np(_alpha(Image.fromarray(arr), 1 - _saida(rest)))
+
+
+def _colar(base, im, x, y):
+    """alpha_composite que aceita posição fora da tela (corta o que sobra)."""
+    x0, y0 = max(0, x), max(0, y)
+    x1, y1 = min(base.width, x + im.width), min(base.height, y + im.height)
+    if x1 > x0 and y1 > y0:
+        base.alpha_composite(im.crop((x0 - x, y0 - y, x1 - x, y1 - y)), (x0, y0))
+
+
 # tipo -> classe; os que recebem semente estão em COM_SEMENTE
 TIPOS = {
     "passo": Passo, "digitacao": Digitacao, "janela": Janela, "arvore": Arvore, "mapa": Mapa,
     "comentario": Comentario, "icone": Icone, "carrossel": Carrossel, "titulo_caixa": TituloCaixa,
     "titulo_editorial": TituloEditorial, "bilhete": Bilhete, "anotacao": Anotacao, "neon": Neon,
-    "texto_atras": TextoAtras, "hud_rosto": HudRosto, "letreiro": Letreiro,
+    "texto_atras": TextoAtras, "hud_rosto": HudRosto, "letreiro": Letreiro, "celulares": Celulares,
 }
 COM_SEMENTE = {"bilhete"}
 # posição padrão (y) de cada tipo; os de interface usam o palco
 Y_PADRAO = {"passo": 0.08, "digitacao": 0.5, "janela": 0.5, "arvore": 0.5, "mapa": 0.5, "comentario": 0.86,
             "icone": 0.45, "carrossel": 0.55, "titulo_caixa": 0.09, "titulo_editorial": 0.6, "bilhete": 0.7,
-            "anotacao": 0.12, "neon": 0.75, "texto_atras": 0.45, "letreiro": 0.2}
+            "anotacao": 0.12, "neon": 0.75, "texto_atras": 0.45, "letreiro": 0.2, "celulares": 0.3}
 AREA_PALCO = {"passo", "digitacao", "janela", "arvore", "mapa", "icone"}
 
 

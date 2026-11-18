@@ -300,6 +300,14 @@ class Contexto:
         depois = [s for s in normais if s["qa"] > t]
         return min(depois, key=lambda s: s["qa"])["o"] if depois else self.dur_fala
 
+    def n_transicao(self, s, tipo):
+        """Quadros da transição na entrada do segmento: a do segmento ("duracao_transicao"), a do EDL inteiro ou a padrão
+        da transição (os estilhaços pedem 0,6 s), sem passar de metade do segmento."""
+        from .transicoes import DURACAO
+        d = s.get("duracao_transicao") or (self.edl["duracao_transicao"] if "duracao_transicao" in self.edl else DURACAO.get(tipo))
+        n = int(FPS * d) if d else self.TRN
+        return max(1, min(n, s["n"] // 2))
+
     def map_faixa(self, a, b):
         """Instantes de entrada e saída de um elemento na saída. Um gancho movido para a abertura (o trecho não se repete
         depois) leva os elementos ancorados na fala dele, presos ao próprio trecho."""
@@ -548,6 +556,7 @@ class Trecho:
             if c.apos_gancho and si == c.i_pos_gancho:  # depois da vinheta: a transição sai do último quadro dela
                 self.ultimo = quadro_intro(W, H, (c.n_intro - 1) / FPS, c.fundo_vivo, {}, c.dur_intro)
                 tipo_tr = s.get("transicao") or "zoom"
+            n_tr = c.n_transicao(s, tipo_tr)
             for k, fi in enumerate(range(s["ia"], s["ib"])):
                 if not quer(n_out) and k != s["n"] - 1:  # prévia: fora da janela só a câmera anda
                     self.camera.passo(s.get("zoom", 1.0), c.rosto.em(fi / FPS))
@@ -559,8 +568,8 @@ class Trecho:
                 t_src, t_out = fi / FPS, n_out / FPS - c.dur_intro
                 base = self.base(s, fi, f, t_out)
                 out = base
-                if tipo_tr and self.ultimo is not None and k < c.TRN:
-                    out = transicao(self.ultimo, base, (k + 1) / (c.TRN + 1), tipo_tr, W, H)
+                if tipo_tr and self.ultimo is not None and k < n_tr:
+                    out = transicao(self.ultimo, base, (k + 1) / (n_tr + 1), tipo_tr, W, H)
                 if not quer(n_out):
                     n_out += 1
                     continue

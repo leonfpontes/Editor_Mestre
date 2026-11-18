@@ -17,12 +17,15 @@ from .util import bgr
 
 TAU = 2 * math.pi
 TRANSICOES = {}  # nome → (função, descrição, [sons])
+DURACAO = {}  # nome → duração padrão em segundos, para as que pedem mais que os 0,3 s do EDL (estilhaços)
 SO_FORA_DA_FE = " Evite em vídeo de fé (GiraHub)."
 
 
-def transicao_reg(nome, descricao, sons=None):
+def transicao_reg(nome, descricao, sons=None, dur=None):
     def deco(fn):
         TRANSICOES[nome] = (fn, descricao, list(sons or []))
+        if dur:
+            DURACAO[nome] = dur
         return fn
     return deco
 
@@ -677,3 +680,4 @@ def catalogo_transicoes():
     """Todas as transições: as clássicas de camera.py e as desta biblioteca."""
     from .camera import CLASSICAS
     return [{"id": n, "descricao": d} for n, d in CLASSICAS.items()] + [{"id": n, "descricao": d} for n, (_, d, _s) in TRANSICOES.items()]
+from . import cacos  # noqa: E402,F401  (estilhaços registram aqui)

@@ -204,8 +204,8 @@ params, fase, pop)`, herdando de `Efeito` e implementando `desenhar(frame, dt, r
 
 ## Transições
 
-113 transições: as 11 clássicas de `motor/camera.py` (`push`, `whip`, `zoom`, `slide`, `dissolve`, `fade`, `flash`, `giro`,
-`rasgo`, `vidro`, `luz`) e 102 de `motor/transicoes.py`. Cada uma tem som padrão (toca sozinho; `"som"` no segmento troca).
+119 transições: as 11 clássicas de `motor/camera.py` (`push`, `whip`, `zoom`, `slide`, `dissolve`, `fade`, `flash`, `giro`,
+`rasgo`, `vidro`, `luz`) e 108 de `motor/transicoes.py` (os estilhaços estão em `motor/cacos.py`). Cada uma tem som padrão (toca sozinho; `"som"` no segmento troca).
 `editor.py biblioteca listar transicoes` mostra todas; `previa transicoes --marca X` mostra o meio de cada troca.
 
 | Família | Nomes | Uso |
@@ -214,6 +214,7 @@ params, fase, pop)`, herdando de `Efeito` e implementando `desenhar(frame, dt, r
 | Íris de formas | `iris_<forma>_abre\|fecha` (círculo, quadrado, losango, hexágono, estrela, triângulo, coração) | revelar, fechar um capítulo |
 | Persianas e blocos | `persiana_horizontal`, `persiana_vertical`, `persiana_fina`, `persiana_escalonada`, `colunas_escalonadas`, `xadrez`, `mosaico` | ritmo, lista, tecnologia |
 | Relógio e espiral | `relogio`, `relogio_anti`, `espiral` | passagem de tempo, voltar no tempo |
+| Estilhaços | `estilhacar`, `estilhacar_toque`, `estilhacar_lateral`, `estilhacar_suave`, `cacos_montam`, `cacos_montam_lateral` | a imagem quebra em cacos de vidro que voam (ou se montam), com a aresta acesa; virada forte, item novo de lista, "montei". Duram 0,6 s |
 | Dissoluções | `dissolver_pixels`, `dissolver_nuvem`, `queimar`, `tinta`, `fusao_desfocada`, `fusao_luminosa`, `fusao_sombria` | memória, sonho, arte |
 | Portas | `portas_abrem`, `portas_fecham`, `portas_verticais`, `quatro_cantos` | revelação |
 | Movimento | `empurrar_<dir>`, `cobrir_<dir>`, `revelar_<dir>`, `chicote_vertical`, `chicote_diagonal` | energia; nenhuma deixa canto vazio |

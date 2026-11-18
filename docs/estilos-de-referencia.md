@@ -1,22 +1,22 @@
 # Estilos de referência
 
-Três estilos de edição estudados em Reels de outros criadores (gravações de tela do Instagram, novembro de 2026). Cada
-estilo vira uma receita: o que se vê, os números medidos e como montar no EDL. O motor faz os três: `"estilo"` no EDL
+Quatro estilos de edição estudados em Reels de outros criadores (gravações de tela do Instagram, novembro de 2026). Cada
+estilo vira uma receita: o que se vê, os números medidos e como montar no EDL. O motor faz os quatro: `"estilo"` no EDL
 (ou `analisar --estilo`), planos e looks por segmento e os elementos de motion descritos em [edl.md](edl.md#estilos-planos-e-looks).
 As receitas não carregam a identidade de ninguém: cores, fontes e CTA vêm sempre da marca do vídeo (`marcas/<id>/`).
 
 Como foi medido: cortes por detecção de cena do ffmpeg (`select='gt(scene,0.2)'`), quadros a cada 0,5 s a 2 s,
 transcrição com `faster-whisper small` com tempo por palavra, e volume das pausas entre palavras para saber se há trilha.
 
-| | A. Tela em perspectiva | B. Tutorial em passos | C. Vitrine de estilos |
-|---|---|---|---|
-| Duração | 71 s | 74 s | 44 s (gravação começou no meio) |
-| Fala | 241 palavras/min, narração | 267 palavras/min, para a câmera | 221 palavras/min, para a câmera |
-| Cortes de plano | 1 (só no fim) | 17 cortes + troca de motion a cada 1 a 3 s | 32 (um a cada 1,4 s) |
-| Maior pausa mantida | 0,78 s | 0,44 s | 0,38 s |
-| Trilha | Cama baixa (pausas a −35 dB) | Nenhuma (pausas a −40 dB) | Música e efeitos o tempo todo (pausas a −27 dB) |
-| Legenda corrida | Não | Sim, 1 ou 2 palavras | Não; a tipografia é cenográfica |
-| Serve para | Demonstrar produto, sistema, painel | Ensinar passo a passo | Anúncio, lançamento, mostrar alcance |
+| | A. Tela em perspectiva | B. Tutorial em passos | C. Vitrine de estilos | D. Lista de ferramentas |
+|---|---|---|---|---|
+| Duração | 71 s | 74 s | 44 s (gravação começou no meio) | 83 s |
+| Fala | 241 palavras/min, narração | 267 palavras/min, para a câmera | 221 palavras/min, para a câmera | 216 palavras/min, narração sobre a tela |
+| Cortes de plano | 1 (só no fim) | 17 cortes + troca de motion a cada 1 a 3 s | 32 (um a cada 1,4 s) | 6 (um por item da lista) |
+| Maior pausa mantida | 0,78 s | 0,44 s | 0,38 s | 0,52 s |
+| Trilha | Cama baixa (pausas a −35 dB) | Nenhuma (pausas a −40 dB) | Música e efeitos o tempo todo (pausas a −27 dB) | Música baixa o tempo todo |
+| Legenda corrida | Não | Sim, 1 ou 2 palavras | Não; a tipografia é cenográfica | Não; só o gancho e o CTA escritos |
+| Serve para | Demonstrar produto, sistema, painel | Ensinar passo a passo | Anúncio, lançamento, mostrar alcance | Indicar ferramentas, recursos, "5 coisas que…" |
 
 ## A. Tela em perspectiva
 
@@ -175,13 +175,55 @@ peça de lançamento; para conteúdo do dia a dia é cansativo.
 O que ainda não faz: esqueleto do corpo com objeto preso no dedo (precisa de um modelo de pose) e as cenas geradas por IA
 (entram como `broll` prontos).
 
+## D. Lista de ferramentas
+
+Reel de indicação ("as 5 skills mais insanas que eu já vi"): o criador abre falando para a câmera, filma a tela do
+computador com o celular enquanto aponta com o dedo e volta para a câmera no CTA. A fala é uma lista numerada dita em voz
+alta ("a primeira delas é o X… a segunda é o Y… por último é o Z"), um corte de plano por item.
+
+**O que se vê**
+
+- **Gancho escrito** na abertura, sobre o rosto: uma frase curta em sans branca com sombra, em duas linhas.
+- **Tela filmada com o celular**, com a mão apontando o que importa. A câmera balança de leve; nada é gravado da tela.
+- **Estilhaços:** o site de uma das ferramentas abre com a imagem quebrando em cacos triangulares de vidro que voam e se
+  remontam, com a aresta de cada caco acesa. É o momento mais memorável do vídeo.
+- **Vitrine de celulares:** telas verticais em moldura de celular, a do centro grande e as vizinhas menores e recuadas,
+  trocando de uma em uma ("+18 jeitos de editar").
+- **CTA de comentário** no fim, de volta para a câmera: "Comenta “SKILL”" em letras grandes enquanto ele fala.
+
+**Como montar**
+
+```jsonc
+"segmentos": [
+  {"id": 0, "ini": 0.0, "fim": 2.9},
+  {"id": 1, "ini": 2.9, "fim": 15.2, "transicao": "estilhacar"},              // virada para o primeiro item
+  {"id": 2, "ini": 15.2, "fim": 25.8, "transicao": "estilhacar_lateral"},     // próximo item
+  {"id": 3, "ini": 25.8, "fim": 41.0, "transicao": "cacos_montam", "duracao_transicao": 0.8}
+],
+"elementos": [
+  {"tipo": "letreiro", "estilo": "tarja_destaque_desliza", "texto": "1 de 5/HyperFrames", "na": "a primeira", "segura": 2.4},
+  {"tipo": "celulares", "arquivos": ["telas/a.jpg", "telas/b.jpg", "telas/c.jpg"], "na": "vários estilos", "ate": "todos eles"},
+  {"tipo": "comentario", "texto": "SKILL", "na": "comenta"}
+]
+```
+
+O `analisar` já faz parte sozinho: a **lista falada** vira um letreiro "N de total / nome" em cada item (com 3 itens ou
+mais; "por último" leva o número final) e "comenta X" vira a barra de comentário com a palavra. Os estilhaços e a vitrine
+ficam para o editor escolher pelo motivo na fala.
+
+**As ferramentas citadas** (todas gratuitas para o uso do Leonardo): HyperFrames (vídeo a partir de HTML, código aberto),
+Impeccable e Taste Skill (regras de design e autoconferência para o agente), Remotion (vídeo em React; grátis para pessoa
+física e empresa de até 3 pessoas, licença paga acima disso) e Whisper com FFmpeg (o que este editor já usa). O editor não
+depende de nenhuma delas: o que tinham de novo para nós (estilhaços, vitrine, lista numerada, conferência de design)
+foi feito aqui, em Python, sem dependência nova.
+
 ## Próximos passos para o produto
 
 1. Ícones de apps conhecidos prontos numa biblioteca (com licença de uso de marca checada), para o estilo B não depender de PNG.
 2. Modelo de pose (MediaPipe Pose) para o esqueleto do corpo e objetos presos às mãos no estilo C.
 3. Câmera da tela em perspectiva ancorada na fala (`"na"` em cada ponto-chave) em vez de `t` de 0 a 1.
 
-## Regras que valem para os três
+## Regras que valem para todos
 
 - O gancho mostra o assunto em texto nos primeiros 2 s e promete algo concreto.
 - Corte de pausa agressivo: nenhuma pausa acima de 0,4 s, exceto antes do CTA.

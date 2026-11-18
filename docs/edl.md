@@ -36,7 +36,8 @@ Trechos que **ficam**, na ordem em que aparecem no vídeo. Apague os que saem.
 |---|---|
 | `id`, `ini`, `fim` | Identificador e tempos no original |
 | `zoom` | Enquadramento base: 1.0 (no máximo 1.08); muda devagar entre cortes |
-| `transicao` | Entrada do trecho: `null` (corte seco), `push`, `whip`, `zoom`, `slide`, `flash`, `dissolve`, `giro` (giro 3D), `rasgo` (papel rasgado), `vidro` (vidro líquido), `luz` (queima de luz) ou uma das 102 da biblioteca (`cortina_faixa_direita`, `iris_circulo_abre`, `queimar`, `forma_circulo_dourada`…; `editor.py biblioteca listar transicoes`) |
+| `transicao` | Entrada do trecho: `null` (corte seco), `push`, `whip`, `zoom`, `slide`, `flash`, `dissolve`, `giro` (giro 3D), `rasgo` (papel rasgado), `vidro` (vidro líquido), `luz` (queima de luz) ou uma das 108 da biblioteca (`cortina_faixa_direita`, `iris_circulo_abre`, `queimar`, `forma_circulo_dourada`…; `editor.py biblioteca listar transicoes`) |
+| `duracao_transicao` | Segundos da transição deste trecho. Sem ele vale o `duracao_transicao` do EDL inteiro e, sem esse, a padrão da transição (0,3 s; os estilhaços pedem 0,6 s). Nunca passa de metade do trecho |
 | `som` | Som da transição (id de `biblioteca listar sons`); `false` deixa muda. Sem o campo, vale o padrão da marca |
 | `gancho` | `true` repete o trecho no início do vídeo (a frase mais forte abrindo). O original continua no lugar |
 | `salto` | `true` troca o `zoom` no corte, sem deslizar (jump cut com mudança de enquadramento; o diretor marca sozinho) |
@@ -196,6 +197,7 @@ Guia com os três estilos estudados e quando usar cada um: [estilos-de-referenci
 | `neon` | `texto` (linhas com `/`), `cor`, `caixa` | Manuscrito em neon que acende tremulando |
 | `texto_atras` | `texto`, `fonte`, `tam`, `cor` | Texto enorme **atrás da pessoa** (recorte automático); combina com o look `pb_acento` |
 | `hud_rosto` | `rotulo` | Mira, malha e anéis que seguem o rosto |
+| `celulares` | `arquivos` (2 a 8 telas verticais), `altura` (0.36), `troca` (s por tela, 1.2) | Vitrine de celulares: a tela do centro grande, as vizinhas menores dos lados, trocando com mola. Fica na área segura (5–95% da largura) |
 | `letreiro` | `estilo` (144: `<visual>_<entrada>`), `texto` (linhas com `/`), `cor`, `tam` | Título ou rótulo em 18 visuais × 8 entradas (`editor.py biblioteca listar titulos`; veja [bibliotecas.md](bibliotecas.md#títulos)) |
 
 Os de interface (`passo`, `digitacao`, `janela`, `arvore`, `mapa`, `icone`) usam `"area": "palco"`: `x`/`y` são relativos

@@ -319,9 +319,10 @@ def _voc():
 
 def _com_vocabulario(ws, mantidas, estilo, calmo):
     """Elementos das regras fixas (contador, passo, check, xis) e, longe deles, as peças da biblioteca que a fala pede."""
-    base = elementos_sugeridos(ws, mantidas, estilo)
+    v = _voc()
+    base = elementos_sugeridos(ws, mantidas, estilo) + v.lista_falada(ws, mantidas, calmo) + v.cta_comenta(ws, mantidas)
     ocupados = [_tempo_na(e, ws) for e in base]
-    return base + _voc().sugerir(ws, mantidas, calmo, ocupados)
+    return base + v.sugerir(ws, mantidas, calmo, ocupados)
 
 
 def aplicar_cortes(segs, cortes, respiro=0.04):

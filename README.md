@@ -125,7 +125,7 @@ editor.py biblioteca baixar musicas              # ≈ 230 MB, uma vez; os arqui
 
 - **280 efeitos**: os 28 desenhados um a um (luz, celebração, anotação, informação, tipografia cinética) e 252 em
   famílias: 90 traços à mão, 64 partículas, 48 de luz e textura, 50 formas de motion design.
-- **113 transições**: cortinas, íris de formas, persianas, relógio, dissoluções, portas, giros sem canto vazio, mergulhos
+- **119 transições**: cortinas, íris de formas, persianas, relógio, dissoluções, portas, giros sem canto vazio, mergulhos
   de cor, formas da marca e cortes digitais, cada uma com seu som.
 - **80 looks de cor**: cinema, natural, clima, preto e branco, fotografia, nichos e 10 grades na paleta da marca.
 - **160 títulos**: os 16 tipos de motion e 144 letreiros (18 visuais × 8 entradas).

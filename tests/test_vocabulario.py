@@ -50,3 +50,23 @@ def test_transicoes_pela_fala():
 def test_look_sugerido():
     assert look_sugerido(fala("a fé no terreiro e a força do orixá"))[0] == "espiritual"
     assert look_sugerido(fala("hoje vou falar de produto"))[0] is None
+
+
+def test_lista_falada_numera_os_itens():
+    from motor.vocabulario import lista_falada
+    ws = fala("são cinco ferramentas . a primeira delas é o HyperFrames, ele anima . a segunda é o Impeccable, regra de "
+              "design . o terceiro é o Taste Skill, gosto . o quarto é o Remotion, código . e por último é o Whisper, legenda", dur=0.3)
+    els = lista_falada(ws, range(len(ws)))
+    assert [e["texto"] for e in els] == ["1 de 5/HyperFrames", "2 de 5/Impeccable", "3 de 5/Taste Skill", "4 de 5/Remotion",
+                                         "5 de 5/Whisper"]
+    assert els[0]["na"] == "a primeira" and els[-1]["na"] == "por último"
+    assert lista_falada(ws, range(len(ws)), calmo=True)[0]["estilo"] == "serifa_surge"
+    assert not lista_falada(fala("a primeira é a Ana . a segunda é a Bia"), range(9))  # dois itens não são lista
+    assert not lista_falada(fala("o primeiro passo é a ideia . o segundo passo é o teste . o terceiro passo é ir"), range(18))
+
+
+def test_cta_comenta():
+    from motor.vocabulario import cta_comenta
+    ws = fala("se quiser a lista comenta SKILL aqui embaixo")
+    assert cta_comenta(ws, range(len(ws)))[0]["texto"] == "SKILL"
+    assert not cta_comenta(fala("ele comenta que foi bom"), range(5))
