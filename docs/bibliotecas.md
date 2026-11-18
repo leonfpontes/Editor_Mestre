@@ -1,14 +1,15 @@
 # Bibliotecas
 
-Quatro bibliotecas servem a todas as marcas: **3D**, **músicas**, **efeitos** e **sons**. Os catálogos ficam no Git
+Sete bibliotecas servem a todas as marcas: **3D**, **músicas**, **efeitos**, **sons**, **transições**, **looks de cor** e
+**títulos** (letreiros). Os catálogos ficam no Git
 (`biblioteca/<qual>/catalogo.json`); o motor desenha tudo com a paleta da marca ativa.
 
 ```bash
-editor.py biblioteca listar 3d|musicas|efeitos|sons [termo] [--marca X] [--clima …] [--categoria …] [--genero …] [--json]
+editor.py biblioteca listar 3d|musicas|efeitos|sons|transicoes|looks|titulos [termo] [--marca X] [--clima …] [--categoria …] [--genero …] [--json]
 editor.py biblioteca baixar musicas [id …]       # baixa as faixas (fora do Git), conferindo o sha256
 editor.py biblioteca baixar 3d "<Nome no Fluent>" # acrescenta um emoji 3D do Fluent ao catálogo
 editor.py biblioteca verificar                    # ids únicos, licenças, arquivos e marcas
-editor.py biblioteca previa efeitos|3d --marca X  # grade de prévia na paleta da marca
+editor.py biblioteca previa efeitos|3d|transicoes|looks|titulos --marca X [--categoria C]  # grade de prévia na paleta
 editor.py biblioteca catalogo                     # regrava biblioteca/efeitos/catalogo.json a partir do código
 ```
 
@@ -134,7 +135,8 @@ A lista completa, com crédito de cada faixa, está em [biblioteca/musicas/CREDI
 
 ## Efeitos
 
-28 layers procedurais registrados em `motor/efeitos.py`. Todos:
+280 layers procedurais: os 28 desenhados um a um em `motor/efeitos.py` (tabela abaixo) e 252 em famílias em
+`motor/efeitos_familias.py` (seção seguinte). Todos:
 
 - usam **só papéis da paleta** (`marinho`, `marinho_2`, `champanhe`, `bronze`, `papel`, `papel_2`, `nevoa`), nunca hex;
 - são **determinísticos** (mesmo EDL, mesmo vídeo), o que permite a regressão visual;
@@ -180,10 +182,73 @@ A lista completa, com crédito de cada faixa, está em [biblioteca/musicas/CREDI
 
 Parâmetros comuns: `cor` e `cor2` (papéis da paleta), `intensidade` (0 a 1), `x`/`y` (0 a 1).
 
+### Famílias de efeitos
+
+Geradores que combinam forma, movimento e estilo. Liste com `editor.py biblioteca listar efeitos --categoria C` e veja
+com `editor.py biblioteca previa efeitos --categoria C --marca X`.
+
+| Categoria | Quantos | Nomes | O que é |
+|---|---|---|---|
+| `marcacao` | 90 | `traco_<forma>`, `marcador_<forma>` | 45 formas à mão (oval, colchetes, chaves, cantos, riscado, rabisco, X, visto, estrela, coração, setas em 6 direções, exclamação, interrogação, aspas, raio, espiral, alvo, nuvem, balão de fala, sol, explosão, ondas, coroa, lâmpada, olho, pino, brilho, ciclo…) em caneta fina com tremor e sombra, ou marca-texto largo e translúcido. `largura`, `altura`, `desenho` (segundos) |
+| `particulas` | 64 | `poeira_dourada`, `coracoes_subindo`, `chuva_confete`, `neve`, `faiscas`, `folhas_caindo`… | 18 formas (ponto, bolha, anel, estrelas, coração, confete, quadrado, triângulo, losango, hexágono, cruz, gota, folha, linha, floco) × 10 movimentos (sobe, cai, chuva, flutua, explode, órbita, espiral, pisca, fonte, redemoinho), com o motivo na fala na descrição. `quantidade`, `tamanho`, `raio` |
+| `luz`, `textura`, `impacto` (fase `pos`) | 48 | `vazamento_<origem>_<dourado\|quente>`, `raios_*`, `varredura_*`, `holofote`, `sombra_janela`, `caustica`, `vela`, `bloom`, `meio_tom`, `papel`, `poeira`, `tilt_shift`, `persiana`… | Luz entrando por 8 bordas e cantos, raios, reflexo varrendo, holofote em (x, y), sombra de janela, cáustica de água, névoa, vela, bloom, sonho, contraluz; texturas de papel, retícula, poeira, riscos de filme, ruído; vinhetas; desfoques radial e miniatura |
+| `formas` | 50 | `forma_<tipo>_<fino\|bloco>` | 25 formas de motion design (anéis pulsando, polígonos girando, sunburst, linhas de velocidade, grade de pontos, barra e arco de progresso, spinner, três pontinhos, equalizador, onda, mira, cantos de câmera, barras de cinema, moldura, órbita, setas convergindo) em contorno fino ou bloco cheio translúcido. `tamanho` |
+
+Os que dizem "Evite em vídeo de fé (GiraHub)" na descrição (riscos de filme, ruído, pixelado, aberração, estrobo) seguem
+a regra da marca: nada de glitch, VHS ou tremor em vídeo de religião.
+
 **Acrescentar um efeito**: crie uma classe em `motor/efeitos.py` com o decorador `@efeito(nome, categoria, descricao,
 params, fase, pop)`, herdando de `Efeito` e implementando `desenhar(frame, dt, rest)`. Use `self.cor`, `cor_marca()` e
 `self.rng_quadro(dt)` (nunca `random` solto). Rode `editor.py biblioteca catalogo`, `make testes` e
 `editor.py biblioteca previa efeitos --marca pontes_brain` para ver o resultado.
+
+## Transições
+
+119 transições: as 11 clássicas de `motor/camera.py` (`push`, `whip`, `zoom`, `slide`, `dissolve`, `fade`, `flash`, `giro`,
+`rasgo`, `vidro`, `luz`) e 108 de `motor/transicoes.py` (os estilhaços estão em `motor/cacos.py`). Cada uma tem som padrão (toca sozinho; `"som"` no segmento troca).
+`editor.py biblioteca listar transicoes` mostra todas; `previa transicoes --marca X` mostra o meio de cada troca.
+
+| Família | Nomes | Uso |
+|---|---|---|
+| Cortinas | `cortina_<dir>`, `cortina_faixa_<dir>` (8 direções: direita, esquerda, cima, baixo e 4 diagonais) | troca limpa de assunto; a "faixa" leva o dourado da marca na borda |
+| Íris de formas | `iris_<forma>_abre\|fecha` (círculo, quadrado, losango, hexágono, estrela, triângulo, coração) | revelar, fechar um capítulo |
+| Persianas e blocos | `persiana_horizontal`, `persiana_vertical`, `persiana_fina`, `persiana_escalonada`, `colunas_escalonadas`, `xadrez`, `mosaico` | ritmo, lista, tecnologia |
+| Relógio e espiral | `relogio`, `relogio_anti`, `espiral` | passagem de tempo, voltar no tempo |
+| Estilhaços | `estilhacar`, `estilhacar_toque`, `estilhacar_lateral`, `estilhacar_suave`, `cacos_montam`, `cacos_montam_lateral` | a imagem quebra em cacos de vidro que voam (ou se montam), com a aresta acesa; virada forte, item novo de lista, "montei". Duram 0,6 s |
+| Dissoluções | `dissolver_pixels`, `dissolver_nuvem`, `queimar`, `tinta`, `fusao_desfocada`, `fusao_luminosa`, `fusao_sombria` | memória, sonho, arte |
+| Portas | `portas_abrem`, `portas_fecham`, `portas_verticais`, `quatro_cantos` | revelação |
+| Movimento | `empurrar_<dir>`, `cobrir_<dir>`, `revelar_<dir>`, `chicote_vertical`, `chicote_diagonal` | energia; nenhuma deixa canto vazio |
+| Zoom e giro | `zoom_saida`, `zoom_giro`, `zoom_cruzado`, `girar_horario`, `girar_anti`, `virar_vertical`, `cartao_encolhe`, `cartao_chega` | virada, entrar no assunto |
+| Cor e luz | `mergulho_preto\|marinho\|champanhe\|papel`, `vazamento_<origem>`, `flash_duplo`, `foco_rack` | fim de bloco, emoção |
+| Formas da marca | `forma_<circulo\|quadrado\|losango\|faixa\|onda\|gota>_<dourada\|escura>`, `camadas_<dir>` | troca com identidade (motion design) |
+| Digitais | `glitch_corte`, `rgb_separado`, `pixelar`, `tv_desliga` | tecnologia, humor; nunca em vídeo de fé |
+
+Transição nova: uma função `f(a, b, p, W, H)` com `@transicao_reg(nome, descricao, [sons])` em `motor/transicoes.py`.
+O teste `tests/test_elementos_10x.py` cobra que ela comece no quadro antigo, termine no novo e tenha som válido.
+
+## Looks de cor
+
+80 looks (`"look"` em cada segmento): os 8 clássicos e 72 grades de `GRADES` em `motor/estilos.py`, em sete famílias:
+cinema (`teal_laranja`, `bleach_bypass`, `filme_kodak`, `noir`, `anos80`…), natural (`natural`, `pastel`, `hora_dourada`,
+`praia`…), clima (`melancolia`, `drama`, `sonho`, `nostalgia`, `tensao`…), preto e branco (`sepia`, `cianotipia`, `selenio`…),
+marca (`marca_split`, `marca_tritom`, `marca_noite`…: puxam sombras e luzes para os papéis da paleta da marca ativa),
+fotografia (`polaroid`, `cross_process`, `kodachrome`, `editorial`…) e nichos (`tecnologia`, `saude`, `comida`, `luxo`,
+`podcast`, `espiritual`…). Os naturais protegem a pele (`PROTEGE_PELE`); os estilizados mudam a pele de propósito.
+`editor.py biblioteca listar looks` e `previa looks`.
+
+## Títulos
+
+160 estilos de texto animado: os 16 tipos de motion (`titulo_caixa`, `titulo_editorial`, `neon`, `bilhete`…, veja
+[edl.md](edl.md)) e 144 **letreiros** (`motor/letreiros.py`): 18 visuais × 8 entradas.
+
+```jsonc
+{"tipo": "letreiro", "estilo": "marca_texto_palavra", "texto": "O problema certo/vem antes", "na": "problema", "y": 0.2}
+```
+
+- Visuais: `tarja`, `tarja_escura`, `tarja_destaque`, `contorno`, `sombra_longa`, `sublinhado`, `marca_texto`, `etiqueta`,
+  `colchetes`, `aspas`, `caixa_vazada`, `duas_cores`, `serifa`, `manuscrito`, `gigante`, `tecnico`, `fita`, `vidro`.
+- Entradas: `surge`, `digita`, `palavra`, `desliza`, `escala`, `revela`, `gira`, `desfoca`.
+- O estilo é `<visual>_<entrada>`; `cor` (papel da paleta) troca a cor do texto e `tam` o tamanho (padrão 0.06 da largura).
 
 ## Sons
 

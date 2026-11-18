@@ -3343,6 +3343,73 @@
    "fonte": "Microsoft Fluent Emoji 3D",
    "licenca": "MIT",
    "fluent": "Sos button"
+  },
+  {
+   "id": "potted-plant",
+   "nome": "Potted plant",
+   "tipo": "render",
+   "categoria": "criados",
+   "tags": [
+    "boring",
+    "grow",
+    "house",
+    "nurturing",
+    "plant",
+    "potted plant",
+    "useless"
+   ],
+   "arquivo": "renders/potted-plant.png",
+   "fonte": "Microsoft Fluent Emoji 3D",
+   "licenca": "MIT",
+   "fluent": "Potted plant"
+  },
+  {
+   "id": "television",
+   "nome": "Television",
+   "tipo": "render",
+   "categoria": "criados",
+   "tags": [
+    "television",
+    "tv",
+    "video"
+   ],
+   "arquivo": "renders/television.png",
+   "fonte": "Microsoft Fluent Emoji 3D",
+   "licenca": "MIT",
+   "fluent": "Television"
+  },
+  {
+   "id": "shallow-pan-of-food",
+   "nome": "Shallow pan of food",
+   "tipo": "render",
+   "categoria": "criados",
+   "tags": [
+    "casserole",
+    "food",
+    "paella",
+    "pan",
+    "shallow",
+    "shallow pan of food"
+   ],
+   "arquivo": "renders/shallow-pan-of-food.png",
+   "fonte": "Microsoft Fluent Emoji 3D",
+   "licenca": "MIT",
+   "fluent": "Shallow pan of food"
+  },
+  {
+   "id": "video-game",
+   "nome": "Video game",
+   "tipo": "render",
+   "categoria": "criados",
+   "tags": [
+    "controller",
+    "game",
+    "video game"
+   ],
+   "arquivo": "renders/video-game.png",
+   "fonte": "Microsoft Fluent Emoji 3D",
+   "licenca": "MIT",
+   "fluent": "Video game"
   }
  ]
 }

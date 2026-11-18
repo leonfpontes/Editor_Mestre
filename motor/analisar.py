@@ -261,7 +261,7 @@ def cmd_analisar(a):
     plano = None
     if palavras and not getattr(a, "sem_diretor", False):
         print("Diretor: vícios, tomadas repetidas, ênfases, zooms, gancho e elementos…", flush=True)
-        plano = dirigir(palavras, cfr, estilo)
+        plano = dirigir(palavras, cfr, estilo, calmo=CFG.get("diretor", {}).get("calmo", False))
         edl = aplicar_diretor(edl, plano, palavras, rosto.get("clipes_ini", [0.0]) if isinstance(rosto, dict) else [0.0],
                                  alternar=CFG.get("diretor", {}).get("alternar_zoom", True))
         if CFG.get("diretor", {}).get("gancho_automatico", True):

@@ -25,6 +25,8 @@ EXEMPLOS = {
     "anotacao": {"texto": "+ E NÃO SÃO", "cor": "champanhe"},
     "neon": {"texto": "CLICA EM / SAIBA MAIS"},
     "texto_atras": {"texto": "PALAVRAS"},
+    "letreiro": {"estilo": "marca_texto_digita", "texto": "O problema certo/vem antes"},
+    "celulares": {"arquivos": ["docs/img/vitrine-pontes_brain.jpg", "docs/img/capa.png", "docs/img/marcas.png"], "troca": 1.0},
 }
 SPRITES = sorted(EXEMPLOS)
 

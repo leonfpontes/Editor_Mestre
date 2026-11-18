@@ -25,6 +25,9 @@ no vídeo. `--sem-diretor` volta ao rascunho cru.
 | **Punch** | `zooms` com tranco nas 1 a 3 ênfases mais fortes |
 | **Gancho** | Nota de 0 a 10 para os primeiros 3 s (saudação e ritmo lento descontam; pergunta, número e "você" somam) e a frase mais forte do vídeo, quando ela é bem melhor que a abertura. Para abrir com ela, copie o trecho para o início com `"gancho": true` |
 | **Elementos** | Contador em "40%", `passo` (no estilo `tutorial_passos`) ou `destaque` em "primeiro passo", `check` em "certo", `xis` em "errado", todos ancorados na fala |
+| **Vocabulário** | `motor/vocabulario.py`: palavras que pedem uma peça da biblioteca ampliada ("ideia" → `traco_lampada`, "pra cima" → `marcador_seta_cima`, "perspectiva" → `traco_olho`, "quer saber" → `traco_interrogacao`, "festa" → `chuva_confete`, "prazo" → `forma_arco_progresso_fino`…). Até 5 por vídeo, uma peça de cada, 4 s entre desenhos e 1,5 s longe das reações de cena; traços e marcadores ao lado da cabeça, alternando os lados. Marca calma (`"diretor": {"calmo": true}`) só recebe as serenas |
+| **Transição pela fala** | O começo do trecho (sem "e", "eu", "então") pede a transição: "antigamente" → `relogio_anti`, "hoje em dia" → `relogio`, "vou dar um giro" → `girar_horario`, "vou ampliar" → `zoom_saida`, "agora vamos" → `forma_circulo_dourada`, "por fim" → `camadas_esquerda` (na marca calma: fusões e mergulhos). Não troca a transição que já estava no trecho |
+| **Look** | Com 3 ou mais palavras de fé, o relatório sugere o look `espiritual` (só sugestão: a cor é decisão do editor) |
 | **Termos de b-roll** | As palavras de conteúdo que mais aparecem, para `editor.py broll` |
 
 ## Leitura da cena (`analisar`)

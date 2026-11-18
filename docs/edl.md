@@ -36,13 +36,16 @@ Trechos que **ficam**, na ordem em que aparecem no vídeo. Apague os que saem.
 |---|---|
 | `id`, `ini`, `fim` | Identificador e tempos no original |
 | `zoom` | Enquadramento base: 1.0 (no máximo 1.08); muda devagar entre cortes |
-| `transicao` | Entrada do trecho: `null` (corte seco), `push`, `whip`, `zoom`, `slide`, `flash`, `dissolve`, `giro` (giro 3D), `rasgo` (papel rasgado), `vidro` (vidro líquido), `luz` (queima de luz) |
+| `transicao` | Entrada do trecho: `null` (corte seco), `push`, `whip`, `zoom`, `slide`, `flash`, `dissolve`, `giro` (giro 3D), `rasgo` (papel rasgado), `vidro` (vidro líquido), `luz` (queima de luz) ou uma das 108 da biblioteca (`cortina_faixa_direita`, `iris_circulo_abre`, `queimar`, `forma_circulo_dourada`…; `editor.py biblioteca listar transicoes`) |
+| `duracao_transicao` | Segundos da transição deste trecho. Sem ele vale o `duracao_transicao` do EDL inteiro e, sem esse, a padrão da transição (0,3 s; os estilhaços pedem 0,6 s). Nunca passa de metade do trecho |
 | `som` | Som da transição (id de `biblioteca listar sons`); `false` deixa muda. Sem o campo, vale o padrão da marca |
 | `gancho` | `true` repete o trecho no início do vídeo (a frase mais forte abrindo). O original continua no lugar |
 | `salto` | `true` troca o `zoom` no corte, sem deslizar (jump cut com mudança de enquadramento; o diretor marca sozinho) |
 | `plano` | `rosto` (padrão) · `dividido` (palco de motion em cima, rosto embaixo) · `motion` (só o palco; a voz continua) |
 | `corte_y` | No `dividido`, o centro da faixa de rosto mostrada (fração da altura; padrão 0.36) |
-| `look` | Cor do trecho: `pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo` |
+| `mirar_x`, `mirar_y` | A câmera sai do rosto e olha para este ponto da fonte (fração da largura e da altura), deslizando até lá e voltando suave no trecho seguinte. Para mostrar o que ele apresenta: o pet no sofá, o objeto na mesa. Com `zoom` acima de 1 fecha no ponto |
+| `legenda_y` | Altura da legenda só neste trecho (fração da altura), quando a legenda padrão cobriria o que a câmera mostra |
+| `look` | Cor do trecho: `pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo` ou uma das 72 grades (`teal_laranja`, `hora_dourada`, `marca_split`, `espiritual`…; `editor.py biblioteca listar looks`) |
 | `texto` | A fala do trecho (referência para o agente) |
 
 ## `zooms`
@@ -196,6 +199,8 @@ Guia com os três estilos estudados e quando usar cada um: [estilos-de-referenci
 | `neon` | `texto` (linhas com `/`), `cor`, `caixa` | Manuscrito em neon que acende tremulando |
 | `texto_atras` | `texto`, `fonte`, `tam`, `cor` | Texto enorme **atrás da pessoa** (recorte automático); combina com o look `pb_acento` |
 | `hud_rosto` | `rotulo` | Mira, malha e anéis que seguem o rosto |
+| `celulares` | `arquivos` (2 a 8 telas verticais), `altura` (0.36), `troca` (s por tela, 1.2) | Vitrine de celulares: a tela do centro grande, as vizinhas menores dos lados, trocando com mola. Fica na área segura (5–95% da largura) |
+| `letreiro` | `estilo` (144: `<visual>_<entrada>`), `texto` (linhas com `/`), `cor`, `tam` | Título ou rótulo em 18 visuais × 8 entradas (`editor.py biblioteca listar titulos`; veja [bibliotecas.md](bibliotecas.md#títulos)) |
 
 Os de interface (`passo`, `digitacao`, `janela`, `arvore`, `mapa`, `icone`) usam `"area": "palco"`: `x`/`y` são relativos
 ao palco e eles só aparecem nos planos `dividido` e `motion` (`"sempre": true` mostra também no `rosto`).
@@ -235,6 +240,7 @@ problemas de uma vez, com o caminho do campo (`elementos[3].texto contém "girah
 | Campo | Valores |
 |---|---|
 | `capa` | `{"texto": "…", "t": 4.2, "y": 0.16}`: título e instante (s do vídeo final) da capa gerada por `exportar` |
+| `pos_credito` | `{"titulo": "Erros de gravação", "segmentos": [...], "elementos": [...]}`: cena pós-crédito depois do CTA (erros de gravação, bastidor). Os trechos entram com o letreiro do título, sem vinheta e sem CTA, com a mesma música continuando, e são emendados no fim do `final.mp4` |
 | `cache_recorte` | `false` desliga o cache do recorte da pessoa (`_cache/` na pasta do EDL) |
 
 Caminhos de arquivo no EDL (`arquivo`, `imagem`, `fonte`, `lut`) são relativos à pasta do próprio `edl.json`. O diretor,

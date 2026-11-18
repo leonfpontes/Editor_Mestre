@@ -153,7 +153,7 @@ class Sprite3D:
 class Elementos:
     """titulo | destaque | leo | objeto3d | efeito | imagem | broll | som — tempos na linha do tempo original."""
 
-    def __init__(self, lst, W, H, map_out, palavras=()):
+    def __init__(self, lst, W, H, map_out, palavras=(), map_faixa=None):
         self.W, self.H, self.items = W, H, []
         self.plano = "rosto"  # plano do quadro atual (o render atualiza): define a área do palco
         self.rosto = None  # (cx, cy, altura) do rosto no quadro de saída, para o HUD
@@ -188,7 +188,7 @@ class Elementos:
             if "saida" in e:  # tempos já na linha do tempo final (ex.: título sobre o gancho)
                 e["o_ini"], e["o_fim"] = e["saida"]
             else:
-                e["o_ini"], e["o_fim"] = map_out(e["ini"]), map_out(e["fim"])
+                e["o_ini"], e["o_fim"] = map_faixa(e["ini"], e["fim"]) if map_faixa else (map_out(e["ini"]), map_out(e["fim"]))
             if e["o_fim"] <= e["o_ini"]:
                 continue
             if e.get("seguir"):  # [[t da fonte, x, y], …] em fração da fonte: o elemento acompanha esse ponto

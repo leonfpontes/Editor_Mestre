@@ -42,6 +42,10 @@ def som_padrao(grupo, chave=None, n=0):
     for g, v in (CFG.get("sons") or {}).items():
         cfg[g] = dict(cfg.get(g, {}), **v) if isinstance(v, dict) and isinstance(cfg.get(g), dict) else v
     v = cfg.get(grupo)
+    if grupo == "transicoes" and isinstance(v, dict) and chave not in v:  # transições da biblioteca trazem o próprio som
+        from .transicoes import TRANSICOES
+        if chave in TRANSICOES:
+            v = dict(v, **{chave: TRANSICOES[chave][2]})
     if chave is not None:
         v = v.get(chave) if isinstance(v, dict) else None
     if isinstance(v, list):

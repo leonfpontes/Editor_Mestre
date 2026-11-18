@@ -201,9 +201,13 @@ def main():
     galeria_3d().convert("RGB").save(SAIDA / "biblioteca-3d.png", optimize=True)
     from motor.comandos import previa_efeitos
     marca.ativar("pontes_brain")
-    ef = previa_efeitos()
-    cv2.imwrite(str(SAIDA / "biblioteca-efeitos.jpg"), cv2.resize(ef, (ef.shape[1] * 2 // 3, ef.shape[0] * 2 // 3)),
-                [cv2.IMWRITE_JPEG_QUALITY, 86])
+    amostra = ["confete", "check", "contador", "cartao_vidro", "notificacao", "tipografia", "reflexo", "foco",
+               "traco_circulo_duplo", "marcador_seta_laco", "traco_balao_fala", "traco_lampada", "marcador_coroa", "traco_estrela",
+               "poeira_dourada", "coracoes_subindo", "chuva_confete", "estouro_estrelas", "neve", "folhas_caindo",
+               "raios_topo", "vazamento_canto_sd_dourado", "sombra_janela", "holofote", "meio_tom", "caustica",
+               "forma_burst_raios_fino", "forma_anel_pulso_fino", "forma_equalizador_bloco", "forma_mira_fino"]
+    ef = previa_efeitos(nomes=amostra, colunas=10)  # amostra das 280 (a lista toda: `biblioteca previa efeitos`)
+    cv2.imwrite(str(SAIDA / "biblioteca-efeitos.jpg"), ef, [cv2.IMWRITE_JPEG_QUALITY, 86])
     gif_vinheta("pontes_brain", SAIDA / "vinheta-pontes_brain.gif")
     gif_vinheta("girahub", SAIDA / "vinheta-girahub.gif")
     for p in sorted(SAIDA.iterdir()):

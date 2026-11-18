@@ -3,6 +3,105 @@
  "fonte": "gerado de motor/efeitos.py (`editor.py biblioteca catalogo`)",
  "itens": [
   {
+   "id": "aberracao",
+   "categoria": "impacto",
+   "descricao": "Aberração cromática: vermelho e azul se separam. Evite em vídeo de fé (GiraHub).",
+   "fase": "pos",
+   "som_pop": false,
+   "som": "glitch",
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "aneis_espiral",
+   "categoria": "particulas",
+   "descricao": "Partículas (anel) que saem de um ponto em espiral. Motivo na fala: transformação.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "whoosh-giro",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "aneis_estouro",
+   "categoria": "particulas",
+   "descricao": "Partículas (anel) que explodem de um ponto e caem com a gravidade. Motivo na fala: revelação.",
+   "fase": "elementos",
+   "som_pop": true,
+   "som": "pop-bolha",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "aneis_piscando",
+   "categoria": "particulas",
+   "descricao": "Partículas (anel) que acendem e apagam em volta de um ponto. Motivo na fala: atenção num ponto.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "aneis_subindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (anel) que sobem devagar pela tela. Motivo na fala: elegância, conquista.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "aneis_subindo_do_ponto",
+   "categoria": "particulas",
+   "descricao": "Partículas (anel) que jorram para cima de um ponto, como uma fonte. Motivo na fala: algo que borbulha.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "riser-curto",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "bloom",
+   "categoria": "luz",
+   "descricao": "As partes claras ganham um brilho que vaza (bloom). Sonho, glamour.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
    "id": "bokeh",
    "categoria": "luz",
    "descricao": "Bolhas de luz desfocadas subindo devagar. Clima de sonho, conquista, fim de vídeo.",
@@ -12,6 +111,69 @@
    "params": {
     "intensidade": "0 a 1",
     "quantidade": "número de luzes (padrão 18)"
+   }
+  },
+  {
+   "id": "bokeh_desfocado",
+   "categoria": "luz",
+   "descricao": "Grandes bolas de luz desfocadas subindo devagar. Festa, noite, clima.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "bolhas",
+   "categoria": "particulas",
+   "descricao": "Partículas (bolha) que sobem devagar pela tela. Motivo na fala: leveza, respirar, limpeza.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "bolhas_no_ar",
+   "categoria": "particulas",
+   "descricao": "Partículas (bolha) que flutuam no ar, sem rumo. Motivo na fala: brincadeira, infância.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "bolinhas_caindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (circulo) que caem do alto da tela. Motivo na fala: fim, queda leve.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "bolinhas_subindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (circulo) que sobem devagar pela tela. Motivo na fala: leveza, alegria.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
    }
   },
   {
@@ -26,6 +188,67 @@
     "y": "0 a 1",
     "raio": "fração da largura (padrão 0.2)",
     "quantidade": "padrão 9"
+   }
+  },
+  {
+   "id": "brilhos_caindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (estrela de 4 pontas) que caem do alto da tela. Motivo na fala: encanto, presente.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "brilhos_em_orbita",
+   "categoria": "particulas",
+   "descricao": "Partículas (estrela de 4 pontas) que giram em órbita em volta de um ponto. Motivo na fala: algo especial no centro.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "brilhos_piscando",
+   "categoria": "particulas",
+   "descricao": "Partículas (estrela de 4 pontas) que acendem e apagam em volta de um ponto. Motivo na fala: algo novo, mágico.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "canhao_confete",
+   "categoria": "particulas",
+   "descricao": "Partículas (confete) que jorram para cima de um ponto, como uma fonte. Motivo na fala: lançamento, festa.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "riser-curto",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
    }
   },
   {
@@ -55,6 +278,17 @@
     "x": "0 a 1",
     "y": "0 a 1 (padrão 0.24)",
     "largura": "fração da largura (padrão 0.78)"
+   }
+  },
+  {
+   "id": "caustica",
+   "categoria": "luz",
+   "descricao": "Reflexo de água (cáustica) dançando no quadro. Mar, piscina, calma, limpeza.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
    }
   },
   {
@@ -95,6 +329,48 @@
     "objeto": "id da biblioteca 3D (padrão estrela)",
     "quantidade": "padrão 12",
     "tamanho": "fração da largura (padrão 0.12)"
+   }
+  },
+  {
+   "id": "chuva_confete",
+   "categoria": "particulas",
+   "descricao": "Partículas (confete) que caem do alto da tela. Motivo na fala: celebração, aniversário.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "chuva_gotas",
+   "categoria": "particulas",
+   "descricao": "Partículas (gota) que caem em diagonal, como chuva com vento. Motivo na fala: tempo ruim, tristeza.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "cintilar",
+   "categoria": "particulas",
+   "descricao": "Partículas (ponto) que acendem e apagam em volta de um ponto. Motivo na fala: detalhe valioso.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
    }
   },
   {
@@ -142,6 +418,407 @@
    }
   },
   {
+   "id": "contraluz",
+   "categoria": "luz",
+   "descricao": "Luz dourada por trás, como contraluz de fim de tarde.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "coracoes_em_orbita",
+   "categoria": "particulas",
+   "descricao": "Partículas (coracao) que giram em órbita em volta de um ponto. Motivo na fala: apaixonado.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "coracoes_no_ar",
+   "categoria": "particulas",
+   "descricao": "Partículas (coracao) que flutuam no ar, sem rumo. Motivo na fala: romance.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "coracoes_piscando",
+   "categoria": "particulas",
+   "descricao": "Partículas (coracao) que acendem e apagam em volta de um ponto. Motivo na fala: afeto num detalhe.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "coracoes_subindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (coracao) que sobem devagar pela tela. Motivo na fala: carinho, gratidão, família.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "cortina_luz",
+   "categoria": "impacto",
+   "descricao": "Uma faixa de luz branca atravessa o quadro uma vez. Virada de assunto.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": "whoosh-suave",
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "cristais",
+   "categoria": "particulas",
+   "descricao": "Partículas (floco) que acendem e apagam em volta de um ponto. Motivo na fala: pureza, novidade.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "cruzes_piscando",
+   "categoria": "particulas",
+   "descricao": "Partículas (cruz) que acendem e apagam em volta de um ponto. Motivo na fala: saúde, mais.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "desfoque_radial",
+   "categoria": "textura",
+   "descricao": "Desfoca as bordas e mantém nítido o ponto (x, y). Foco na pessoa.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (holofote)"
+   }
+  },
+  {
+   "id": "diamantes",
+   "categoria": "particulas",
+   "descricao": "Partículas (losango) que acendem e apagam em volta de um ponto. Motivo na fala: valor, premium.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "diamantes_caindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (losango) que caem do alto da tela. Motivo na fala: riqueza, bônus.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "estilhacos",
+   "categoria": "particulas",
+   "descricao": "Partículas (linha) que explodem de um ponto e caem com a gravidade. Motivo na fala: rompimento, quebra.",
+   "fase": "elementos",
+   "som_pop": true,
+   "som": "pop-bolha",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "estouro_bolinhas",
+   "categoria": "particulas",
+   "descricao": "Partículas (circulo) que explodem de um ponto e caem com a gravidade. Motivo na fala: festa, surpresa.",
+   "fase": "elementos",
+   "som_pop": true,
+   "som": "pop-bolha",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "estouro_brilhos",
+   "categoria": "particulas",
+   "descricao": "Partículas (estrela de 4 pontas) que explodem de um ponto e caem com a gravidade. Motivo na fala: conquista.",
+   "fase": "elementos",
+   "som_pop": true,
+   "som": "pop-bolha",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "estouro_coracoes",
+   "categoria": "particulas",
+   "descricao": "Partículas (coracao) que explodem de um ponto e caem com a gravidade. Motivo na fala: amor, reação.",
+   "fase": "elementos",
+   "som_pop": true,
+   "som": "pop-bolha",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "estouro_diamantes",
+   "categoria": "particulas",
+   "descricao": "Partículas (losango) que explodem de um ponto e caem com a gravidade. Motivo na fala: prêmio.",
+   "fase": "elementos",
+   "som_pop": true,
+   "som": "pop-bolha",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "estouro_estrelas",
+   "categoria": "particulas",
+   "descricao": "Partículas (estrela de 5 pontas) que explodem de um ponto e caem com a gravidade. Motivo na fala: nota máxima, vitória.",
+   "fase": "elementos",
+   "som_pop": true,
+   "som": "pop-bolha",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "estouro_mais",
+   "categoria": "particulas",
+   "descricao": "Partículas (cruz) que explodem de um ponto e caem com a gravidade. Motivo na fala: somar, ganho.",
+   "fase": "elementos",
+   "som_pop": true,
+   "som": "pop-bolha",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "estouro_quadrados",
+   "categoria": "particulas",
+   "descricao": "Partículas (quadrado) que explodem de um ponto e caem com a gravidade. Motivo na fala: quebra de padrão.",
+   "fase": "elementos",
+   "som_pop": true,
+   "som": "pop-bolha",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "estouro_triangulos",
+   "categoria": "particulas",
+   "descricao": "Partículas (triangulo) que explodem de um ponto e caem com a gravidade. Motivo na fala: energia, ataque.",
+   "fase": "elementos",
+   "som_pop": true,
+   "som": "pop-bolha",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "estrelas_caindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (estrela de 5 pontas) que caem do alto da tela. Motivo na fala: sonho, desejo.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "estrelas_em_orbita",
+   "categoria": "particulas",
+   "descricao": "Partículas (estrela de 5 pontas) que giram em órbita em volta de um ponto. Motivo na fala: tontura, ficar zonzo.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "estrelas_espiral",
+   "categoria": "particulas",
+   "descricao": "Partículas (estrela de 5 pontas) que saem de um ponto em espiral. Motivo na fala: magia.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "whoosh-giro",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "estrelas_subindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (estrela de 5 pontas) que sobem devagar pela tela. Motivo na fala: elogio, avaliação.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "estrobo",
+   "categoria": "impacto",
+   "descricao": "Luz piscando como estroboscópio (hz). Festa, balada, ritmo. Evite em vídeo de fé (GiraHub).",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1",
+    "hz": "piscadas por segundo (padrão 6)"
+   }
+  },
+  {
+   "id": "faiscas",
+   "categoria": "particulas",
+   "descricao": "Partículas (ponto) que explodem de um ponto e caem com a gravidade. Motivo na fala: impacto, ideia que acende.",
+   "fase": "elementos",
+   "som_pop": true,
+   "som": "pop-bolha",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "faiscas_subindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (linha) que jorram para cima de um ponto, como uma fonte. Motivo na fala: fogo, motivação.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "riser-curto",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
    "id": "flash",
    "categoria": "impacto",
    "descricao": "Clarão rápido na cor clara da marca, no instante de uma palavra forte.",
@@ -167,6 +844,793 @@
    }
   },
   {
+   "id": "folhas_ao_vento",
+   "categoria": "particulas",
+   "descricao": "Partículas (folha) que caem em diagonal, como chuva com vento. Motivo na fala: vento, passagem do tempo.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "folhas_caindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (folha) que caem do alto da tela. Motivo na fala: outono, mudança, desapego.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "folhas_subindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (folha) que sobem devagar pela tela. Motivo na fala: crescimento, natureza.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "fonte_brilhos",
+   "categoria": "particulas",
+   "descricao": "Partículas (estrela de 4 pontas) que jorram para cima de um ponto, como uma fonte. Motivo na fala: sucesso que cresce.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "riser-curto",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "fonte_coracoes",
+   "categoria": "particulas",
+   "descricao": "Partículas (coracao) que jorram para cima de um ponto, como uma fonte. Motivo na fala: muito amor.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "riser-curto",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "fonte_de_luz",
+   "categoria": "particulas",
+   "descricao": "Partículas (ponto) que jorram para cima de um ponto, como uma fonte. Motivo na fala: energia que sobe.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "riser-curto",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "forma_aneis_concentricos_bloco",
+   "categoria": "formas",
+   "descricao": "Anéis concêntricos que se abrem. Alvo, foco, meta. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_aneis_concentricos_fino",
+   "categoria": "formas",
+   "descricao": "Anéis concêntricos que se abrem. Alvo, foco, meta. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_anel_pulso_bloco",
+   "categoria": "formas",
+   "descricao": "Três anéis pulsando para fora de um ponto. Notificação, chamar atenção. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "ui-sobe",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_anel_pulso_fino",
+   "categoria": "formas",
+   "descricao": "Três anéis pulsando para fora de um ponto. Notificação, chamar atenção. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "ui-sobe",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_arco_progresso_bloco",
+   "categoria": "formas",
+   "descricao": "Círculo de progresso que se fecha até o fim do elemento. Contagem, meta. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_arco_progresso_fino",
+   "categoria": "formas",
+   "descricao": "Círculo de progresso que se fecha até o fim do elemento. Contagem, meta. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_barra_progresso_bloco",
+   "categoria": "formas",
+   "descricao": "Barra de progresso enchendo até o fim do elemento. Etapa, processo, quase lá. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "rolagem",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_barra_progresso_fino",
+   "categoria": "formas",
+   "descricao": "Barra de progresso enchendo até o fim do elemento. Etapa, processo, quase lá. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "rolagem",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_barras_cinema_bloco",
+   "categoria": "formas",
+   "descricao": "Faixas pretas de cinema que entram e saem. Momento épico, cena. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_barras_cinema_fino",
+   "categoria": "formas",
+   "descricao": "Faixas pretas de cinema que entram e saem. Momento épico, cena. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_burst_raios_bloco",
+   "categoria": "formas",
+   "descricao": "Raios em explosão em volta de um ponto (sunburst). Novidade, oferta, impacto. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "impacto-seco",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_burst_raios_fino",
+   "categoria": "formas",
+   "descricao": "Raios em explosão em volta de um ponto (sunburst). Novidade, oferta, impacto. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "impacto-seco",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_cantos_camera_bloco",
+   "categoria": "formas",
+   "descricao": "Cantos de visor de câmera com luz piscando. Gravando, bastidor, ao vivo. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_cantos_camera_fino",
+   "categoria": "formas",
+   "descricao": "Cantos de visor de câmera com luz piscando. Gravando, bastidor, ao vivo. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_equalizador_bloco",
+   "categoria": "formas",
+   "descricao": "Barras de equalizador dançando. Música, áudio, podcast. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_equalizador_fino",
+   "categoria": "formas",
+   "descricao": "Barras de equalizador dançando. Música, áudio, podcast. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_estrela_girando_bloco",
+   "categoria": "formas",
+   "descricao": "Estrela girando, que abre com mola. Destaque, nota máxima. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_estrela_girando_fino",
+   "categoria": "formas",
+   "descricao": "Estrela girando, que abre com mola. Destaque, nota máxima. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_grade_linhas_bloco",
+   "categoria": "formas",
+   "descricao": "Quadriculado que desliza ao fundo. Planejamento, blueprint. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_grade_linhas_fino",
+   "categoria": "formas",
+   "descricao": "Quadriculado que desliza ao fundo. Planejamento, blueprint. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_grade_pontos_bloco",
+   "categoria": "formas",
+   "descricao": "Grade de pontos que pulsa em onda a partir de um ponto. Dados, rede, digital. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_grade_pontos_fino",
+   "categoria": "formas",
+   "descricao": "Grade de pontos que pulsa em onda a partir de um ponto. Dados, rede, digital. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_hexagono_girando_bloco",
+   "categoria": "formas",
+   "descricao": "Hexágono girando. Tecnologia, ciência, sistema. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_hexagono_girando_fino",
+   "categoria": "formas",
+   "descricao": "Hexágono girando. Tecnologia, ciência, sistema. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_linhas_horizontais_bloco",
+   "categoria": "formas",
+   "descricao": "Riscos horizontais passando rápido. Velocidade, correria. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "whoosh-curto",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_linhas_horizontais_fino",
+   "categoria": "formas",
+   "descricao": "Riscos horizontais passando rápido. Velocidade, correria. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "whoosh-curto",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_linhas_velocidade_bloco",
+   "categoria": "formas",
+   "descricao": "Linhas de velocidade nas bordas, estilo mangá. Susto, pressa, revelação. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "whoosh-rapido",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_linhas_velocidade_fino",
+   "categoria": "formas",
+   "descricao": "Linhas de velocidade nas bordas, estilo mangá. Susto, pressa, revelação. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "whoosh-rapido",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_losango_girando_bloco",
+   "categoria": "formas",
+   "descricao": "Losango girando. Valor, premium. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_losango_girando_fino",
+   "categoria": "formas",
+   "descricao": "Losango girando. Valor, premium. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_mira_bloco",
+   "categoria": "formas",
+   "descricao": "Mira que se fecha sobre um ponto. Alvo, foco, encontrar o problema. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "clique",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_mira_fino",
+   "categoria": "formas",
+   "descricao": "Mira que se fecha sobre um ponto. Alvo, foco, encontrar o problema. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "clique",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_moldura_bloco",
+   "categoria": "formas",
+   "descricao": "Moldura que fecha o quadro. Destaque de uma frase ou de um momento. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "deslizar",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_moldura_fino",
+   "categoria": "formas",
+   "descricao": "Moldura que fecha o quadro. Destaque de uma frase ou de um momento. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "deslizar",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_onda_seno_bloco",
+   "categoria": "formas",
+   "descricao": "Onda que corre o quadro. Voz, frequência, fluxo. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_onda_seno_fino",
+   "categoria": "formas",
+   "descricao": "Onda que corre o quadro. Voz, frequência, fluxo. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_orbita_bloco",
+   "categoria": "formas",
+   "descricao": "Três pontos em órbita elíptica em volta de algo. Ecossistema, gira em torno de. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_orbita_fino",
+   "categoria": "formas",
+   "descricao": "Três pontos em órbita elíptica em volta de algo. Ecossistema, gira em torno de. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_pentagono_girando_bloco",
+   "categoria": "formas",
+   "descricao": "Pentágono girando. Equilíbrio entre partes. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_pentagono_girando_fino",
+   "categoria": "formas",
+   "descricao": "Pentágono girando. Equilíbrio entre partes. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_pontos_carregando_bloco",
+   "categoria": "formas",
+   "descricao": "Três pontinhos pulando (digitando...). Suspense, pensando. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "teclado",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_pontos_carregando_fino",
+   "categoria": "formas",
+   "descricao": "Três pontinhos pulando (digitando...). Suspense, pensando. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "teclado",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_quadrado_girando_bloco",
+   "categoria": "formas",
+   "descricao": "Quadrado girando em volta de um ponto. Método, estrutura. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_quadrado_girando_fino",
+   "categoria": "formas",
+   "descricao": "Quadrado girando em volta de um ponto. Método, estrutura. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_setas_convergindo_bloco",
+   "categoria": "formas",
+   "descricao": "Quatro setas apontando para o centro. Foco, convergir, o ponto principal. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "whoosh-curto",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_setas_convergindo_fino",
+   "categoria": "formas",
+   "descricao": "Quatro setas apontando para o centro. Foco, convergir, o ponto principal. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "whoosh-curto",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_spinner_bloco",
+   "categoria": "formas",
+   "descricao": "Spinner girando. Carregando, esperando, pensando. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_spinner_fino",
+   "categoria": "formas",
+   "descricao": "Spinner girando. Carregando, esperando, pensando. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_triangulo_girando_bloco",
+   "categoria": "formas",
+   "descricao": "Triângulo girando. Energia, direção. Estilo forma cheia e translúcida.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "forma_triangulo_girando_fino",
+   "categoria": "formas",
+   "descricao": "Triângulo girando. Energia, direção. Estilo contorno fino na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "tamanho": "raio, fração da largura (padrão 0.18)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
    "id": "glitch",
    "categoria": "impacto",
    "descricao": "Falha digital rápida (canais de cor separados e fatias deslocadas). Para virada, erro, 'bug' no processo.",
@@ -178,6 +1642,19 @@
    }
   },
   {
+   "id": "gotas_caindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (gota) que caem do alto da tela. Motivo na fala: chuva, choro, água.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
    "id": "grao",
    "categoria": "textura",
    "descricao": "Grão de filme sutil no quadro inteiro. Dá textura de cinema a vídeos muito 'limpos'.",
@@ -186,6 +1663,46 @@
    "som": null,
    "params": {
     "intensidade": "0 a 1 (padrão 1 = grão leve)"
+   }
+  },
+  {
+   "id": "hexagonos_no_ar",
+   "categoria": "particulas",
+   "descricao": "Partículas (hexagono) que flutuam no ar, sem rumo. Motivo na fala: ciência, colmeia, rede.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "hexagonos_subindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (hexagono) que sobem devagar pela tela. Motivo na fala: inovação.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "holofote",
+   "categoria": "luz",
+   "descricao": "Holofote: escurece tudo menos um círculo em (x, y). Destaque de um objeto ou do rosto.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": "interruptor",
+   "params": {
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (holofote)"
    }
   },
   {
@@ -204,6 +1721,692 @@
    }
   },
   {
+   "id": "marcador_alvo",
+   "categoria": "marcacao",
+   "descricao": "Alvo: dois anéis e o centro. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_aspas",
+   "categoria": "marcacao",
+   "descricao": "Aspas grandes para uma citação. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_asterisco",
+   "categoria": "marcacao",
+   "descricao": "Asterisco: um detalhe, uma ressalva. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_balao_fala",
+   "categoria": "marcacao",
+   "descricao": "Balão de fala com rabinho. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_brilho",
+   "categoria": "marcacao",
+   "descricao": "Brilho de quatro pontas desenhado. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_caixa_arredondada",
+   "categoria": "marcacao",
+   "descricao": "Caixa de cantos redondos em volta de um trecho. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_cantos",
+   "categoria": "marcacao",
+   "descricao": "Quatro cantos marcando uma área, como um visor. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_chaves",
+   "categoria": "marcacao",
+   "descricao": "Chaves { } em volta de um grupo. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_check_marcado",
+   "categoria": "marcacao",
+   "descricao": "Visto à mão no que está certo. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_ciclo",
+   "categoria": "marcacao",
+   "descricao": "Duas setas em círculo (ciclo, repetir). Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_circulo_duplo",
+   "categoria": "marcacao",
+   "descricao": "Círculo dado duas vezes, como quem insiste. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_colchetes",
+   "categoria": "marcacao",
+   "descricao": "Colchetes [ ] abraçando uma palavra. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_coracao",
+   "categoria": "marcacao",
+   "descricao": "Coração desenhado à mão. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_coroa",
+   "categoria": "marcacao",
+   "descricao": "Coroa desenhada, para o melhor ou o vencedor. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_espiral",
+   "categoria": "marcacao",
+   "descricao": "Espiral, para confusão ou hipnose. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_estrela",
+   "categoria": "marcacao",
+   "descricao": "Estrela de cinco pontas desenhada. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_exclamacao",
+   "categoria": "marcacao",
+   "descricao": "Ponto de exclamação desenhado. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_explosao",
+   "categoria": "marcacao",
+   "descricao": "Explosão de quadrinho em volta de um impacto. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_igual",
+   "categoria": "marcacao",
+   "descricao": "Sinal de igual (uma coisa é a outra). Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_interrogacao",
+   "categoria": "marcacao",
+   "descricao": "Ponto de interrogação desenhado. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_lampada",
+   "categoria": "marcacao",
+   "descricao": "Lâmpada desenhada, para uma ideia. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_losango",
+   "categoria": "marcacao",
+   "descricao": "Losango desenhado. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_mais",
+   "categoria": "marcacao",
+   "descricao": "Sinal de mais desenhado. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_nuvem",
+   "categoria": "marcacao",
+   "descricao": "Nuvem de pensamento. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_olho",
+   "categoria": "marcacao",
+   "descricao": "Olho desenhado, para atenção. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_ondas",
+   "categoria": "marcacao",
+   "descricao": "Três linhas onduladas (som, cheiro, calor). Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_oval",
+   "categoria": "marcacao",
+   "descricao": "Oval feito à mão em volta de algo. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_parenteses",
+   "categoria": "marcacao",
+   "descricao": "Parênteses ( ) em volta de um detalhe. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_pino",
+   "categoria": "marcacao",
+   "descricao": "Pino de mapa sobre um lugar. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_rabisco",
+   "categoria": "marcacao",
+   "descricao": "Rabisco cobrindo algo, como apagar à caneta. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_raio",
+   "categoria": "marcacao",
+   "descricao": "Raio desenhado, energia ou ideia rápida. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_retangulo",
+   "categoria": "marcacao",
+   "descricao": "Retângulo à mão em volta de um trecho. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_riscado",
+   "categoria": "marcacao",
+   "descricao": "Risco atravessando uma palavra (o que não vale mais). Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_seta_baixo",
+   "categoria": "marcacao",
+   "descricao": "Seta reta apontando para baixo. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_seta_cima",
+   "categoria": "marcacao",
+   "descricao": "Seta reta apontando para cima. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_seta_curva",
+   "categoria": "marcacao",
+   "descricao": "Seta em arco, de baixo para cima. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_seta_direita",
+   "categoria": "marcacao",
+   "descricao": "Seta reta apontando para a direita. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_seta_dupla",
+   "categoria": "marcacao",
+   "descricao": "Seta de duas pontas (troca, ida e volta). Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_seta_esquerda",
+   "categoria": "marcacao",
+   "descricao": "Seta reta apontando para a esquerda. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_seta_laco",
+   "categoria": "marcacao",
+   "descricao": "Seta com um laço no meio, descontraída. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_sol",
+   "categoria": "marcacao",
+   "descricao": "Sol com raios, para clareza ou dia bom. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_sublinhado_duplo",
+   "categoria": "marcacao",
+   "descricao": "Dois sublinhados sob uma palavra-chave. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_triangulo",
+   "categoria": "marcacao",
+   "descricao": "Triângulo de alerta desenhado. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_x_marcado",
+   "categoria": "marcacao",
+   "descricao": "X à mão sobre o que está errado. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "marcador_zigue_zague",
+   "categoria": "marcacao",
+   "descricao": "Sublinhado em zigue-zague, enfático. Marca-texto largo e translúcido na cor de destaque.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "meio_tom",
+   "categoria": "textura",
+   "descricao": "Retícula de pontos (meio-tom de jornal) nas cores da marca. Pop art, notícia, memória.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": "pagina",
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
    "id": "moldura_rec",
    "categoria": "informacao",
    "descricao": "Moldura de câmera gravando (cantos, ponto pulsando e cronômetro). Para bastidores e vlog.",
@@ -212,6 +2415,56 @@
    "som": "clique",
    "params": {
     "rotulo": "texto ao lado do ponto (padrão REC)"
+   }
+  },
+  {
+   "id": "nevasca",
+   "categoria": "particulas",
+   "descricao": "Partículas (floco) que caem em diagonal, como chuva com vento. Motivo na fala: frio intenso.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "neve",
+   "categoria": "particulas",
+   "descricao": "Partículas (floco) que caem do alto da tela. Motivo na fala: frio, Natal, fim de ano.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "neve_no_ar",
+   "categoria": "particulas",
+   "descricao": "Partículas (floco) que flutuam no ar, sem rumo. Motivo na fala: inverno, calma.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "nevoa",
+   "categoria": "luz",
+   "descricao": "Névoa leve atravessando o quadro. Mistério, frio, manhã.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
    }
   },
   {
@@ -241,6 +2494,190 @@
    }
   },
   {
+   "id": "papel",
+   "categoria": "textura",
+   "descricao": "Textura de papel com fibra por cima do vídeo. Artesanal, caderno, estudo.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "persiana",
+   "categoria": "impacto",
+   "descricao": "Faixas horizontais abrindo como persiana. Entrada ou revelação.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": "deslizar",
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "pixelado",
+   "categoria": "impacto",
+   "descricao": "Pixeliza o quadro (censura, segredo, digital). Evite em vídeo de fé (GiraHub).",
+   "fase": "pos",
+   "som_pop": false,
+   "som": "glitch",
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "pixels_subindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (quadrado) que sobem devagar pela tela. Motivo na fala: digital, upload.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "poeira",
+   "categoria": "textura",
+   "descricao": "Poeira e fiapos de filme antigo passando. Nostalgia.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "poeira_dourada",
+   "categoria": "particulas",
+   "descricao": "Partículas (ponto) que sobem devagar pela tela. Motivo na fala: clima de sonho, memória.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "poeira_no_ar",
+   "categoria": "particulas",
+   "descricao": "Partículas (ponto) que flutuam no ar, sem rumo. Motivo na fala: calma, luz da manhã.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "pontos_em_orbita",
+   "categoria": "particulas",
+   "descricao": "Partículas (ponto) que giram em órbita em volta de um ponto. Motivo na fala: algo que gira em torno de um tema.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "pulso_brilho",
+   "categoria": "luz",
+   "descricao": "O quadro pulsa de brilho no ritmo da música (bpm). Energia, batida.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1",
+    "bpm": "batidas por minuto (padrão 100)"
+   }
+  },
+  {
+   "id": "quadrados_caindo",
+   "categoria": "particulas",
+   "descricao": "Partículas (quadrado) que caem do alto da tela. Motivo na fala: dados, tecnologia.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "raios_canto_sd",
+   "categoria": "luz",
+   "descricao": "Raios de luz entrando do canto direito, girando de leve. Revelação, esperança, momento solene.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "raios_canto_se",
+   "categoria": "luz",
+   "descricao": "Raios de luz entrando do canto esquerdo, girando de leve. Revelação, esperança, momento solene.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "raios_centro",
+   "categoria": "luz",
+   "descricao": "Raios de luz entrando de trás da pessoa, girando de leve. Revelação, esperança, momento solene.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "raios_topo",
+   "categoria": "luz",
+   "descricao": "Raios de luz entrando do alto, girando de leve. Revelação, esperança, momento solene.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "rastro_espiral",
+   "categoria": "particulas",
+   "descricao": "Partículas (linha) que saem de um ponto em espiral. Motivo na fala: velocidade.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "whoosh-giro",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
    "id": "reacoes",
    "categoria": "celebracao",
    "descricao": "Objetos 3D subindo e balançando como reações de live (corações, fogo, 100). Para engajamento, 'comenta aqui', resultado bom.",
@@ -255,6 +2692,54 @@
    }
   },
   {
+   "id": "redemoinho_bolinhas",
+   "categoria": "particulas",
+   "descricao": "Partículas (circulo) que rodam num redemoinho que se fecha no ponto. Motivo na fala: foco, concentração.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "whoosh-giro",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "redemoinho_confete",
+   "categoria": "particulas",
+   "descricao": "Partículas (confete) que rodam num redemoinho que se fecha no ponto. Motivo na fala: virada.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "whoosh-giro",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "redemoinho_folhas",
+   "categoria": "particulas",
+   "descricao": "Partículas (folha) que rodam num redemoinho que se fecha no ponto. Motivo na fala: recomeço.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "whoosh-giro",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
    "id": "reflexo",
    "categoria": "luz",
    "descricao": "Reflexo de vidro: uma faixa de luz atravessa a tela na diagonal (acabamento premium, revelação).",
@@ -264,6 +2749,57 @@
    "params": {
     "intensidade": "0 a 1 (padrão 1)",
     "duracao_passada": "segundos (padrão 0.9)"
+   }
+  },
+  {
+   "id": "respingo",
+   "categoria": "particulas",
+   "descricao": "Partículas (gota) que explodem de um ponto e caem com a gravidade. Motivo na fala: suor, esforço.",
+   "fase": "elementos",
+   "som_pop": true,
+   "som": "pop-bolha",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "riscos_de_chuva",
+   "categoria": "particulas",
+   "descricao": "Partículas (linha) que caem em diagonal, como chuva com vento. Motivo na fala: temporal, pressão.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "riscos_filme",
+   "categoria": "textura",
+   "descricao": "Riscos verticais e tremor de projetor de cinema. Evite em vídeo de fé (GiraHub).",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "ruido_cor",
+   "categoria": "textura",
+   "descricao": "Ruído de cor de câmera no escuro. Evite em vídeo de fé (GiraHub).",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
    }
   },
   {
@@ -281,6 +2817,28 @@
    }
   },
   {
+   "id": "sombra_janela",
+   "categoria": "luz",
+   "descricao": "Luz de fim de tarde entrando por uma janela, com a sombra dos caixilhos. Casa, aconchego.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "sonho",
+   "categoria": "luz",
+   "descricao": "Glow difuso no quadro inteiro (filtro de sonho). Lembrança, delicadeza.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
    "id": "sublinhado",
    "categoria": "marcacao",
    "descricao": "Sublinhado ondulado desenhado da esquerda para a direita, sob uma palavra ou número.",
@@ -291,6 +2849,18 @@
     "x": "centro 0 a 1",
     "y": "0 a 1",
     "largura": "fração da largura (padrão 0.5)"
+   }
+  },
+  {
+   "id": "tilt_shift",
+   "categoria": "textura",
+   "descricao": "Desfoca o alto e o pé do quadro, mantendo nítida a faixa em y. Efeito miniatura.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1",
+    "y": "faixa nítida, 0 a 1"
    }
   },
   {
@@ -308,6 +2878,681 @@
    }
   },
   {
+   "id": "traco_alvo",
+   "categoria": "marcacao",
+   "descricao": "Alvo: dois anéis e o centro. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_aspas",
+   "categoria": "marcacao",
+   "descricao": "Aspas grandes para uma citação. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_asterisco",
+   "categoria": "marcacao",
+   "descricao": "Asterisco: um detalhe, uma ressalva. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_balao_fala",
+   "categoria": "marcacao",
+   "descricao": "Balão de fala com rabinho. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_brilho",
+   "categoria": "marcacao",
+   "descricao": "Brilho de quatro pontas desenhado. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_caixa_arredondada",
+   "categoria": "marcacao",
+   "descricao": "Caixa de cantos redondos em volta de um trecho. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_cantos",
+   "categoria": "marcacao",
+   "descricao": "Quatro cantos marcando uma área, como um visor. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_chaves",
+   "categoria": "marcacao",
+   "descricao": "Chaves { } em volta de um grupo. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_check_marcado",
+   "categoria": "marcacao",
+   "descricao": "Visto à mão no que está certo. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_ciclo",
+   "categoria": "marcacao",
+   "descricao": "Duas setas em círculo (ciclo, repetir). Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_circulo_duplo",
+   "categoria": "marcacao",
+   "descricao": "Círculo dado duas vezes, como quem insiste. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_colchetes",
+   "categoria": "marcacao",
+   "descricao": "Colchetes [ ] abraçando uma palavra. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_coracao",
+   "categoria": "marcacao",
+   "descricao": "Coração desenhado à mão. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_coroa",
+   "categoria": "marcacao",
+   "descricao": "Coroa desenhada, para o melhor ou o vencedor. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_espiral",
+   "categoria": "marcacao",
+   "descricao": "Espiral, para confusão ou hipnose. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_estrela",
+   "categoria": "marcacao",
+   "descricao": "Estrela de cinco pontas desenhada. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_exclamacao",
+   "categoria": "marcacao",
+   "descricao": "Ponto de exclamação desenhado. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_explosao",
+   "categoria": "marcacao",
+   "descricao": "Explosão de quadrinho em volta de um impacto. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_igual",
+   "categoria": "marcacao",
+   "descricao": "Sinal de igual (uma coisa é a outra). Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_interrogacao",
+   "categoria": "marcacao",
+   "descricao": "Ponto de interrogação desenhado. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_lampada",
+   "categoria": "marcacao",
+   "descricao": "Lâmpada desenhada, para uma ideia. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_losango",
+   "categoria": "marcacao",
+   "descricao": "Losango desenhado. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_mais",
+   "categoria": "marcacao",
+   "descricao": "Sinal de mais desenhado. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_nuvem",
+   "categoria": "marcacao",
+   "descricao": "Nuvem de pensamento. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_olho",
+   "categoria": "marcacao",
+   "descricao": "Olho desenhado, para atenção. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_ondas",
+   "categoria": "marcacao",
+   "descricao": "Três linhas onduladas (som, cheiro, calor). Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_oval",
+   "categoria": "marcacao",
+   "descricao": "Oval feito à mão em volta de algo. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_parenteses",
+   "categoria": "marcacao",
+   "descricao": "Parênteses ( ) em volta de um detalhe. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_pino",
+   "categoria": "marcacao",
+   "descricao": "Pino de mapa sobre um lugar. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_rabisco",
+   "categoria": "marcacao",
+   "descricao": "Rabisco cobrindo algo, como apagar à caneta. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_raio",
+   "categoria": "marcacao",
+   "descricao": "Raio desenhado, energia ou ideia rápida. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_retangulo",
+   "categoria": "marcacao",
+   "descricao": "Retângulo à mão em volta de um trecho. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_riscado",
+   "categoria": "marcacao",
+   "descricao": "Risco atravessando uma palavra (o que não vale mais). Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_seta_baixo",
+   "categoria": "marcacao",
+   "descricao": "Seta reta apontando para baixo. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_seta_cima",
+   "categoria": "marcacao",
+   "descricao": "Seta reta apontando para cima. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_seta_curva",
+   "categoria": "marcacao",
+   "descricao": "Seta em arco, de baixo para cima. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_seta_direita",
+   "categoria": "marcacao",
+   "descricao": "Seta reta apontando para a direita. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_seta_dupla",
+   "categoria": "marcacao",
+   "descricao": "Seta de duas pontas (troca, ida e volta). Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_seta_esquerda",
+   "categoria": "marcacao",
+   "descricao": "Seta reta apontando para a esquerda. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_seta_laco",
+   "categoria": "marcacao",
+   "descricao": "Seta com um laço no meio, descontraída. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_sol",
+   "categoria": "marcacao",
+   "descricao": "Sol com raios, para clareza ou dia bom. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_sublinhado_duplo",
+   "categoria": "marcacao",
+   "descricao": "Dois sublinhados sob uma palavra-chave. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_triangulo",
+   "categoria": "marcacao",
+   "descricao": "Triângulo de alerta desenhado. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_x_marcado",
+   "categoria": "marcacao",
+   "descricao": "X à mão sobre o que está errado. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
+   "id": "traco_zigue_zague",
+   "categoria": "marcacao",
+   "descricao": "Sublinhado em zigue-zague, enfático. Traço fino de caneta, com leve tremor de mão e sombra curta.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "lapis",
+   "params": {
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "largura": "fração da largura (padrão 0.36)",
+    "altura": "fração da largura (padrão = largura)",
+    "desenho": "segundos para desenhar"
+   }
+  },
+  {
    "id": "tremor",
    "categoria": "impacto",
    "descricao": "Câmera treme e assenta (impacto, susto, revelação). Curto: 0,3 a 0,6 s.",
@@ -316,6 +3561,222 @@
    "som": "impacto-grave",
    "params": {
     "intensidade": "0 a 1 (padrão 1)"
+   }
+  },
+  {
+   "id": "triangulos_em_orbita",
+   "categoria": "particulas",
+   "descricao": "Partículas (triangulo) que giram em órbita em volta de um ponto. Motivo na fala: sistema.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": "brilho",
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1",
+    "x": "centro 0 a 1",
+    "y": "centro 0 a 1",
+    "raio": "fração da largura (padrão 0.3)"
+   }
+  },
+  {
+   "id": "triangulos_no_ar",
+   "categoria": "particulas",
+   "descricao": "Partículas (triangulo) que flutuam no ar, sem rumo. Motivo na fala: geometria, método.",
+   "fase": "elementos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "quantidade": "número de partículas",
+    "tamanho": "multiplicador (padrão 1)",
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "varredura_diagonal",
+   "categoria": "luz",
+   "descricao": "Faixa de brilho varrendo o quadro na diagonal, como reflexo em vidro. Novidade, premium.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": "vidro-shimmer",
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "varredura_h",
+   "categoria": "luz",
+   "descricao": "Faixa de brilho varrendo o quadro da esquerda para a direita, como reflexo em vidro. Novidade, premium.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": "vidro-shimmer",
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "varredura_v",
+   "categoria": "luz",
+   "descricao": "Faixa de brilho varrendo o quadro de cima para baixo, como reflexo em vidro. Novidade, premium.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": "vidro-shimmer",
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_base_dourado",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz dourada entrando de baixo, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_base_quente",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz quente entrando de baixo, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_canto_id_dourado",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz dourada entrando do canto inferior direito, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_canto_id_quente",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz quente entrando do canto inferior direito, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_canto_ie_dourado",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz dourada entrando do canto inferior esquerdo, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_canto_ie_quente",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz quente entrando do canto inferior esquerdo, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_canto_sd_dourado",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz dourada entrando do canto superior direito, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_canto_sd_quente",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz quente entrando do canto superior direito, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_canto_se_dourado",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz dourada entrando do canto superior esquerdo, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_canto_se_quente",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz quente entrando do canto superior esquerdo, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_dir_dourado",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz dourada entrando da direita, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_dir_quente",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz quente entrando da direita, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_esq_dourado",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz dourada entrando da esquerda, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_esq_quente",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz quente entrando da esquerda, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
    }
   },
   {
@@ -328,6 +3789,39 @@
    "params": {
     "intensidade": "0 a 1 (padrão 1)",
     "direcao": "esquerda|direita (padrão direita)"
+   }
+  },
+  {
+   "id": "vazamento_topo_dourado",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz dourada entrando do alto, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vazamento_topo_quente",
+   "categoria": "luz",
+   "descricao": "Vazamento de luz quente entrando do alto, respirando devagar. Clima de memória, abertura, emoção.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vela",
+   "categoria": "luz",
+   "descricao": "Luz quente que tremula como chama de vela. Intimidade, oração, noite.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
    }
   },
   {
@@ -350,6 +3844,39 @@
    "som": null,
    "params": {
     "intensidade": "0 a 1 (padrão 1)"
+   }
+  },
+  {
+   "id": "vinheta_forte",
+   "categoria": "textura",
+   "descricao": "Vinheta escura e fechada, para tensão ou confissão.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vinheta_marinho",
+   "categoria": "textura",
+   "descricao": "Vinheta na cor escura da marca, para emoldurar uma fala importante.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
+   }
+  },
+  {
+   "id": "vinheta_suave",
+   "categoria": "textura",
+   "descricao": "Vinheta leve que puxa o olhar para o centro.",
+   "fase": "pos",
+   "som_pop": false,
+   "som": null,
+   "params": {
+    "intensidade": "0 a 1"
    }
   },
   {

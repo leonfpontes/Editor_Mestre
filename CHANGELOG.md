@@ -4,6 +4,37 @@
 
 ### Novo
 
+- **Estilo D, lista de ferramentas** (referência nova da pasta Swap, `docs/estilos-de-referencia.md`):
+  - 6 transições de **estilhaços** (`motor/cacos.py`): a imagem trinca e quebra em cacos triangulares de vidro que voam
+    ou se montam, com a aresta acesa na cor da marca; `estilhacar`, `estilhacar_toque`, `estilhacar_lateral`,
+    `estilhacar_suave`, `cacos_montam`, `cacos_montam_lateral`;
+  - elemento **`celulares`**: vitrine de telas em moldura de celular, a do centro grande e as vizinhas recuadas, dentro da
+    área segura;
+  - o diretor reconhece a **lista falada** ("a primeira delas é o X… por último é o Z", 3 itens ou mais) e põe o letreiro
+    "N de total / nome" em cada item, e transforma "comenta X" na barra de comentário com a palavra;
+  - o diretor também reconhece **ranking falado** ("top 1, é X", "segundo lugar, eu gosto de Y"): letreiro "Top N / item",
+    ignorando o anúncio ("top 3 coisas que…") e valendo a primeira tomada que ficou no corte;
+  - **cena pós-crédito** (`pos_credito` no EDL): erros de gravação e bastidor depois do CTA, com letreiro de título e a
+    música continuando;
+  - câmera que **mira** fora do rosto (`mirar_x`, `mirar_y` no segmento) para mostrar o pet ou o objeto apresentado, e
+    `legenda_y` por trecho;
+  - CTA sem site: marca sem `url` mostra só a chamada e o apoio;
+  - transição com **duração própria**: `duracao_transicao` no segmento, e padrão por transição (estilhaços: 0,6 s).
+- **Bibliotecas 10x maiores** para o editor escolher com o motivo da fala:
+  - efeitos de 28 para **280** (`motor/efeitos_familias.py`): 90 traços à mão, 64 partículas, 48 de luz e textura,
+    50 formas de motion design;
+  - transições de 11 para **113** (`motor/transicoes.py`): cortinas, íris de formas, persianas, relógio, dissoluções,
+    portas, empurrar/cobrir/revelar, giros sem canto vazio, mergulhos de cor, formas da marca e cortes digitais, cada
+    uma com som padrão;
+  - looks de cor de 8 para **80** (72 grades em `GRADES`, incluindo 10 que puxam para a paleta da marca);
+  - títulos de 16 para **160**: novo tipo `letreiro` com 144 estilos (18 visuais × 8 entradas, `motor/letreiros.py`);
+  - `biblioteca listar|previa transicoes|looks|titulos`; a guarda recusa transição e letreiro desconhecidos.
+- **Diretor usa as bibliotecas ampliadas** (`motor/vocabulario.py`): palavras da fala pedem a peça certa, ancorada na
+  palavra ("ideia" → lâmpada desenhada, "pra cima" → seta, "perspectiva" → olho, "quer saber" → interrogação, "amor" →
+  corações, "festa" → confete…), até 5 por vídeo, desenhos ao lado da cabeça e longe das reações de cena. O começo da
+  fala de um trecho escolhe a transição ("antigamente" → relógio ao contrário, "vou dar um giro" → giro, "vou ampliar"
+  → zoom, "por fim" → camadas). Marca calma (`"diretor": {"calmo": true}`, GiraHub) só recebe peças serenas e
+  transições suaves; fala de fé sugere o look `espiritual` no relatório.
 - **Tour pela casa no automático** (`motor/tour.py`): no vídeo em que a câmera anda pelo ambiente, o `analisar` escreve
   até 3 capítulos por cômodo (fala de passagem, mudança de cor do ambiente, caminhada cortada; título do lugar citado)
   com transição `luz` e sopro, e até 8 rótulos editoriais presos ao ponto para onde o dedo aponta (`cena.json` ganha
@@ -13,6 +44,12 @@
 - `legendas.correcoes` padrão do GiraHub para as entidades (echu → Exu, ochum → Oxum, xalá → Oxalá, fá → Ifá).
 
 ### Corrigido
+
+- Elemento ancorado na fala do gancho movido para a abertura sumia do vídeo (a fala não se repete depois): agora entra
+  no próprio gancho.
+- Variações fracas da biblioteca: `forma_linhas_velocidade_bloco` (cunhas cheias), `forma_onda_seno_bloco` (faixa),
+  `forma_linhas_horizontais_bloco`, `forma_grade_linhas_bloco`, `forma_cantos_camera_bloco`, `forma_barras_cinema_bloco`;
+  letreiro `contorno` com traço mais grosso e sombra.
 
 - Render em vários processos com `fixar`: o cache de trilhas (`_cache/fixar.json`) agora é gravado de forma atômica
   (antes, dois processos podiam ler o arquivo pela metade).

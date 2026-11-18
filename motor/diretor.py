@@ -257,8 +257,8 @@ def elementos_sugeridos(ws, mantidas, estilo, espaco=3.0):
 
 
 # ───────────────────────────── tudo junto ─────────────────────────────
-def dirigir(palavras, video=None, estilo=None, db=None):
-    """Analisa a fala e devolve o plano do diretor:
+def dirigir(palavras, video=None, estilo=None, db=None, calmo=False):
+    """Analisa a fala e devolve o plano do diretor (calmo: marca de ritmo calmo, só peças serenas do vocabulário):
     {"cortes": [(ini, fim, motivo)], "enfase": [...], "punch": [...], "gancho": {...}, "elementos": [...]}."""
     ws = palavras
     if not ws:
@@ -305,9 +305,24 @@ def dirigir(palavras, video=None, estilo=None, db=None):
     return {"termos_broll": termos, "cortes": cortes, "enfase": [ws[i]["t"].strip(".,!?;:") for i, _ in enf],
             "punch": [{"ini": w["ini"], "fim": round(w["fim"] + 0.35, 3), "fator": 1.14, "modo": "punch", "palavra": w["t"].strip(".,!?;:")}
                       for w in punch],
-            "gancho": gancho, "elementos": elementos_sugeridos(ws, mantidas, estilo),
+            "gancho": gancho, "elementos": _com_vocabulario(ws, mantidas, estilo, calmo), "calmo": calmo,
+            "look_sugerido": _voc().look_sugerido(ws, calmo),
             "retakes": [{"ini": ws[a]["ini"], "fim": ws[b - 1]["fim"], "texto": " ".join(w["t"] for w in ws[a:b])}
                         for a, b in retakes]}
+
+
+def _voc():
+    """O vocabulário importa norm/ancora daqui, então entra só na hora do uso (sem import circular)."""
+    from . import vocabulario
+    return vocabulario
+
+
+def _com_vocabulario(ws, mantidas, estilo, calmo):
+    """Elementos das regras fixas (contador, passo, check, xis) e, longe deles, as peças da biblioteca que a fala pede."""
+    v = _voc()
+    base = elementos_sugeridos(ws, mantidas, estilo) + v.lista_falada(ws, mantidas, calmo) + v.cta_comenta(ws, mantidas)
+    ocupados = [_tempo_na(e, ws) for e in base]
+    return base + v.sugerir(ws, mantidas, calmo, ocupados)
 
 
 def aplicar_cortes(segs, cortes, respiro=0.04):
@@ -371,6 +386,7 @@ def aplicar(edl, plano, palavras, clipes_ini=(0.0,), alternar=True):
     if not edl.get("elementos"):
         edl["elementos"] = [{k: v for k, v in e.items() if not k.startswith("_")} for e in plano["elementos"]
                             if any(s["ini"] <= _tempo_na(e, palavras) < s["fim"] for s in segs)]
+    plano["transicoes_fala"] = _voc().transicoes_pela_fala(edl["segmentos"], palavras, plano.get("calmo", False))
     return edl
 
 
@@ -444,6 +460,11 @@ def resumo_diretor(plano):
         linhas.append("#   Termos para b-roll (editor.py broll \"termo\" edl.json): " + ", ".join(plano["termos_broll"]))
     if plano["elementos"]:
         linhas.append("#   Elementos sugeridos: " + ", ".join(f"{e.get('nome', e['tipo'])} em \"{e['na']}\"" for e in plano["elementos"]))
+    for x in plano.get("transicoes_fala", []):
+        linhas.append(f"#   Fala pede {x}")
+    lk = plano.get("look_sugerido") or (None, "")
+    if lk[0]:
+        linhas.append(f"#   Look sugerido para o vídeo: \"{lk[0]}\" ({lk[1]}). Para usar, ponha \"look\": \"{lk[0]}\" nos segmentos.")
     if plano.get("cena"):
         linhas.append(plano["cena"])
     return "\n".join(linhas)

@@ -29,7 +29,8 @@ def test_efeito_desenha_algo(ativa, nome):
     base = np.full((H, W, 3), 40, np.uint8)
     f = quadro(nome, t=0.6 if nome not in ("flash", "glitch", "tremor") else 0.1)
     assert f.shape == base.shape and f.dtype == np.uint8
-    if nome not in ("tremor", "glitch"):  # deslocam a imagem: num quadro liso não muda nada
+    # deslocam ou só realçam a imagem (num quadro liso não muda nada), ou já abriram (persiana)
+    if nome not in ("tremor", "glitch", "aberracao", "pixelado", "bloom", "persiana"):
         assert np.abs(f.astype(int) - base).sum() > 0, nome
 
 

@@ -119,15 +119,19 @@ editor.py biblioteca listar musicas bossa
 editor.py biblioteca baixar musicas              # ≈ 230 MB, uma vez; os arquivos ficam fora do Git
 ```
 
-### Efeitos: 29 layers
+### Efeitos, transições, looks e títulos: 10x
 
-<p align="center"><img src="docs/img/biblioteca-efeitos.jpg" alt="Galeria dos 28 efeitos na paleta do @pontes_brain" width="100%"></p>
+<p align="center"><img src="docs/img/biblioteca-efeitos.jpg" alt="Amostra dos 280 efeitos na paleta do @pontes_brain" width="100%"></p>
 
-Luz e textura (vazamento de luz, reflexo de vidro, grão, vinheta, VHS, glitch, flash, tremor, foco), celebração (confete,
-brilhos, bokeh, chuva de objetos 3D, reações de live, ondas), anotação (círculo desenhado, sublinhado, seta, marca-texto,
-check, xis), informação (contador, cartão de vidro líquido, notificação, barra carregando, checklist, moldura REC) e
-tipografia cinética. Todos são determinísticos, aceitam só papéis da paleta como cor e entram ancorados na fala, como qualquer
-elemento do EDL.
+- **280 efeitos**: os 28 desenhados um a um (luz, celebração, anotação, informação, tipografia cinética) e 252 em
+  famílias: 90 traços à mão, 64 partículas, 48 de luz e textura, 50 formas de motion design.
+- **119 transições**: cortinas, íris de formas, persianas, relógio, dissoluções, portas, giros sem canto vazio, mergulhos
+  de cor, formas da marca e cortes digitais, cada uma com seu som.
+- **80 looks de cor**: cinema, natural, clima, preto e branco, fotografia, nichos e 10 grades na paleta da marca.
+- **160 títulos**: os 16 tipos de motion e 144 letreiros (18 visuais × 8 entradas).
+
+Todos são determinísticos, aceitam só papéis da paleta como cor e entram ancorados na fala, como qualquer elemento do EDL.
+`editor.py biblioteca listar|previa efeitos|transicoes|looks|titulos` mostra cada um.
 
 ```jsonc
 {"tipo": "efeito", "nome": "confete", "na": "deu certo", "cor": "champanhe"}

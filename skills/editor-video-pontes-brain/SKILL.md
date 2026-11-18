@@ -26,7 +26,7 @@ Tudo roda nesta pasta, com `.venv/bin/python editor.py`. Se `.venv` não existir
 | `editor.py linha-do-tempo <pasta>/edl.json` | Página `linha_do_tempo.html` com o vídeo e as trilhas do EDL (cortes, elementos, zooms, legenda, sons, avisos). |
 | `editor.py exportar <pasta>/edl.json [--quando 2026-11-20T19:00:00-03:00]` | Entrega: `legenda.srt`, `capa.jpg`, `post.txt` (rascunho), `reel.mp4` (até 20 MB) e a entrada da agenda do insta_report. |
 | `editor.py conferir <pasta>/final.mp4 --marca pontes_brain` | Lê o selo de marca gravado no vídeo. Só entregue se disser "confere". |
-| `editor.py biblioteca listar 3d\|efeitos\|sons [termo] --marca pontes_brain` | Busca na biblioteca 3D (215 objetos), de efeitos (29 layers) e de sons (38 efeitos sonoros). `--json` para filtrar. |
+| `editor.py biblioteca listar 3d\|efeitos\|sons [termo] --marca pontes_brain` | Busca na biblioteca 3D (215 objetos), de efeitos (280 layers) e de sons (38 efeitos sonoros). `--json` para filtrar. |
 | `editor.py testar` | Teste de regressão de todas as marcas (visual + isolamento + render de 4 s + áudio). Rode depois de qualquer mudança no código; precisa terminar em `TUDO OK`. |
 
 Você pode e deve **ler `previa.jpg`** (é uma imagem) e extrair quadros específicos para conferir: `ffmpeg -ss <seg> -i final.mp4 -frames:v 1 q.jpg`.
@@ -48,7 +48,7 @@ Todos os tempos estão na linha do tempo do vídeo **original** (os mesmos da `t
   "segmentos": [                       // trechos que FICAM, em ordem. Apague os que saem.
     {"id": 3, "ini": 16.84, "fim": 20.78,
      "zoom": 1.0,                      // enquadramento base: deixe 1.0 (no máx. 1.08); muda devagar entre cortes
-     "transicao": null}                // entrada: null (corte seco) | "push" | "whip" | "zoom" | "slide" | "flash" | "giro" | "rasgo" | "vidro" | "luz"
+     "transicao": null}                // entrada: null (corte seco) | "push" | "whip" | "zoom" | "slide" | "flash" | "giro" | "rasgo" | "vidro" | "luz" | … (113)
   ],
   "zooms": [                           // ênfases dentro de um trecho
     {"ini": 13.6, "fim": 14.4, "fator": 1.2, "modo": "punch"},   // punch = tranco curto numa palavra, volta antes do corte
@@ -90,6 +90,12 @@ Poses do Leo em `marcas/pontes_brain/leo/`: `apontando`, `joinha`, `pensando`, `
 Opcionais: `x`/`y` (0 a 1) e `altura` (fração da tela) em qualquer elemento. As animações já vêm prontas: título abre em wipe com palavras subindo e leve giro 3D; destaque cresce do centro com mola; Leo entra deslizando com giro, flutua e sai; legenda surge palavra a palavra com a marcação champanhe deslizando; zoom `punch` dá um tranco curto; o fundo `marca` tem luz ambiente difusa e um ponto percorrendo o ciclo PDCA. Cada elemento ganha um som discreto na entrada (`"sfx_elementos": false` em `audio` desliga).
 
 **Estilos de edição** (`editor.py estilos`; guia em `docs/estilos-de-referencia.md`, campos em `docs/edl.md`): `"estilo": "tutorial_passos"` (rosto, tela dividida e só motion em corte seco, legenda limpa de 2 palavras, `passo`, `janela`, `arvore`, `mapa`, `comentario`), `"tela_perspectiva"` (gravação de tela num plano 3D com câmera e profundidade de campo: `broll` com `perspectiva`) e `"vitrine"` (um `look` por frase, `texto_atras`, `hud_rosto`, `som` com `rotulo`, `neon`). Em cada segmento: `"plano"` (`rosto`, `dividido`, `motion`) e `"look"` (`pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo`). `analisar --estilo <estilo>` já corta as pausas no ritmo do estilo. O estilo nunca troca a identidade: cores e fontes de texto continuam as da marca.
+
+**Bibliotecas ampliadas** (10x): 280 efeitos (`editor.py biblioteca listar efeitos --categoria marcacao|particulas|luz|textura|formas`), 119 transições (`listar transicoes`), 80 looks (`listar looks`) e 160 títulos, com o tipo `letreiro` (`{"tipo": "letreiro", "estilo": "<visual>_<entrada>", "texto": "linha/linha", "na": …}`, `listar titulos`). `editor.py biblioteca previa transicoes|looks|titulos|efeitos --marca <marca>` mostra a folha. Escolha pelo motivo na fala, como sempre: a descrição de cada item diz quando usar. Nesta marca: letreiros `tarja_destaque`, `marca_texto`, `tecnico`, `colchetes` com `palavra` ou `digita`; transições com identidade (`forma_*_dourada`, `camadas_*`, `cortina_faixa_*`) nas viradas de bloco; formas de motion (`forma_barra_progresso_*`, `forma_mira_*`, `forma_setas_convergindo_*`) e traços à mão (`traco_*`, `marcador_*`) para apontar a ideia; looks `marca_split`, `tecnologia`, `natural`.
+
+O `analisar` já põe no rascunho algumas dessas peças pela fala (vocabulário do diretor, `motor/vocabulario.py`: linha `vocabulário:` no relatório e `Fala pede transição …`). Confira cada uma como confere as outras: mantenha a que tem motivo, troque ou tire a que não serve.
+
+**Estilo D, lista de ferramentas** (`docs/estilos-de-referencia.md`): estilhaços (`estilhacar*`, `cacos_montam*`, 0,6 s), vitrine `{"tipo": "celulares", "arquivos": [...], "na": …, "ate": …}` e transição com `duracao_transicao` no segmento. O `analisar` numera a lista falada ("a primeira… por último") e o ranking ("top 1", "segundo lugar"), e faz a barra de comentário em "comenta X". Tomadas repetidas e falas para o editor ("volta", "corta", "esse não serve") saem do corte; se ele pedir, vão para a cena pós-crédito (`pos_credito`). Para mostrar um pet ou objeto, `mirar_x`/`mirar_y` no trecho (com `legenda_y` se a legenda cobrir). Nesta marca, `estilhacar_lateral` e `cacos_montam_lateral` combinam com lista de ferramentas e passos.
 
 **Diretor, prévia, conferência e entrega** (guia em `docs/diretor-e-entrega.md`):
 

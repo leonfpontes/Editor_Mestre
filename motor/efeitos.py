@@ -969,3 +969,6 @@ def quadro_exemplo(nome, W, H, t, fundo, dur=2.0):
     f = fundo.quadro(t)
     ef.desenhar(f, t, dur - t)
     return f
+
+
+from . import efeitos_familias  # noqa: E402,F401  (famílias de efeitos: traços, partículas, luz, formas)
