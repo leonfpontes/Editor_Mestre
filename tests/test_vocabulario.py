@@ -65,6 +65,20 @@ def test_lista_falada_numera_os_itens():
     assert not lista_falada(fala("o primeiro passo é a ideia . o segundo passo é o teste . o terceiro passo é ir"), range(18))
 
 
+def test_lista_falada_em_ranking():
+    from motor.vocabulario import lista_falada
+    ws = fala("vou fazer um top 3 coisas que eu gosto . sendo o top 1, é cuidar das minhas plantas, adoro . top 2, eu gosto de "
+              "assistir televisão em, volta . segundo lugar, eu gosto muito de assistir série, televisão . e top 3, eu gosto "
+              "muito de cozinhar, pronto")
+    els = lista_falada(ws, range(len(ws)))
+    assert [e["texto"] for e in els] == ["Top 1/Cuidar das minhas plantas", "Top 2/Assistir televisão", "Top 3/Cozinhar"]
+    i_volta = next(i for i, w in enumerate(ws) if w["t"].startswith("volta"))
+    i_ruim = next(i for i, w in enumerate(ws) if w["t"] == "2,") - 1
+    sem_tomada_ruim = [i for i in range(len(ws)) if not (i_ruim <= i <= i_volta)]  # a tomada repetida saiu do corte
+    assert [e["texto"] for e in lista_falada(ws, sem_tomada_ruim)][1] == "Top 2/Assistir série"
+    assert not lista_falada(fala("o top 3 coisas que eu gosto de fazer"), range(8))  # anúncio não é item
+
+
 def test_cta_comenta():
     from motor.vocabulario import cta_comenta
     ws = fala("se quiser a lista comenta SKILL aqui embaixo")

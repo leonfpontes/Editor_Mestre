@@ -207,7 +207,7 @@ alta ("a primeira delas é o X… a segunda é o Y… por último é o Z"), um c
 ]
 ```
 
-O `analisar` já faz parte sozinho: a **lista falada** vira um letreiro "N de total / nome" em cada item (com 3 itens ou
+O `analisar` já faz parte sozinho: a **lista falada** (ou o ranking "top 1… segundo lugar…", que vira "Top N / item") vira um letreiro "N de total / nome" em cada item (com 3 itens ou
 mais; "por último" leva o número final) e "comenta X" vira a barra de comentário com a palavra. Os estilhaços e a vitrine
 ficam para o editor escolher pelo motivo na fala.
 

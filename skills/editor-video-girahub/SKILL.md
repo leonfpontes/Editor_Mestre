@@ -64,7 +64,7 @@ Fonte: `/mnt/project-files/girahub-instagram/conhecimento/identidade-visual.md` 
 
 O `analisar` já põe no rascunho algumas dessas peças pela fala (vocabulário do diretor, `motor/vocabulario.py`: linha `vocabulário:` no relatório e `Fala pede transição …`). Confira cada uma como confere as outras: mantenha a que tem motivo, troque ou tire a que não serve.
 
-**Estilo D, lista de ferramentas** (`docs/estilos-de-referencia.md`): estilhaços (`estilhacar*`, `cacos_montam*`, 0,6 s), vitrine `{"tipo": "celulares", "arquivos": [...], "na": …, "ate": …}` e transição com `duracao_transicao` no segmento. O `analisar` numera a lista falada ("a primeira… por último") e faz a barra de comentário em "comenta X". Nesta marca os estilhaços só em `estilhacar_suave` ou `cacos_montam`, nunca em fala de fé.
+**Estilo D, lista de ferramentas** (`docs/estilos-de-referencia.md`): estilhaços (`estilhacar*`, `cacos_montam*`, 0,6 s), vitrine `{"tipo": "celulares", "arquivos": [...], "na": …, "ate": …}` e transição com `duracao_transicao` no segmento. O `analisar` numera a lista falada ("a primeira… por último") e o ranking ("top 1", "segundo lugar"), e faz a barra de comentário em "comenta X". Tomadas repetidas e falas para o editor ("volta", "corta", "esse não serve") saem do corte; se ele pedir, vão para a cena pós-crédito (`pos_credito`). Para mostrar um pet ou objeto, `mirar_x`/`mirar_y` no trecho (com `legenda_y` se a legenda cobrir). Nesta marca os estilhaços só em `estilhacar_suave` ou `cacos_montam`, nunca em fala de fé.
 
 **Diretor, prévia, conferência e entrega** (guia em `docs/diretor-e-entrega.md`):
 

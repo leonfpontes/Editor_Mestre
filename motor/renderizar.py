@@ -238,7 +238,7 @@ class Contexto:
         self.dur_fala = o
         self.cta = cta = padrao(edl, "cta", {})
         if cta.get("ativo") and not cta.get("chamada"):
-            sys.exit("CTA ligado sem 'chamada' (e 'url'): preencha o cta no edl.json ou desligue com \"ativo\": false")
+            sys.exit("CTA ligado sem 'chamada': preencha o cta no edl.json ou desligue com \"ativo\": false")
         self.dur_cta = cta.get("duracao", 3.5) if cta.get("ativo") else 0
         intro = padrao(edl, "intro", {"ativo": True})
         self.dur_intro = round(intro.get("duracao", 2.2) * FPS) / FPS if intro.get("ativo", True) else 0.0
@@ -299,6 +299,12 @@ class Contexto:
                 return s["o"] + t - s["qa"]
         depois = [s for s in normais if s["qa"] > t]
         return min(depois, key=lambda s: s["qa"])["o"] if depois else self.dur_fala
+
+    def mira(self, s, t):
+        """Para onde a câmera olha: o rosto, ou o ponto do trecho com "mirar_x"/"mirar_y" (fração da fonte), para
+        mostrar o que ele apresenta (o pet no sofá, o objeto na mesa). A câmera desliza até lá e volta suave."""
+        fx, fy, fh = self.rosto.em(t)
+        return (s.get("mirar_x", fx), s.get("mirar_y", fy), fh)
 
     def n_transicao(self, s, tipo):
         """Quadros da transição na entrada do segmento: a do segmento ("duracao_transicao"), a do EDL inteiro ou a padrão
@@ -386,7 +392,7 @@ class Trecho:
         """Quadro-base (antes de transição, elementos e legenda) do quadro fi da fonte."""
         c, els, W, H = self.c, self.c.els, self.c.W, self.c.H
         t_src = fi / FPS
-        zb, face = self.camera.passo(s.get("zoom", 1.0), c.rosto.em(t_src))
+        zb, face = self.camera.passo(s.get("zoom", 1.0), c.mira(s, t_src))
         respira = 1 + 0.02 * math.sin((t_out + c.dur_intro) * 0.3)  # aproximação lenta e contínua
         zf, tremor = zoom_em(t_src, c.zooms, s["qb"])
         z = zb * respira * zf
@@ -467,7 +473,8 @@ class Trecho:
             if bi is not None:
                 img = c.leg.render(bi, t_src)
                 pl = els.plano
-                y = H * legenda_y(pl, c.leg.cfg.get("posicao_y", 0.68), c.leg.cfg)
+                sg = next((g for g in c.segs if "legenda_y" in g and g["qa"] <= t_src < g["qb"]), None)  # trecho que pede outra altura
+                y = H * legenda_y(pl, sg["legenda_y"] if sg else c.leg.cfg.get("posicao_y", 0.68), c.leg.cfg)
                 x, y = W / 2 - img.shape[1] / 2, y if pl == "rosto" else y - img.shape[0] / 2
                 if conferir:
                     m = (img[..., 3] > 60).nonzero() if img.shape[2] == 4 else None
@@ -508,7 +515,7 @@ class Trecho:
             n_out = c.quadros_antes(j)
             for k, fi in enumerate(range(s["ia"], s["ib"])):
                 if k < s["n"] - cheios:
-                    self.camera.passo(s.get("zoom", 1.0), c.rosto.em(fi / FPS))
+                    self.camera.passo(s.get("zoom", 1.0), c.mira(s, fi / FPS))
                     continue
                 f = self.ler(fi)
                 if f is None:
@@ -559,7 +566,7 @@ class Trecho:
             n_tr = c.n_transicao(s, tipo_tr)
             for k, fi in enumerate(range(s["ia"], s["ib"])):
                 if not quer(n_out) and k != s["n"] - 1:  # prévia: fora da janela só a câmera anda
-                    self.camera.passo(s.get("zoom", 1.0), c.rosto.em(fi / FPS))
+                    self.camera.passo(s.get("zoom", 1.0), c.mira(s, fi / FPS))
                     n_out += 1
                     continue
                 f = self.ler(fi)
@@ -785,6 +792,46 @@ def gancho_antes_da_vinheta(ctx, tmp_v, tmp_a, pasta):
     return v2, a2
 
 
+def anexar_pos_credito(edl_p, ctx, final, a):
+    """Cena pós-crédito: trechos (erros de gravação, bastidor) que entram DEPOIS do CTA, com um letreiro de abertura.
+    Vira um EDL à parte na mesma pasta (sem vinheta, sem CTA, sem gancho), renderizado pelo mesmo motor e emendado no
+    fim do final.mp4. Devolve a duração acrescentada."""
+    edl = ctx.edl
+    pos = edl["pos_credito"]
+    segs = [{k: v for k, v in s.items() if k != "gancho"} for s in pos["segmentos"]]
+    els = list(pos.get("elementos", []))
+    titulo = pos.get("titulo", "Erros de gravação")
+    if titulo:
+        els.insert(0, {"tipo": "letreiro", "estilo": pos.get("estilo_titulo", "tarja_destaque_desliza"), "texto": titulo,
+                       "ini": segs[0]["ini"], "fim": segs[0]["ini"] + 2.2, "y": 0.14})
+    sub = {k: v for k, v in edl.items() if k not in ("pos_credito", "elementos", "zooms", "saida", "segmentos")}
+    mus = dict(padrao(edl, "musica", {}) or {})
+    if mus:
+        mus["ini"] = mus.get("ini", 0) + ctx.total  # a trilha continua de onde parou
+        mus["fade_in"] = 0.3
+    sub.update(segmentos=segs, elementos=els, zooms=pos.get("zooms", []), intro={"ativo": False}, cta={"ativo": False},
+               musica=mus, saida="_pos_credito.mp4")
+    sub_p = ctx.pasta / "_pos_credito.json"
+    json.dump(sub, open(sub_p, "w"), ensure_ascii=False, indent=1)
+    import argparse
+    b = argparse.Namespace(**{**vars(a), "edl": str(sub_p), "previa": False, "so_audio": False, "_pos": True})
+    cmd_renderizar(b)
+    parte = ctx.pasta / "_pos_credito.mp4"
+    junto = ctx.pasta / "_com_pos.mp4"
+    fecho = 0.25  # corte para preto curto entre o CTA e o pós-crédito
+    sh(["ffmpeg", "-y", "-i", str(final), "-i", str(parte), "-filter_complex",
+        f"[1:v]fade=t=in:d={fecho}[v1];[0:v][0:a][v1][1:a]concat=n=2:v=1:a=1[v][a]", "-map", "[v]", "-map", "[a]",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "16", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
+        "-metadata", f"comment=marca={CFG['id']}; editor=edicao-video {__version__}", "-metadata", f"artist={CFG['nome']}",
+        "-movflags", "+faststart", str(junto)])
+    dur = float(sh(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(parte)]))
+    shutil.move(junto, final)
+    for p in (parte, sub_p):
+        p.unlink()
+    print(f"  cena pós-crédito: +{dur:.1f}s ({len(segs)} trechos)")
+    return dur
+
+
 def cmd_renderizar(a):
     edl_p = Path(a.edl).resolve()
     if getattr(a, "previa", False):
@@ -807,6 +854,8 @@ def cmd_renderizar(a):
     sh(["ffmpeg", "-y", "-i", str(tmp_v), "-i", str(tmp_a), "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
         "-metadata", f"comment=marca={CFG['id']}; editor=edicao-video {__version__}", "-metadata", f"artist={CFG['nome']}",
         "-shortest", "-movflags", "+faststart", str(final)])
+    if (edl.get("pos_credito") or {}).get("segmentos") and not getattr(a, "_pos", False):
+        total += anexar_pos_credito(edl_p, ctx, final, a)
     passo = max(total / 12, 0.1)
     sh(["ffmpeg", "-y", "-i", str(final), "-vf", f"fps=1/{passo:.3f},scale=270:-2,tile=6x2:padding=6:color=white",
         "-frames:v", "1", str(pasta / "previa.jpg")])

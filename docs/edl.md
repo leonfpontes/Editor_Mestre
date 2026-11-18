@@ -43,6 +43,8 @@ Trechos que **ficam**, na ordem em que aparecem no vídeo. Apague os que saem.
 | `salto` | `true` troca o `zoom` no corte, sem deslizar (jump cut com mudança de enquadramento; o diretor marca sozinho) |
 | `plano` | `rosto` (padrão) · `dividido` (palco de motion em cima, rosto embaixo) · `motion` (só o palco; a voz continua) |
 | `corte_y` | No `dividido`, o centro da faixa de rosto mostrada (fração da altura; padrão 0.36) |
+| `mirar_x`, `mirar_y` | A câmera sai do rosto e olha para este ponto da fonte (fração da largura e da altura), deslizando até lá e voltando suave no trecho seguinte. Para mostrar o que ele apresenta: o pet no sofá, o objeto na mesa. Com `zoom` acima de 1 fecha no ponto |
+| `legenda_y` | Altura da legenda só neste trecho (fração da altura), quando a legenda padrão cobriria o que a câmera mostra |
 | `look` | Cor do trecho: `pb`, `pb_acento`, `duotom`, `quente`, `frio`, `limpo`, `noite`, `adesivo` ou uma das 72 grades (`teal_laranja`, `hora_dourada`, `marca_split`, `espiritual`…; `editor.py biblioteca listar looks`) |
 | `texto` | A fala do trecho (referência para o agente) |
 
@@ -238,6 +240,7 @@ problemas de uma vez, com o caminho do campo (`elementos[3].texto contém "girah
 | Campo | Valores |
 |---|---|
 | `capa` | `{"texto": "…", "t": 4.2, "y": 0.16}`: título e instante (s do vídeo final) da capa gerada por `exportar` |
+| `pos_credito` | `{"titulo": "Erros de gravação", "segmentos": [...], "elementos": [...]}`: cena pós-crédito depois do CTA (erros de gravação, bastidor). Os trechos entram com o letreiro do título, sem vinheta e sem CTA, com a mesma música continuando, e são emendados no fim do `final.mp4` |
 | `cache_recorte` | `false` desliga o cache do recorte da pessoa (`_cache/` na pasta do EDL) |
 
 Caminhos de arquivo no EDL (`arquivo`, `imagem`, `fonte`, `lut`) são relativos à pasta do próprio `edl.json`. O diretor,

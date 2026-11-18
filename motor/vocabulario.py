@@ -139,6 +139,47 @@ _FIM_DO_NOME = {"ele", "ela", "eles", "elas", "que", "e", "sao", "vai", "faz", "
 LETREIRO_LISTA = {False: "tarja_destaque_desliza", True: "serifa_surge"}  # marca normal, marca calma
 
 
+_NUMEROS = {"1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "um": 1, "dois": 2, "tres": 3,
+            "quatro": 4, "cinco": 5}
+_ANTES_DO_ITEM = {"e", "eu", "gosto", "muito", "mais", "de", "do", "da", "sendo", "o", "a", "que", "fica", "com", "vai", "pra",
+                  "para"}
+
+
+def _ranking_falado(ws, toks, mant):
+    """Ranking dito como "top 1, é X", "segundo lugar, eu gosto de Y": (índice, número, nome). O marcador precisa fechar
+    com vírgula (ou "é"), para não confundir com o anúncio ("top 3 coisas que…"). Tomada repetida: vale a primeira mantida."""
+    achados = {}
+    for i, t in enumerate(toks):
+        if i not in mant:
+            continue
+        if t == "top" and i + 1 < len(toks) and toks[i + 1] in _NUMEROS:
+            n, fim = _NUMEROS[toks[i + 1]], i + 1
+        elif t in ORDINAIS_LISTA and ORDINAIS_LISTA[t] and i + 1 < len(toks) and toks[i + 1] == "lugar":
+            n, fim = ORDINAIS_LISTA[t], i + 1
+        else:
+            continue
+        if n in achados or fim not in mant:
+            continue
+        if ws[fim]["t"][-1:] not in ",.:;!" and not (fim + 1 < len(toks) and toks[fim + 1] == "e"):
+            continue
+        j = fim + 1
+        while j < len(toks) and toks[j] in _ANTES_DO_ITEM and j in mant:
+            j += 1
+        nome = []
+        while j < len(toks) and j in mant and len(nome) < 4 and toks[j] not in _FIM_DO_NOME:
+            bruto = ws[j]["t"]
+            nome.append(bruto.strip(".,!?;:\"'"))
+            j += 1
+            if bruto[-1:] in ".,!?;:":
+                break
+        while nome and sem_acento(nome[-1].lower()) in ("o", "a", "com", "de", "do", "da", "e", "das", "dos", "em", "no", "na"):
+            nome.pop()
+        if nome:
+            nome[0] = nome[0][:1].upper() + nome[0][1:]
+        achados[n] = (i, n, " ".join(nome) if nome else "")
+    return sorted(achados.values())
+
+
 def lista_falada(ws, mantidas, calmo=False):
     """Itens de uma lista dita em voz alta ("a primeira delas é o X", "o segundo é o Y", "o último é o Z"): um letreiro
     "1 de 5 / X" em cada item. Só vale com 3 itens ou mais; "primeiro passo" e afins ficam com as regras do diretor."""
@@ -169,6 +210,9 @@ def lista_falada(ws, mantidas, calmo=False):
             nome.pop()  # não termina em artigo ou preposição
         if nome:
             itens.append((i, ORDINAIS_LISTA[t], " ".join(nome)))
+    ranking = False
+    if len(itens) < 3:
+        itens, ranking = _ranking_falado(ws, toks, mant), True
     if len(itens) < 3:
         return []
     maior = max(n for _, n, _ in itens)
@@ -178,7 +222,8 @@ def lista_falada(ws, mantidas, calmo=False):
     for i, n, nome in itens:
         num = n or total
         na, oc = ancora(ws, i - 1, 2)
-        e = {"tipo": "letreiro", "estilo": LETREIRO_LISTA[calmo], "texto": f"{num} de {total}/{nome}", "na": na,
+        rotulo = f"Top {num}" if ranking else f"{num} de {total}"
+        e = {"tipo": "letreiro", "estilo": LETREIRO_LISTA[calmo], "texto": f"{rotulo}/{nome}", "na": na,
              "segura": 2.4, "y": 0.14, "_motivo": f"lista falada: item {num} de {total}"}
         if oc > 1:
             e["ocorrencia"] = oc

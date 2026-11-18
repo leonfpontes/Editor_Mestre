@@ -12,6 +12,13 @@
     área segura;
   - o diretor reconhece a **lista falada** ("a primeira delas é o X… por último é o Z", 3 itens ou mais) e põe o letreiro
     "N de total / nome" em cada item, e transforma "comenta X" na barra de comentário com a palavra;
+  - o diretor também reconhece **ranking falado** ("top 1, é X", "segundo lugar, eu gosto de Y"): letreiro "Top N / item",
+    ignorando o anúncio ("top 3 coisas que…") e valendo a primeira tomada que ficou no corte;
+  - **cena pós-crédito** (`pos_credito` no EDL): erros de gravação e bastidor depois do CTA, com letreiro de título e a
+    música continuando;
+  - câmera que **mira** fora do rosto (`mirar_x`, `mirar_y` no segmento) para mostrar o pet ou o objeto apresentado, e
+    `legenda_y` por trecho;
+  - CTA sem site: marca sem `url` mostra só a chamada e o apoio;
   - transição com **duração própria**: `duracao_transicao` no segmento, e padrão por transição (estilhaços: 0,6 s).
 - **Bibliotecas 10x maiores** para o editor escolher com o motivo da fala:
   - efeitos de 28 para **280** (`motor/efeitos_familias.py`): 90 traços à mão, 64 partículas, 48 de luz e textura,

@@ -219,7 +219,7 @@ def cartao_cta(cfg, W, H, t, fundo, cache):
     if "logo" not in cache:
         cache["logo"] = pil2np(logo_marca(int(W * CFG.get("cta_logo_alt", 0.16)))) if tem_logo() else None
         cache["cham"] = Cartao(cfg["chamada"], W * 0.86, "titulo", 78)
-        cache["url"] = Cartao(cfg["url"], W * 0.92, "destaque", 50)
+        cache["url"] = Cartao(cfg["url"], W * 0.92, "destaque", 50) if cfg.get("url") else None  # marca sem site: só a chamada
         cache["apoio"] = None
         if cfg.get("apoio"):
             fa = fonte("Bold", 40)
@@ -236,14 +236,17 @@ def cartao_cta(cfg, W, H, t, fundo, cache):
     longe = 99
     c = cache["cham"].render(t - 0.25, longe)
     blend(f, c, W / 2 - c.shape[1] / 2, H * 0.31)
-    u = cache["url"].render(t - 0.75, longe)
-    pulso = 1 + 0.025 * math.sin((t - 1.4) * 6) if t > 1.4 else 1
-    u = transformar(u, pulso)
-    blend(f, u, W / 2 - u.shape[1] / 2, H * 0.47)
+    alt_u = 0
+    if cache["url"] is not None:
+        u = cache["url"].render(t - 0.75, longe)
+        pulso = 1 + 0.025 * math.sin((t - 1.4) * 6) if t > 1.4 else 1
+        u = transformar(u, pulso)
+        blend(f, u, W / 2 - u.shape[1] / 2, H * 0.47)
+        alt_u = u.shape[0] + 24
     if cache["apoio"] is not None:
         pa = ease_out((t - 1.0) / 0.4)
         ap = cache["apoio"]
-        blend(f, ap, W / 2 - ap.shape[1] / 2, H * 0.47 + u.shape[0] + 24 + (1 - pa) * 20, pa)
+        blend(f, ap, W / 2 - ap.shape[1] / 2, H * 0.47 + alt_u + (1 - pa) * 20, pa)
     if cache["leo"] and t > 0.5:
         leo = cache["leo"]
         dt = t - 0.5

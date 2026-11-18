@@ -95,7 +95,7 @@ Opcionais: `x`/`y` (0 a 1) e `altura` (fração da tela) em qualquer elemento. A
 
 O `analisar` já põe no rascunho algumas dessas peças pela fala (vocabulário do diretor, `motor/vocabulario.py`: linha `vocabulário:` no relatório e `Fala pede transição …`). Confira cada uma como confere as outras: mantenha a que tem motivo, troque ou tire a que não serve.
 
-**Estilo D, lista de ferramentas** (`docs/estilos-de-referencia.md`): estilhaços (`estilhacar*`, `cacos_montam*`, 0,6 s), vitrine `{"tipo": "celulares", "arquivos": [...], "na": …, "ate": …}` e transição com `duracao_transicao` no segmento. O `analisar` numera a lista falada ("a primeira… por último") e faz a barra de comentário em "comenta X". Nesta marca, `estilhacar_lateral` e `cacos_montam_lateral` combinam com lista de ferramentas e passos.
+**Estilo D, lista de ferramentas** (`docs/estilos-de-referencia.md`): estilhaços (`estilhacar*`, `cacos_montam*`, 0,6 s), vitrine `{"tipo": "celulares", "arquivos": [...], "na": …, "ate": …}` e transição com `duracao_transicao` no segmento. O `analisar` numera a lista falada ("a primeira… por último") e o ranking ("top 1", "segundo lugar"), e faz a barra de comentário em "comenta X". Tomadas repetidas e falas para o editor ("volta", "corta", "esse não serve") saem do corte; se ele pedir, vão para a cena pós-crédito (`pos_credito`). Para mostrar um pet ou objeto, `mirar_x`/`mirar_y` no trecho (com `legenda_y` se a legenda cobrir). Nesta marca, `estilhacar_lateral` e `cacos_montam_lateral` combinam com lista de ferramentas e passos.
 
 **Diretor, prévia, conferência e entrega** (guia em `docs/diretor-e-entrega.md`):
 
